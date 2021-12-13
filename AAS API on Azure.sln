@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS API Models", "src\aas-a
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Repository", "src\aas-repository\AAS Repository.csproj", "{71AD2742-04E6-4C8C-8D94-C061DEE9D5A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AAS Repository Tests", "src\aas-repository-tests\AAS Repository Tests.csproj", "{2295DDEC-6AD9-41A5-82A9-FA72BFBC98E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Repository Tests", "src\aas-repository-tests\AAS Repository Tests.csproj", "{2295DDEC-6AD9-41A5-82A9-FA72BFBC98E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS WebApp full", "src\aas-api-webapp-full\AAS WebApp full.csproj", "{5E55C6F8-30F0-46BC-8637-D5B397E04D6B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{2295DDEC-6AD9-41A5-82A9-FA72BFBC98E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2295DDEC-6AD9-41A5-82A9-FA72BFBC98E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2295DDEC-6AD9-41A5-82A9-FA72BFBC98E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E55C6F8-30F0-46BC-8637-D5B397E04D6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E55C6F8-30F0-46BC-8637-D5B397E04D6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E55C6F8-30F0-46BC-8637-D5B397E04D6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E55C6F8-30F0-46BC-8637-D5B397E04D6B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
