@@ -12,6 +12,8 @@ namespace AAS.API.Repository
     {
         private DigitalTwinsClient dtClient;
 
+        private ADTAASModelFactory modelFactory = new ADTAASModelFactory();
+
         public ADTAASRepository(DigitalTwinsClient client)
         {
             dtClient = client;
@@ -19,39 +21,107 @@ namespace AAS.API.Repository
 
         public async Task<List<AssetAdministrationShell>> GetAllAdministrationShells()
         {
+            return await ReadAASFromQuery(GetStdAASQueryString());
+        }
+
+        public async Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShellsByIdShort(string withIdShort)
+        {
+            string query = GetStdAASQueryString() + $" AND idShort = '{withIdShort}'";
+
+            return await ReadAASFromQuery(query);
+        }
+
+        public async Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShellsByAssetId(List<IdentifierKeyValuePair> assetIds)
+        {
             List<AssetAdministrationShell> result = new List<AssetAdministrationShell>();
 
-            string query = $"SELECT * FROM digitaltwins WHERE IS_OF_MODEL('{ADTConstants.AAS_MODEL_NAME}')";
-
-            try
+            foreach (IdentifierKeyValuePair identifier in assetIds)
             {
-                AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(query);
-                await foreach (BasicDigitalTwin twin in twins)
+                if (identifier.Key != null && identifier.Value != null)
                 {
-                    result.Add(this.CreateAASFromBasicDigitalTwin(twin));
+                    List<string> idDTIds = await ReadIdentifers(identifier.Key, identifier.Value);
+                    foreach (string idDTId in idDTIds)
+                    {
+                        result.AddRange(await ReadAllAASwithIdentifierKeyValuePairInstance(idDTId));
+                    }
                 }
-            } catch (RequestFailedException exc)
-            {
-                //log.LogError($"*** Error in retrieving parent:{exc.Status}/{exc.Message}");
-                throw new AASRepositoryException($"*** Error in retrieving parent:{exc.Status}/{exc.Message}");
             }
 
             return result;
         }
 
-        public AssetAdministrationShell CreateAASFromBasicDigitalTwin(BasicDigitalTwin twin)
+        private async Task<List<AssetAdministrationShell>> ReadAASFromQuery(string queryString)
         {
-            AssetAdministrationShell aShell = new AssetAdministrationShell();
-            if (twin.Contents.ContainsKey("idShort"))
+            List<AssetAdministrationShell> result = new List<AssetAdministrationShell>();
+
+            try
             {
-                aShell.IdShort = twin.Contents["idShort"].ToString();
+                AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+                await foreach (BasicDigitalTwin twin in twins)
+                {
+                    result.Add(modelFactory.CreateAASFromBasicDigitalTwin(twin));
+                }
             }
-            else
+            catch (RequestFailedException exc)
             {
-                aShell.IdShort = $"AAS with ADT id '{twin.Id}' has no entry for idShort";
+                //log.LogError($"*** Error in retrieving parent:{exc.Status}/{exc.Message}");
+                throw new AASRepositoryException($"*** Error in retrieving AAS:{exc.Status}/{exc.Message}");
             }
 
-            return aShell;
+            return result;
         }
+
+        private async Task<List<AssetAdministrationShell>> ReadAllAASwithIdentifierKeyValuePairInstance(string dtId)
+        {
+            List<AssetAdministrationShell> result = new List<AssetAdministrationShell>();
+
+            string queryString = $"SELECT AAS FROM digitaltwins AAS JOIN AASInfo RELATED AAS.assetInformation JOIN AASID RELATED AASInfo.specificAssetId WHERE AASID.$dtId = '{dtId}'";
+
+            try
+            {
+                AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+                await foreach (BasicDigitalTwin twin in twins)
+                {
+                    result.Add(modelFactory.CreateAASFromJsonElement((System.Text.Json.JsonElement)twin.Contents["AAS"]));
+                }
+            }
+            catch (RequestFailedException exc)
+            {
+                //log.LogError($"*** Error in retrieving parent:{exc.Status}/{exc.Message}");
+                throw new AASRepositoryException($"*** Error in retrieving AAS:{exc.Status}/{exc.Message}");
+            }
+
+            return result;
+        }
+
+        private async Task<List<string>> ReadIdentifers(string key, string value)
+        {
+            List<string> result = new List<string>();
+
+            string queryString = $"SELECT * FROM digitaltwins WHERE IS_OF_MODEL('dtmi:digitaltwins:aas:IdentifierKeyValuePair;1') and key = '{key}' and value = '{value}'";
+
+            try
+            {
+                AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+                await foreach (BasicDigitalTwin twin in twins)
+                {
+                    result.Add(twin.Id);
+                }
+            }
+            catch (RequestFailedException exc)
+            {
+                //log.LogError($"*** Error in retrieving parent:{exc.Status}/{exc.Message}");
+                throw new AASRepositoryException($"*** Error in retrieving AAS:{exc.Status}/{exc.Message}");
+            }
+
+            return result;
+        }
+
+        private string GetStdAASQueryString()
+        {
+            return $"SELECT * FROM digitaltwins WHERE IS_OF_MODEL('{ADTConstants.AAS_MODEL_NAME}')";
+        }
+
+
     }
 }

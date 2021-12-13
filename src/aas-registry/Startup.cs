@@ -22,7 +22,7 @@ using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using AAS.API.Registry.Filters;
-
+using AAS.API.Registry.Models;
 
 namespace AAS.API.Registry
 {
@@ -58,6 +58,7 @@ namespace AAS.API.Registry
                 {
                     options.InputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonInputFormatter>();
                     options.OutputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonOutputFormatter>();
+                    options.ModelBinderProviders.Insert(0, new IdentifierKeyValuePairModelBinderProvider());
                 })
                 .AddNewtonsoftJson(opts =>
                 {

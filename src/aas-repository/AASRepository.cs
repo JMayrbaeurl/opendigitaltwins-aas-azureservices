@@ -1,4 +1,5 @@
-﻿using AAS.API.Models;
+﻿using AAS.API.Interfaces;
+using AAS.API.Models;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -7,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace AAS.API.Repository
 {
-    public interface AASRepository
+    public interface AASRepository : ShellRepository
     {
-        public Task<List<AssetAdministrationShell>> GetAllAdministrationShells();
     }
 
     public class AASRepositoryException : Exception, ISerializable

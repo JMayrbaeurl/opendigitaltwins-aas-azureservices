@@ -37,7 +37,7 @@ namespace AAS.API.Models
         /// <summary>
         /// Gets or Sets SubjectId
         /// </summary>
-        [Required]
+        //[Required] Uncommented by jurgenma - Class is often used just as key/value pair w/o subject ID
 
         [DataMember(Name="subjectId")]
         public Reference SubjectId { get; set; }

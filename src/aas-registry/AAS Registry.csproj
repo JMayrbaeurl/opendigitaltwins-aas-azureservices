@@ -20,9 +20,6 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
     <ProjectReference Include="..\aas-repository\AAS Repository.csproj" />
   </ItemGroup>
