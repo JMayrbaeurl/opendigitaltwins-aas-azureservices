@@ -1,6 +1,6 @@
-# IO.Swagger - ASP.NET Core 2.0 Server
+# Open Digital Twins - Asset Administration Shell - Azure services
 
-An exemplary interface combination for the use case of an Asset Administration Shell Repository
+Sample [Industry 4.0 Asset Administration Shell REST API](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.html) implementations for AAS Type 2 on [Azure Digital Twins](https://azure.microsoft.com/en-us/services/digital-twins/) using the [Open Digital Twins Asset Administration Shell ontology](https://github.com/JMayrbaeurl/opendigitaltwins-assetadminstrationshell)
 
 ## Run
 
@@ -14,12 +14,4 @@ Windows:
 
 ```
 build.bat
-```
-
-## Run in Docker
-
-```
-cd src/IO.Swagger
-docker build -t io.swagger .
-docker run -p 5000:5000 io.swagger
 ```
