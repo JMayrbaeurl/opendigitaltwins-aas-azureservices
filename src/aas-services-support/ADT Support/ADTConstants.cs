@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AAS.API.Repository
+namespace AAS.API.Services.ADT
 {
     public interface ADTConstants
     {

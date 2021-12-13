@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 
-namespace AAS.API.Repository
+namespace AAS.API.Services.ADT
 {
     public class ADTAASModelFactory
     {

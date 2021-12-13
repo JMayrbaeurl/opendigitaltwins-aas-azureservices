@@ -1,22 +1,18 @@
 ﻿using AAS.API.Models;
+using AAS.API.Services.ADT;
 using Azure;
 using Azure.DigitalTwins.Core;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AAS.API.Repository
 {
-    public class ADTAASRepository : AASRepository
+    public class ADTAASRepository : AbstractADTAASService, AASRepository
     {
-        private DigitalTwinsClient dtClient;
-
         private ADTAASModelFactory modelFactory = new ADTAASModelFactory();
 
-        public ADTAASRepository(DigitalTwinsClient client)
+        public ADTAASRepository(DigitalTwinsClient client) : base(client)
         {
-            dtClient = client;
         }
 
         public async Task<List<AssetAdministrationShell>> GetAllAdministrationShells()

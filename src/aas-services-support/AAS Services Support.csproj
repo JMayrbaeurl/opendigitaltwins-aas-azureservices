@@ -1,18 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>AAS.API.Repository</RootNamespace>
+    <RootNamespace>AAS_Services_Support</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.DigitalTwins.Core" Version="1.2.2" />
-    <PackageReference Include="Azure.Identity" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\aas-services-support\AAS Services Support.csproj" />
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
   </ItemGroup>
 
