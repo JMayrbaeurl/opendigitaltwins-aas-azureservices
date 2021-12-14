@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
+    <ProjectReference Include="..\aas-discovery-service\AAS Discovery Service.csproj" />
     <ProjectReference Include="..\aas-repository\AAS Repository.csproj" />
   </ItemGroup>
 </Project>

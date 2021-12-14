@@ -1,19 +1,15 @@
-﻿using AAS.API.Interfaces;
-using AAS.API.Models;
-using AAS.API.Services;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using AAS.API.Interfaces;
+using AAS.API.Services;
 
-namespace AAS.API.Repository
+namespace AAS.API.Discovery
 {
-    public interface AASRepository : ShellRepository
+    public interface AASDiscovery : BasicDiscovery
     {
     }
 
-    public class AASRepositoryException : AASServiceException
+    public class AASDiscoveryException : AASServiceException
     {
         //
         // Summary:
@@ -23,7 +19,7 @@ namespace AAS.API.Repository
         // Parameters:
         //   message:
         //     The message that describes the error.
-        public AASRepositoryException(string message) : base(message)
+        public AASDiscoveryException(string message) : base(message)
         {
         }
         //
@@ -39,7 +35,7 @@ namespace AAS.API.Repository
         //   innerException:
         //     The exception that is the cause of the current exception, or a null reference
         //     (Nothing in Visual Basic) if no inner exception is specified.
-        public AASRepositoryException(string message, Exception? innerException) : base(message, innerException)
+        public AASDiscoveryException(string message, Exception? innerException) : base(message, innerException)
         {
         }
     }

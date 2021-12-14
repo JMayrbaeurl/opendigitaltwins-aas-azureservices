@@ -18,8 +18,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Repository Tests", "src\aas-repository-tests\AAS Repository Tests.csproj", "{2295DDEC-6AD9-41A5-82A9-FA72BFBC98E8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS WebApp full", "src\aas-api-webapp-full\AAS WebApp full.csproj", "{5E55C6F8-30F0-46BC-8637-D5B397E04D6B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01} = {E657B3A4-0D61-4EDB-8B42-E3B137D1AC01}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Services Support", "src\aas-services-support\AAS Services Support.csproj", "{C82208F3-1191-4284-8D92-2E70C804E028}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Discovery Service", "src\aas-discovery-service\AAS Discovery Service.csproj", "{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +56,10 @@ Global
 		{C82208F3-1191-4284-8D92-2E70C804E028}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C82208F3-1191-4284-8D92-2E70C804E028}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C82208F3-1191-4284-8D92-2E70C804E028}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

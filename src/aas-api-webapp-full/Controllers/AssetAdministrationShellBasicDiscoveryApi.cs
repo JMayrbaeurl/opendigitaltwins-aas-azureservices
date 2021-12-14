@@ -18,6 +18,8 @@ using AAS.API.Attributes;
 
 using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
+using Microsoft.Extensions.Configuration;
+using AAS.API.Discovery;
 
 namespace AAS.API.WebApp.Controllers
 { 
@@ -26,7 +28,22 @@ namespace AAS.API.WebApp.Controllers
     /// </summary>
     [ApiController]
     public class AssetAdministrationShellBasicDiscoveryApiController : ControllerBase
-    { 
+    {
+        private IConfiguration _configuration;
+
+        private AASDiscovery discoveryService;
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public AssetAdministrationShellBasicDiscoveryApiController(IConfiguration config) : base()
+        {
+            _configuration = config;
+
+            discoveryService = new AASDiscoveryFactory().CreateAASDiscoveryForADT(config["ADT_SERVICE_URL"]);
+        }
+
         /// <summary>
         /// Deletes all Asset identifier key-value-pair linked to an Asset Administration Shell to edit discoverable content
         /// </summary>
@@ -55,16 +72,8 @@ namespace AAS.API.WebApp.Controllers
         [SwaggerOperation("GetAllAssetAdministrationShellIdsByAssetLink")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<string>), description: "Requested Asset Administration Shell ids")]
         public virtual IActionResult GetAllAssetAdministrationShellIdsByAssetLink([FromQuery]List<IdentifierKeyValuePair> assetIds)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<string>));
-            string exampleJson = null;
-            exampleJson = "[ \"\", \"\" ]";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<List<string>>(exampleJson)
-                        : default(List<string>);            //TODO: Change the data returned
-            return new ObjectResult(example);
+        {
+            return new ObjectResult(discoveryService.GetAllAssetAdministrationShellIdsByAssetLink(assetIds).GetAwaiter().GetResult());
         }
 
         /// <summary>
