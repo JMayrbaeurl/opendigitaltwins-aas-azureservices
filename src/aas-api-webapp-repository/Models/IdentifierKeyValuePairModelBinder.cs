@@ -18,10 +18,23 @@ namespace AAS.API.Registry.Models
         /// </summary>
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            var jsonString = bindingContext.ActionContext.HttpContext.Request.Query["assetIds"];
-            IdentifierKeyValuePair result = JsonConvert.DeserializeObject<IdentifierKeyValuePair>(jsonString);
+            // Specify a default argument name if none is set by ModelBinderAttribute
+            var modelName = bindingContext.ModelName;
+            if (String.IsNullOrEmpty(modelName))
+            {
+                modelName = "model";
+            }
 
+            // Try to fetch the value of the argument by name
+            var valueProviderResult = bindingContext.ValueProvider.GetValue(modelName);
+            if (valueProviderResult == ValueProviderResult.None)
+            {
+                return Task.CompletedTask;
+            }
+
+            IdentifierKeyValuePair result = JsonConvert.DeserializeObject<IdentifierKeyValuePair>(valueProviderResult.FirstValue);
             bindingContext.Result = ModelBindingResult.Success(result);
+
             return Task.CompletedTask;
         }
     }
