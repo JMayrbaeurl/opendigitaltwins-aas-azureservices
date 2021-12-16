@@ -9,7 +9,6 @@
  */
 using System;
 using System.IO;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,10 +18,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using Swashbuckle.AspNetCore.Swagger;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using AAS.API.WebApp.Filters;
 using AAS.API.Registry.Models;
+using AAS.API.Discovery;
+using AAS.API.Services.ADT;
 
 namespace IO.Swagger
 {
@@ -91,6 +90,10 @@ namespace IO.Swagger
                     // Use [ValidateModelState] on Actions to actually validate it in C# as well!
                     c.OperationFilter<GeneratePathParamsValidationFilter>();
                 });
+
+            services.AddSingleton<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
+            services.AddSingleton<AASDiscovery, ADTAASDiscovery>();
+            //services.AddSingleton<AASDiscovery, ADTAASDiscovery>(s => (ADTAASDiscovery)new AASDiscoveryFactory().CreateAASDiscoveryForADT(Configuration["ADT_SERVICE_URL"]));
         }
 
         /// <summary>

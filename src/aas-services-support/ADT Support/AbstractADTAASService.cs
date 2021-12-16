@@ -1,10 +1,10 @@
 ﻿using AAS.API.Models;
 using Azure;
 using Azure.DigitalTwins.Core;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AAS.API.Services.ADT
@@ -12,6 +12,13 @@ namespace AAS.API.Services.ADT
     public abstract class AbstractADTAASService
     {
         protected DigitalTwinsClient dtClient;
+
+        protected readonly ILogger _logger;
+
+        public AbstractADTAASService(ILogger logger)
+        {
+            _logger = logger;
+        }
 
         public AbstractADTAASService(DigitalTwinsClient client)
         {
@@ -53,11 +60,16 @@ namespace AAS.API.Services.ADT
             string result = "";
 
             string queryString = $"SELECT * FROM digitaltwins WHERE IS_OF_MODEL('{ADTConstants.AAS_MODEL_NAME}') AND identification.id = '{aasIdentifier}'";
+
+            _logger.LogDebug($"ADT query for dtId of Asset identification with: {queryString}");
+
             AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
             IAsyncEnumerator<BasicDigitalTwin> enumerator = twins.GetAsyncEnumerator();
             if (await enumerator.MoveNextAsync())
             {
                 result = enumerator.Current.Id;
+
+                _logger.LogDebug($"Found dtId '{result}' for Asset identifier '{aasIdentifier}'");
             }
 
             return result;
@@ -109,6 +121,5 @@ namespace AAS.API.Services.ADT
 
             return idValueString;
         }
-
     }
 }

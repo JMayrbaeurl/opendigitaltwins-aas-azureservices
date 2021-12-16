@@ -2,6 +2,7 @@
 using AAS.API.Services.ADT;
 using Azure;
 using Azure.DigitalTwins.Core;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,6 +15,11 @@ namespace AAS.API.Discovery
     {
         public ADTAASDiscovery(DigitalTwinsClient client) : base(client)
         {
+        }
+
+        public ADTAASDiscovery(DigitalTwinsClientFactory dtClientFactory, ILogger<ADTAASDiscovery> logger) : base(logger)
+        {
+            dtClient = dtClientFactory.CreateClient();
         }
 
         public async Task<List<string>> GetAllAssetAdministrationShellIdsByAssetLink(List<IdentifierKeyValuePair> assetIds)

@@ -11,16 +11,14 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using AAS.API.Attributes;
 
-using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
-using Microsoft.Extensions.Configuration;
 using AAS.API.Discovery;
 using System.Web;
+using Microsoft.Extensions.Logging;
 
 namespace AAS.API.WebApp.Controllers
 { 
@@ -30,7 +28,7 @@ namespace AAS.API.WebApp.Controllers
     [ApiController]
     public class AssetAdministrationShellBasicDiscoveryApiController : ControllerBase
     {
-        private IConfiguration _configuration;
+        private readonly ILogger _logger;
 
         private AASDiscovery discoveryService;
 
@@ -38,11 +36,11 @@ namespace AAS.API.WebApp.Controllers
         /// <summary>
         /// 
         /// </summary>
-        public AssetAdministrationShellBasicDiscoveryApiController(IConfiguration config) : base()
+        public AssetAdministrationShellBasicDiscoveryApiController(ILogger<AssetAdministrationShellBasicDiscoveryApiController> logger, AASDiscovery service) : base()
         {
-            _configuration = config;
+            _logger = logger;
 
-            discoveryService = new AASDiscoveryFactory().CreateAASDiscoveryForADT(config["ADT_SERVICE_URL"]);
+            discoveryService = service;
         }
 
         /// <summary>
@@ -88,7 +86,9 @@ namespace AAS.API.WebApp.Controllers
         [SwaggerOperation("GetAllAssetLinksById")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<IdentifierKeyValuePair>), description: "Requested Asset identifier key-value-pairs")]
         public virtual IActionResult GetAllAssetLinksById([FromRoute][Required] string aasIdentifier)
-        { 
+        {
+            _logger.LogInformation($"GetAllAssetLinksById called for Asset identifier '{aasIdentifier}'");
+
             return new ObjectResult(discoveryService.GetAllAssetLinksById(HttpUtility.UrlDecode(aasIdentifier)).GetAwaiter().GetResult());
         }
 
