@@ -48,6 +48,21 @@ namespace AAS.API.Services.ADT
             return assetIds.FindAll(id => id.Key != ADTConstants.GLOBALASSETID);
         }
 
+        protected async Task<string> FindDTIdForIdentification(string aasIdentifier)
+        {
+            string result = "";
+
+            string queryString = $"SELECT * FROM digitaltwins WHERE IS_OF_MODEL('{ADTConstants.AAS_MODEL_NAME}') AND identification.id = '{aasIdentifier}'";
+            AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+            IAsyncEnumerator<BasicDigitalTwin> enumerator = twins.GetAsyncEnumerator();
+            if (await enumerator.MoveNextAsync())
+            {
+                result = enumerator.Current.Id;
+            }
+
+            return result;
+        }
+
         protected async Task<List<string>> FindDTIdForGlobalAssetId(List<string> idValues, string keyType = "Asset")
         {
             List<string> result = new List<string>();

@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 using Microsoft.Extensions.Configuration;
 using AAS.API.Discovery;
+using System.Web;
 
 namespace AAS.API.WebApp.Controllers
 { 
@@ -86,17 +87,9 @@ namespace AAS.API.WebApp.Controllers
         [ValidateModelState]
         [SwaggerOperation("GetAllAssetLinksById")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<IdentifierKeyValuePair>), description: "Requested Asset identifier key-value-pairs")]
-        public virtual IActionResult GetAllAssetLinksById([FromRoute][Required]string aasIdentifier)
+        public virtual IActionResult GetAllAssetLinksById([FromRoute][Required] string aasIdentifier)
         { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<IdentifierKeyValuePair>));
-            string exampleJson = null;
-            exampleJson = "[ \"\", \"\" ]";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<List<IdentifierKeyValuePair>>(exampleJson)
-                        : default(List<IdentifierKeyValuePair>);            //TODO: Change the data returned
-            return new ObjectResult(example);
+            return new ObjectResult(discoveryService.GetAllAssetLinksById(HttpUtility.UrlDecode(aasIdentifier)).GetAwaiter().GetResult());
         }
 
         /// <summary>

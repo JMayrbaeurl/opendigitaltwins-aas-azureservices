@@ -9,5 +9,7 @@ namespace AAS.API.Interfaces
     public interface BasicDiscovery
     {
         public Task<List<string>> GetAllAssetAdministrationShellIdsByAssetLink(List<IdentifierKeyValuePair> assetIds);
+
+        public Task<List<IdentifierKeyValuePair>> GetAllAssetLinksById(string aasIdentifier);
     }
 }

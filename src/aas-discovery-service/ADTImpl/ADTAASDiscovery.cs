@@ -71,5 +71,57 @@ namespace AAS.API.Discovery
 
             return result;
         }
+
+        public async Task<List<IdentifierKeyValuePair>> GetAllAssetLinksById(string aasIdentifier)
+        {
+            List <IdentifierKeyValuePair> result = new List<IdentifierKeyValuePair>();
+
+            string dtID = await FindDTIdForIdentification(aasIdentifier);
+            if (dtID != null && dtID.Length > 0)
+            {
+                // First get the Global Asset Id from the Asset information
+                string queryString = $"SELECT key FROM digitaltwins MATCH (aas)-[:assetInformation]->(aasinfo)-[:globalAssetId]->(ref)-[:key]->(key) where aas.$dtId = '{dtID}'";
+                AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+                await foreach (BasicDigitalTwin twin in twins)
+                {
+                    JsonElement keyTwin = (JsonElement)twin.Contents["key"];
+                    JsonElement propFromADT;
+                    if (keyTwin.TryGetProperty("value", out propFromADT))
+                    {
+                        IdentifierKeyValuePair link = new IdentifierKeyValuePair() { Value = propFromADT.GetString(), Key = "globalAssetId" };
+                        if (!result.Exists(id => (id.Key == link.Key && id.Value == link.Value)))
+                            result.Add(link);
+                    } else
+                    {
+                        // Inconsistent Twin setup. 'value' is mandatory! At least log an error message
+                    }
+                }
+
+                // Second get all Specific Asset Ids
+                queryString = $"SELECT assetId FROM digitaltwins MATCH(aas) -[:assetInformation]->(aasinfo) -[:specificAssetId]->(assetId) where aas.$dtId = '{dtID}'";
+                twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+                await foreach (BasicDigitalTwin twin in twins)
+                {
+                    JsonElement keyTwin = (JsonElement)twin.Contents["assetId"];
+                    JsonElement keyFromADT, valueFromADT;
+                    if (keyTwin.TryGetProperty("key", out keyFromADT) && keyTwin.TryGetProperty("value", out valueFromADT) )
+                    {
+                        IdentifierKeyValuePair link = new IdentifierKeyValuePair() { Value = valueFromADT.GetString(), Key = keyFromADT.GetString() };
+                        JsonElement semanticIdForADT;
+                        if (keyTwin.TryGetProperty("semanticId", out semanticIdForADT))
+                            link.SemanticId = new GlobalReference() { Value = new List<string>() { semanticIdForADT.GetString() } };
+                        // TODO: SubjectID missing
+                        if (!result.Exists(id => (id.Key == link.Key && id.Value == link.Value)))
+                            result.Add(link);
+                    } else
+                    {
+                        // Inconsistent Twin setup. 'key' and 'value' are mandatory! At least log an error message
+                    }
+                }
+
+            }
+
+            return result;
+        }
     }
 }
