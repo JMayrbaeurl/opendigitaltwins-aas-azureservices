@@ -26,6 +26,8 @@ namespace AAS.API.Discovery
         {
             List<string> result = new List<string>();
 
+            _logger.LogDebug($"GetAllAssetAdministrationShellIdsByAssetLink(assetIds='{assetIds}') called");
+
             try
             {
                 // First check if we should find with global Asset IDs
@@ -33,16 +35,19 @@ namespace AAS.API.Discovery
                 {
                     List<string> globalAssetIdKeyDTID = await FindDTIdForGlobalAssetId(GetGlobalAssetId(assetIds));
                     if (globalAssetIdKeyDTID != null && globalAssetIdKeyDTID.Count > 0)
-                    { 
+                    {
                         string queryString = $"SELECT aas FROM digitaltwins MATCH(aas) -[:assetInformation]->(aasinfo) -[:globalAssetId]->(ref) -[:key]->(key) where key.$dtId IN {ConvertStringListToQueryArrayString(globalAssetIdKeyDTID)}";
+                        _logger.LogDebug($"Querying for AASs in ADT with global Asset Ids: {queryString}");
+
                         AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
                         await foreach (BasicDigitalTwin twin in twins)
                         {
                             JsonElement propFromADT;
                             if (((JsonElement)twin.Contents["aas"]).TryGetProperty("identification", out propFromADT))
                             {
+                                _logger.LogDebug($"Found AAS with global Asset Id: {twin}");
                                 result.Add(propFromADT.GetProperty("id").GetString());
-                            }  
+                            }
                         }
                     }
                 }
@@ -55,6 +60,8 @@ namespace AAS.API.Discovery
                     if (specificAssetIdKeyDTID != null && specificAssetIdKeyDTID.Count > 0)
                     {
                         string queryString = $"SELECT aas FROM digitaltwins MATCH(aas) -[:assetInformation]->(aasinfo) -[:specificAssetId]->(assetId) where assetId.$dtId IN {ConvertStringListToQueryArrayString(specificAssetIdKeyDTID)}";
+                        _logger.LogDebug($"Querying for AASs in ADT with specific Asset Ids: {queryString}");
+
                         AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
                         await foreach (BasicDigitalTwin twin in twins)
                         {
@@ -63,7 +70,10 @@ namespace AAS.API.Discovery
                             {
                                 string idstring = propFromADT.GetProperty("id").GetString();
                                 if (idstring != null && !result.Contains(idstring))
+                                {
+                                    _logger.LogDebug($"Found AAS with specific Asset Id: {twin}");
                                     result.Add(idstring);
+                                }
                             }
                         }
                     }
@@ -71,8 +81,9 @@ namespace AAS.API.Discovery
             }
             catch (RequestFailedException exc)
             {
-                //log.LogError($"*** Error in retrieving parent:{exc.Status}/{exc.Message}");
-                throw new AASDiscoveryException($"*** Error in retrieving AAS:{exc.Status}/{exc.Message}");
+                _logger.LogError($"*** Error in retrieving information from ADT:{exc.Status}/{exc.Message}");
+
+                throw new AASDiscoveryException($"*** Error in retrieving information from ADT:{exc.Status}/{exc.Message}");
             }
 
             return result;
@@ -80,54 +91,146 @@ namespace AAS.API.Discovery
 
         public async Task<List<IdentifierKeyValuePair>> GetAllAssetLinksById(string aasIdentifier)
         {
-            List <IdentifierKeyValuePair> result = new List<IdentifierKeyValuePair>();
+            List<IdentifierKeyValuePair> result = new List<IdentifierKeyValuePair>();
 
-            string dtID = await FindDTIdForIdentification(aasIdentifier);
-            if (dtID != null && dtID.Length > 0)
+            _logger.LogDebug($"GetAllAssetLinksById(aasIdentifier='{aasIdentifier}') called");
+
+            try
             {
-                // First get the Global Asset Id from the Asset information
-                string queryString = $"SELECT key FROM digitaltwins MATCH (aas)-[:assetInformation]->(aasinfo)-[:globalAssetId]->(ref)-[:key]->(key) where aas.$dtId = '{dtID}'";
-                AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
-                await foreach (BasicDigitalTwin twin in twins)
+                string dtID = await FindDTIdForIdentification(aasIdentifier);
+                if (dtID != null && dtID.Length > 0)
                 {
-                    JsonElement keyTwin = (JsonElement)twin.Contents["key"];
-                    JsonElement propFromADT;
-                    if (keyTwin.TryGetProperty("value", out propFromADT))
-                    {
-                        IdentifierKeyValuePair link = new IdentifierKeyValuePair() { Value = propFromADT.GetString(), Key = "globalAssetId" };
-                        if (!result.Exists(id => (id.Key == link.Key && id.Value == link.Value)))
-                            result.Add(link);
-                    } else
-                    {
-                        // Inconsistent Twin setup. 'value' is mandatory! At least log an error message
-                    }
-                }
+                    // First get the Global Asset Id from the Asset information
+                    string queryString = $"SELECT key FROM digitaltwins MATCH (aas)-[:assetInformation]->(aasinfo)-[:globalAssetId]->(ref)-[:key]->(key) where aas.$dtId = '{dtID}'";
+                    _logger.LogDebug($"Querying for global Asset id in ADT with: {queryString}");
 
-                // Second get all Specific Asset Ids
-                queryString = $"SELECT assetId FROM digitaltwins MATCH(aas) -[:assetInformation]->(aasinfo) -[:specificAssetId]->(assetId) where aas.$dtId = '{dtID}'";
-                twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
-                await foreach (BasicDigitalTwin twin in twins)
-                {
-                    JsonElement keyTwin = (JsonElement)twin.Contents["assetId"];
-                    JsonElement keyFromADT, valueFromADT;
-                    if (keyTwin.TryGetProperty("key", out keyFromADT) && keyTwin.TryGetProperty("value", out valueFromADT) )
+                    AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+                    await foreach (BasicDigitalTwin twin in twins)
                     {
-                        IdentifierKeyValuePair link = new IdentifierKeyValuePair() { Value = valueFromADT.GetString(), Key = keyFromADT.GetString() };
-                        JsonElement semanticIdForADT;
-                        if (keyTwin.TryGetProperty("semanticId", out semanticIdForADT))
-                            link.SemanticId = new GlobalReference() { Value = new List<string>() { semanticIdForADT.GetString() } };
-                        // TODO: SubjectID missing
-                        if (!result.Exists(id => (id.Key == link.Key && id.Value == link.Value)))
-                            result.Add(link);
-                    } else
-                    {
-                        // Inconsistent Twin setup. 'key' and 'value' are mandatory! At least log an error message
-                    }
-                }
+                        JsonElement keyTwin = (JsonElement)twin.Contents["key"];
+                        JsonElement propFromADT;
+                        if (keyTwin.TryGetProperty("value", out propFromADT))
+                        {
+                            IdentifierKeyValuePair link = new IdentifierKeyValuePair() { Value = propFromADT.GetString(), Key = "globalAssetId" };
+                            if (!result.Exists(id => (id.Key == link.Key && id.Value == link.Value)))
+                            {
+                                _logger.LogDebug($"Found global Asset id in ADT for AAS with dtId='{dtID}': '{link.Value}'");
 
+                                result.Add(link);
+                            }
+                        }
+                        else
+                        {
+                            // Inconsistent Twin setup. 'value' is mandatory! At least log an error message
+                            _logger.LogError($"*** Error - Inconsistent Twin setup. IdentifierKeyValuePair for globalAssetId has null value (Twin dtId: {dtID})");
+                        }
+                    }
+
+                    // Second get all Specific Asset Ids
+                    queryString = $"SELECT assetId FROM digitaltwins MATCH(aas) -[:assetInformation]->(aasinfo) -[:specificAssetId]->(assetId) where aas.$dtId = '{dtID}'";
+                    _logger.LogDebug($"Querying for specific Asset ids in ADT with: {queryString}");
+
+                    twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+                    await foreach (BasicDigitalTwin twin in twins)
+                    {
+                        JsonElement keyTwin = (JsonElement)twin.Contents["assetId"];
+                        JsonElement keyFromADT, valueFromADT;
+                        if (keyTwin.TryGetProperty("key", out keyFromADT) && keyTwin.TryGetProperty("value", out valueFromADT))
+                        {
+                            IdentifierKeyValuePair link = new IdentifierKeyValuePair() { Value = valueFromADT.GetString(), Key = keyFromADT.GetString() };
+                            JsonElement semanticIdForADT;
+                            if (keyTwin.TryGetProperty("semanticId", out semanticIdForADT))
+                                link.SemanticId = new GlobalReference() { Value = new List<string>() { semanticIdForADT.GetString() } };
+                            // TODO: SubjectID missing
+                            if (!result.Exists(id => (id.Key == link.Key && id.Value == link.Value)))
+                            {
+                                _logger.LogDebug($"Found specific Asset id in ADT for AAS with dtId='{dtID}': key='{link.Key}', value='{link.Value}'");
+                                result.Add(link);
+                            }
+                        }
+                        else
+                        {
+                            // Inconsistent Twin setup. 'key' and 'value' are mandatory! At least log an error message
+                            _logger.LogError($"*** Error - Inconsistent Twin setup. IdentifierKeyValuePair for globalAssetId has null for key or value: {twin})");
+                        }
+                    }
+
+                }
+            }
+            catch (RequestFailedException exc)
+            {
+                _logger.LogError($"*** Error in retrieving information from ADT:{exc.Status}/{exc.Message}");
+
+                throw new AASDiscoveryException($"*** Error in retrieving information from ADT:{exc.Status}/{exc.Message}");
             }
 
             return result;
         }
+
+        public async Task<List<IdentifierKeyValuePair>> CreateAllAssetLinksById(string aasIdentifier, List<IdentifierKeyValuePair> assetIds)
+        {
+            List<IdentifierKeyValuePair> result = new List<IdentifierKeyValuePair>();
+
+            _logger.LogDebug($"CreateAllAssetLinksById(assetIds='{assetIds}') called");
+
+            if (aasIdentifier == null || aasIdentifier.Length == 0)
+            {
+                _logger.LogError($"*** Error - Parameter 'aasIdentifier' must not be empty");
+            }
+
+            try
+            {
+                string aasDtId = await FindDTIdForIdentification(aasIdentifier);
+                if (aasDtId == null || aasDtId.Length == 0)
+                {
+                    _logger.LogInformation($"Can't find AAS with identifier '{aasIdentifier}'");
+                    return result;
+                }
+
+                string aasInfoDtId = await FindInfoDTIdForIdentification(aasIdentifier);
+                if (aasInfoDtId == null || aasInfoDtId.Length == 0)
+                {
+                    _logger.LogDebug($"Can't find AAS Info Twin for AAS with identifier '{aasIdentifier}'. Please create the according AAS Info Twin first");
+                    return result;
+                }
+
+                if (assetIds != null && assetIds.Count > 0)
+                {
+                    foreach (IdentifierKeyValuePair newAssetId in assetIds)
+                    {
+                        if (newAssetId.Key == "globalAssetId")
+                        {
+                            await CreateOrReplaceGlobalAssetIDForShell(aasDtId, newAssetId.Value, aasInfoDtId);
+                            _logger.LogDebug($"Created global Asset Id '{newAssetId}' for AAS with identifier '{aasIdentifier}'");
+                        }
+                        else
+                        {
+                            await CreateOrReplaceSpecificAssetIDForShell(aasDtId, newAssetId, aasInfoDtId);
+                            _logger.LogDebug($"Created specific Asset Id '{newAssetId}' for AAS with identifier '{aasIdentifier}'");
+                        }
+                        result.Add(newAssetId);
+                    }
+                }
+
+            }
+            catch (RequestFailedException exc)
+            {
+                _logger.LogError($"*** Error in retrieving information from ADT:{exc.Status}/{exc.Message}");
+
+                throw new AASDiscoveryException($"*** Error in retrieving information from ADT:{exc.Status}/{exc.Message}");
+            }
+
+            return result;
+        }
+
+        public async Task<List<IdentifierKeyValuePair>> DeleteAllAssetLinksById(string aasIdentifier, List<IdentifierKeyValuePair> assetIds)
+        {
+            List<IdentifierKeyValuePair> result = new List<IdentifierKeyValuePair>();
+
+            _logger.LogDebug($"DeleteAllAssetLinksById(assetIds='{assetIds}') called");
+
+            throw new NotImplementedException();
+        }
+
     }
 }

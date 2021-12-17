@@ -53,9 +53,10 @@ namespace AAS.API.WebApp.Controllers
         [ValidateModelState]
         [SwaggerOperation("DeleteAllAssetLinksById")]
         public virtual IActionResult DeleteAllAssetLinksById([FromRoute][Required]string aasIdentifier)
-        { 
+        {
             //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(204);
+            _logger.LogDebug("Unimplemented DeleteAllAssetLinksById interface method called");
 
             throw new NotImplementedException();
         }
@@ -72,6 +73,14 @@ namespace AAS.API.WebApp.Controllers
         [SwaggerResponse(statusCode: 200, type: typeof(List<string>), description: "Requested Asset Administration Shell ids")]
         public virtual IActionResult GetAllAssetAdministrationShellIdsByAssetLink([FromQuery]List<IdentifierKeyValuePair> assetIds)
         {
+            _logger.LogInformation($"GetAllAssetAdministrationShellIdsByAssetLink called for Asset links '{assetIds}'");
+
+            if (discoveryService == null)
+            {
+                _logger.LogError("Invalid setup. No Discovery service configured. Check DI setup");
+                throw new AASDiscoveryException("Invalid setup. No Discovery service configured. Check DI setup");
+            }
+
             return new ObjectResult(discoveryService.GetAllAssetAdministrationShellIdsByAssetLink(assetIds).GetAwaiter().GetResult());
         }
 
@@ -89,6 +98,12 @@ namespace AAS.API.WebApp.Controllers
         {
             _logger.LogInformation($"GetAllAssetLinksById called for Asset identifier '{aasIdentifier}'");
 
+            if (discoveryService == null)
+            {
+                _logger.LogError("Invalid setup. No Discovery service configured. Check DI setup");
+                throw new AASDiscoveryException("Invalid setup. No Discovery service configured. Check DI setup");
+            }
+
             return new ObjectResult(discoveryService.GetAllAssetLinksById(HttpUtility.UrlDecode(aasIdentifier)).GetAwaiter().GetResult());
         }
 
@@ -104,16 +119,16 @@ namespace AAS.API.WebApp.Controllers
         [SwaggerOperation("PostAllAssetLinksById")]
         [SwaggerResponse(statusCode: 201, type: typeof(List<IdentifierKeyValuePair>), description: "Asset identifier key-value-pairs created successfully")]
         public virtual IActionResult PostAllAssetLinksById([FromBody]List<IdentifierKeyValuePair> body, [FromRoute][Required]string aasIdentifier)
-        { 
-            //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(201, default(List<IdentifierKeyValuePair>));
-            string exampleJson = null;
-            exampleJson = "[ \"\", \"\" ]";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<List<IdentifierKeyValuePair>>(exampleJson)
-                        : default(List<IdentifierKeyValuePair>);            //TODO: Change the data returned
-            return new ObjectResult(example);
+        {
+            _logger.LogInformation($"PostAllAssetLinksById called for Asset identifier '{aasIdentifier}' and asset links '{body}'");
+
+            if (discoveryService == null)
+            {
+                _logger.LogError("Invalid setup. No Discovery service configured. Check DI setup");
+                throw new AASDiscoveryException("Invalid setup. No Discovery service configured. Check DI setup");
+            }
+
+            return new ObjectResult(discoveryService.CreateAllAssetLinksById(HttpUtility.UrlDecode(aasIdentifier), body).GetAwaiter().GetResult());
         }
     }
 }
