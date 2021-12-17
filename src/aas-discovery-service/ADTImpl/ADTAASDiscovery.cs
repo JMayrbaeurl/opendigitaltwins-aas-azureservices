@@ -223,13 +223,83 @@ namespace AAS.API.Discovery
             return result;
         }
 
-        public async Task<List<IdentifierKeyValuePair>> DeleteAllAssetLinksById(string aasIdentifier, List<IdentifierKeyValuePair> assetIds)
+        public async Task<List<IdentifierKeyValuePair>> DeleteAllAssetLinksById(string aasIdentifier)
         {
             List<IdentifierKeyValuePair> result = new List<IdentifierKeyValuePair>();
 
-            _logger.LogDebug($"DeleteAllAssetLinksById(assetIds='{assetIds}') called");
+            _logger.LogDebug($"DeleteAllAssetLinksById(aasIdentifier='{aasIdentifier}') called");
 
-            throw new NotImplementedException();
+            if (aasIdentifier == null || aasIdentifier.Length == 0)
+            {
+                _logger.LogError($"*** Error - Parameter 'aasIdentifier' must not be empty");
+            }
+
+            try
+            {
+                string aasDtId = await FindDTIdForIdentification(aasIdentifier);
+                if (aasDtId == null || aasDtId.Length == 0)
+                {
+                    _logger.LogInformation($"Can't find AAS with identifier '{aasIdentifier}'");
+                    return result;
+                }
+
+                string aasInfoDtId = await FindInfoDTIdForIdentification(aasIdentifier);
+                if (aasInfoDtId == null || aasInfoDtId.Length == 0)
+                {
+                    _logger.LogDebug($"Can't find AAS Info Twin for AAS with identifier '{aasIdentifier}'. Please create the according AAS Info Twin first");
+                    return result;
+                }
+
+                AsyncPageable<BasicRelationship> rels = dtClient.GetRelationshipsAsync<BasicRelationship>(aasInfoDtId);
+                await foreach (BasicRelationship outgoingRel in rels)
+                {
+                    if (outgoingRel.Name == "globalAssetId")
+                    {
+                        BasicDigitalTwin referenceTwin = await dtClient.GetDigitalTwinAsync<BasicDigitalTwin>(outgoingRel.TargetId);
+                        AsyncPageable<BasicRelationship> keyRels = dtClient.GetRelationshipsAsync<BasicRelationship>(referenceTwin.Id, "key");
+                        string globalAssetIdValue = "";
+                        await foreach (BasicRelationship keyRel in keyRels)
+                        {
+                            await dtClient.DeleteRelationshipAsync(referenceTwin.Id, keyRel.Id);
+
+                            BasicDigitalTwin keyTwin = await dtClient.GetDigitalTwinAsync<BasicDigitalTwin>(keyRel.TargetId);
+                            globalAssetIdValue = keyTwin.Contents["value"].ToString();
+                            await dtClient.DeleteDigitalTwinAsync(keyRel.TargetId);
+                        }
+
+                        IdentifierKeyValuePair identifierKeyValue = new IdentifierKeyValuePair()
+                            { Key = "globalAssetId", Value = globalAssetIdValue };
+
+                        await dtClient.DeleteRelationshipAsync(aasInfoDtId, outgoingRel.Id);
+                        await dtClient.DeleteDigitalTwinAsync(outgoingRel.TargetId);
+
+                        result.Add(identifierKeyValue);
+
+                    } else if (outgoingRel.Name == "specificAssetId")
+                    {
+                        BasicDigitalTwin identifierTwin = await dtClient.GetDigitalTwinAsync<BasicDigitalTwin>(outgoingRel.TargetId);
+                        if (identifierTwin != null)
+                        {
+                            IdentifierKeyValuePair identifierKeyValue = new IdentifierKeyValuePair() 
+                                { Key = identifierTwin.Contents["key"].ToString(), Value = identifierTwin.Contents["value"].ToString() };
+                            
+                            await dtClient.DeleteRelationshipAsync(aasInfoDtId, outgoingRel.Id);
+                            await dtClient.DeleteDigitalTwinAsync(outgoingRel.TargetId);
+
+                            result.Add(identifierKeyValue);
+                        }
+                    }
+                }
+
+            }
+            catch (RequestFailedException exc)
+            {
+                _logger.LogError($"*** Error in retrieving information from ADT:{exc.Status}/{exc.Message}");
+
+                throw new AASDiscoveryException($"*** Error in retrieving information from ADT:{exc.Status}/{exc.Message}");
+            }
+
+            return result;
         }
 
     }

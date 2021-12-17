@@ -54,11 +54,15 @@ namespace AAS.API.WebApp.Controllers
         [SwaggerOperation("DeleteAllAssetLinksById")]
         public virtual IActionResult DeleteAllAssetLinksById([FromRoute][Required]string aasIdentifier)
         {
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204);
-            _logger.LogDebug("Unimplemented DeleteAllAssetLinksById interface method called");
+            _logger.LogInformation($"DeleteAllAssetLinksById called for for Asset identifier '{aasIdentifier}'");
 
-            throw new NotImplementedException();
+            if (discoveryService == null)
+            {
+                _logger.LogError("Invalid setup. No Discovery service configured. Check DI setup");
+                throw new AASDiscoveryException("Invalid setup. No Discovery service configured. Check DI setup");
+            }
+
+            return new ObjectResult(discoveryService.DeleteAllAssetLinksById(HttpUtility.UrlDecode(aasIdentifier)).GetAwaiter().GetResult());
         }
 
         /// <summary>
