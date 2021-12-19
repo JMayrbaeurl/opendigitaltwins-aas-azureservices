@@ -90,6 +90,37 @@ namespace AAS.API.WebApp.Controllers
             return new ObjectResult(example);
         }
 
+        /// <summary>
+        /// Stores the AASX package at the server
+        /// </summary>
+        /// <param name="aasxPackage"></param>
+        /// <response code="201">AASX package stored successfully</response>
+        [HttpPost]
+        [Route("/packages")]
+        [ValidateModelState]
+        [SwaggerOperation("PostAASXPackage")]
+        [SwaggerResponse(statusCode: 201, type: typeof(PackageDescription), description: "AASX package stored successfully")]
+        public virtual IActionResult PostAASXPackage([FromBody] PackagesBody aasxPackage)
+        {
+            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+            // return StatusCode(201, default(PackageDescription));
 
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Updates the AASX package at the server
+        /// </summary>
+        /// <param name="packageId">The Package Id (BASE64-URL-encoded)</param>
+        /// <response code="204">AASX package updated successfully</response>
+        [HttpPut]
+        [Route("/packages/{packageId}")]
+        [ValidateModelState]
+        [SwaggerOperation("PutAASXByPackageId")]
+        [SwaggerResponse(statusCode: 204, type: typeof(PackageDescription), description: "AASX package updated successfully")]
+        public virtual IActionResult PutAASXByPackageId([FromRoute][Required] string packageId, [FromBody] PackagesBody aasxPackage)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
