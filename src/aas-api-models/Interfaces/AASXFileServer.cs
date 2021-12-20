@@ -28,7 +28,7 @@ namespace AAS.API.Models.Interfaces
         /// <summary>
         /// Stores the AASX package at the server
         /// </summary>
-        public Task<PackageDescription> CreateAASXPackage(List<string> aasIds, byte[] file, string fileName);
+        public Task<PackageDescription> StoreAASXPackage(List<string> aasIds, byte[] file, string fileName);
 
         /// <summary>
         /// Updates the AASX package at the server

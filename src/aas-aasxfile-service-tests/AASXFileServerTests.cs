@@ -37,10 +37,23 @@ namespace AAS.API.AASXFile.Tests
         }
 
         [TestMethod]
-        public void TestCreateAASXPackageSimple()
+        public void TestStoreAASXPackageSimple()
         {
             AASAASXFile service = CreateAASAASXFileService();
-            PackageDescription packageDesc = service.CreateAASXPackage(new List<string> {"first", "second" }, Encoding.UTF8.GetBytes("This is a simple test"), "01_Festo.aasx").GetAwaiter().GetResult();
+            PackageDescription packageDesc = service.StoreAASXPackage(new List<string> {"first", "second" }, Encoding.UTF8.GetBytes("This is a simple test"), "Simple.aasx").GetAwaiter().GetResult();
+            Assert.IsNotNull(packageDesc);
+            Assert.IsNotNull(packageDesc.PackageId);
+        }
+
+        [TestMethod]
+        public void TestStoreAASXPackageForStdSampleFesto()
+        {
+            byte[] fileContents = System.IO.File.ReadAllBytes(".\\Resources\\01_Festo.aasx");
+            Assert.IsNotNull(fileContents);
+
+            AASAASXFile service = CreateAASAASXFileService();
+            PackageDescription packageDesc = service.StoreAASXPackage(new List<string> { "smart.festo.com/demo/aas/1/1/454576463545648365874" }, 
+                fileContents, "01_Festo.aasx").GetAwaiter().GetResult();
             Assert.IsNotNull(packageDesc);
             Assert.IsNotNull(packageDesc.PackageId);
         }
@@ -49,7 +62,16 @@ namespace AAS.API.AASXFile.Tests
         public void TestDeleteAASXByPackageIdSimple()
         {
             AASAASXFile service = CreateAASAASXFileService();
-            service.DeleteAASXByPackageId("01_Festo");
+            service.DeleteAASXByPackageId("Simple").GetAwaiter().GetResult();
+        }
+
+        [TestMethod]
+        public void TestGetAASXPackageForStdSampleFesto()
+        {
+            AASAASXFile service = CreateAASAASXFileService();
+            byte[] packageContents = service.GetAASXByPackageId("01_Festo").GetAwaiter().GetResult();
+            Assert.IsNotNull(packageContents);
+            Assert.IsTrue(packageContents.Length > 0);
         }
 
         private AASAASXFile CreateAASAASXFileService(string uri = "https://aasxstoragejm.blob.core.windows.net/")
