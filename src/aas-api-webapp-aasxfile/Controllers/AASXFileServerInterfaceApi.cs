@@ -23,7 +23,7 @@ using AAS.API.AASXFile;
 using AAS.API.Models.Interfaces;
 
 namespace AAS.API.WebApp.Controllers
-{
+{ 
     /// <summary>
     /// 
     /// </summary>
@@ -49,7 +49,7 @@ namespace AAS.API.WebApp.Controllers
         [Route("/packages/{packageId}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteAASXByPackageId")]
-        public virtual IActionResult DeleteAASXByPackageId([FromRoute][Required] string packageId)
+        public virtual IActionResult DeleteAASXByPackageId([FromRoute][Required]string packageId)
         {
             _logger.LogInformation($"DeleteAASXByPackageId called for Package with id '{packageId}'");
 
@@ -74,8 +74,8 @@ namespace AAS.API.WebApp.Controllers
         [ValidateModelState]
         [SwaggerOperation("GetAASXByPackageId")]
         [SwaggerResponse(statusCode: 200, type: typeof(byte[]), description: "Requested AASX package")]
-        public virtual IActionResult GetAASXByPackageId([FromRoute][Required] string packageId)
-        {
+        public virtual IActionResult GetAASXByPackageId([FromRoute][Required]string packageId)
+        { 
 
             _logger.LogInformation($"GetAASXByPackageId called for Package with id '{packageId}'");
 
@@ -108,8 +108,8 @@ namespace AAS.API.WebApp.Controllers
         [ValidateModelState]
         [SwaggerOperation("GetAllAASXPackageIds")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<PackageDescription>), description: "Requested package list")]
-        public virtual IActionResult GetAllAASXPackageIds([FromQuery] string aasId)
-        {
+        public virtual IActionResult GetAllAASXPackageIds([FromQuery]string aasId)
+        { 
             _logger.LogInformation($"GetAllAASXPackageIds called for AAS id '{aasId}'");
 
             if (fileService == null)

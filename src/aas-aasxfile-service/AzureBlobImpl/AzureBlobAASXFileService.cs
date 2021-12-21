@@ -1,4 +1,5 @@
 ﻿using AAS.API.Models;
+using AAS.API.Models.Interfaces;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -133,7 +134,7 @@ namespace AAS.API.AASXFile
             }
         }
 
-        public async Task<byte[]> GetAASXByPackageId(string packageId)
+        public async Task<PackageFile> GetAASXByPackageId(string packageId)
         {
             if (containerClient == null)
                 throw new AASXFileServiceException("Invalid setup. No Blob container client configured");
@@ -143,7 +144,7 @@ namespace AAS.API.AASXFile
 
             _logger.LogDebug($"Retrieving AASX package with id '{packageId}'");
 
-            byte[] result = null;
+            PackageFile result = null;
 
             try
             {
@@ -154,7 +155,8 @@ namespace AAS.API.AASXFile
                 if (await blobClient.ExistsAsync())
                 {
                     BlobDownloadResult downloadResult = await blobClient.DownloadContentAsync();
-                    result = downloadResult.Content.ToArray();
+                    string filename = (await blobClient.GetPropertiesAsync()).Value.Metadata[PACKAGE_FILENAME_KEY];
+                    result = new PackageFile() { Filename = filename, Contents = downloadResult.Content.ToArray() };
                 }
             }
             catch (RequestFailedException exc)
@@ -169,21 +171,22 @@ namespace AAS.API.AASXFile
 
         public async Task<List<PackageDescription>> GetAllAASXPackageIds(string aasId)
         {
-            if (aasId == null || aasId.Length == 0)
-                throw new AASXFileServiceException("Parameter 'aasId' must not be empty");
-
             List<PackageDescription> result = new List<PackageDescription>();
             BlobContainerClient blobContainer = await GetContainerClient();
 
             await foreach (BlobItem item in blobContainer.GetBlobsAsync(BlobTraits.Metadata, BlobStates.None))
             {
-                if (item.Metadata.ContainsKey(PACKAGE_METADATA_KEY))
+                if (item.Metadata.ContainsKey(PACKAGE_METADATA_KEY) && item.Name.Contains('/'))
                 {
                     List<string> aasIds = item.Metadata.Where(key => key.Key.StartsWith("aasId_")).Select(key => key.Value).ToList();
-                    if (aasIds != null && aasIds.Contains(aasId) && item.Name.Contains('/'))
+
+                    if (aasIds != null )
                     {
-                        string packId = WebUtility.UrlDecode(item.Name.Split('/')[0]);
-                        result.Add(new PackageDescription() { PackageId = packId, AasIds = aasIds });
+                        if (aasId == null || aasIds.Contains(aasId))
+                        {
+                            string packId = WebUtility.UrlDecode(item.Name.Split('/')[0]);
+                            result.Add(new PackageDescription() { PackageId = packId, AasIds = aasIds });
+                        }
                     }
                 }
             }

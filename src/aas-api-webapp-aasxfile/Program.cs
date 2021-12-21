@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AAS_WebApp_AASX_File_Server
+namespace AAS.API.Discovery.Server
 {
     public class Program
     {

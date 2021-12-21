@@ -22,6 +22,9 @@ using AAS.API.WebApp.Filters;
 using AAS.API.Registry.Models;
 using AAS.API.Discovery;
 using AAS.API.Services.ADT;
+using AAS.API.AASXFile;
+using Microsoft.Extensions.Azure;
+using Azure.Identity;
 
 namespace IO.Swagger
 {
@@ -94,6 +97,15 @@ namespace IO.Swagger
             services.AddSingleton<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
             services.AddSingleton<AASDiscovery, ADTAASDiscovery>();
             //services.AddSingleton<AASDiscovery, ADTAASDiscovery>(s => (ADTAASDiscovery)new AASDiscoveryFactory().CreateAASDiscoveryForADT(Configuration["ADT_SERVICE_URL"]));
+
+            services.AddAzureClients(builder =>
+            {
+                builder.AddBlobServiceClient(new Uri(Configuration["AASX_FILESERVICE_BLOBSTORAGEURL"]));
+
+                builder.UseCredential(new DefaultAzureCredential());
+            });
+
+            services.AddSingleton<AASAASXFile, AzureBlobAASXFileService>();
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ namespace AAS.API.Models.Interfaces
         /// Returns a specific AASX package from the server
         /// </summary>
         /// <param name="packageId">The package Id (BASE64-URL-encoded)</param>
-        public Task<byte[]> GetAASXByPackageId(string packageId);
+        public Task<PackageFile> GetAASXByPackageId(string packageId);
 
         /// <summary>
         /// Returns a list of available AASX packages at the server
@@ -34,5 +34,23 @@ namespace AAS.API.Models.Interfaces
         /// Updates the AASX package at the server
         /// </summary>
         public Task<PackageDescription> UpdateAASXPackage(string packageId, List<string> aasIds, byte[] file, string fileName);
+    }
+
+    public class PackageFile
+    {
+        private string filename;
+
+        public string Filename
+        {
+            get { return filename; }
+            set { filename = value; }
+        }
+        private byte[] contents;
+
+        public byte[] Contents
+        {
+            get { return contents; }
+            set { contents = value; }
+        }
     }
 }

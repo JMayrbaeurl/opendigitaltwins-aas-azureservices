@@ -10,6 +10,7 @@
 	<RootNamespace>AAS.API.Server.Full</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.5.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.5.1" />
@@ -23,6 +24,7 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\aas-aasxfile-service\AAS AASX File Service.csproj" />
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
     <ProjectReference Include="..\aas-discovery-service\AAS Discovery Service.csproj" />
     <ProjectReference Include="..\aas-repository\AAS Repository.csproj" />

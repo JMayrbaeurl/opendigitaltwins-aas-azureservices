@@ -112,7 +112,7 @@ namespace AAS.API.AASXFile.Tests
             try
             {
                 AASAASXFile service = CreateAASAASXFileService();
-                byte[] packageContents = service.GetAASXByPackageId("Simple").GetAwaiter().GetResult();
+                byte[] packageContents = service.GetAASXByPackageId("Simple").GetAwaiter().GetResult().Contents;
                 Assert.IsNotNull(packageContents);
                 Assert.IsTrue(packageContents.Length > 0);
                 Assert.AreEqual<string>(teststring, Encoding.UTF8.GetString(packageContents));
@@ -127,7 +127,7 @@ namespace AAS.API.AASXFile.Tests
         public void TestGetAASXPackageForStdSampleFesto()
         {
             AASAASXFile service = CreateAASAASXFileService();
-            byte[] packageContents = service.GetAASXByPackageId("01_Festo").GetAwaiter().GetResult();
+            byte[] packageContents = service.GetAASXByPackageId("01_Festo").GetAwaiter().GetResult().Contents;
             Assert.IsNotNull(packageContents);
             Assert.IsTrue(packageContents.Length > 0);
         }
