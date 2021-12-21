@@ -28,12 +28,29 @@ namespace AAS.API.AASXFile
 
         private const string PACKAGE_METADATA_KEY = "package";
 
+        private const string PACKAGE_FILENAME_KEY = "filename";
+
+        private const string PACKAGE_BLOBNAME = "Package.aasx";
+
+        private bool createExtraAASIdentifierBlob;
+
+        public bool CreateExtraAASIdentifierBlob
+        {
+            get { return createExtraAASIdentifierBlob; }
+            set { createExtraAASIdentifierBlob = value; }
+        }
+
+
         private const string AASIDENTIFIERSBLOBNAME = "aasIdentifiers";
+
+        public bool AutoCreateContainer { get => autoCreateContainer; set => autoCreateContainer = value; }
 
         public AzureBlobAASXFileService(BlobServiceClient serviceClient, IConfiguration config, ILogger<AzureBlobAASXFileService> logger)
         {
             blobServiceClient = serviceClient;
             _logger = logger;
+
+            createExtraAASIdentifierBlob = false;
 
             if (config != null && config["AASX_FILESERVICE_CONTAINERNAME"] != null)
             {
@@ -59,15 +76,18 @@ namespace AAS.API.AASXFile
             try
             {
                 BlobContainerClient blobContainer = await GetContainerClient();
-                string containerpath = WebUtility.UrlEncode(Path.GetFileNameWithoutExtension(fileName));
+                string containerpath = WebUtility.UrlEncode(result.PackageId);
 
                 // First write the Package file
-                BlobClient blobClient = blobContainer.GetBlobClient(BuildBlobnameFor(fileName, aasIds));
-                await UploadPackage(blobClient, file, aasIds);
+                BlobClient blobClient = blobContainer.GetBlobClient($"{containerpath}/{PACKAGE_BLOBNAME}");
+                await UploadPackage(blobClient, fileName, file, aasIds);
 
                 // Second write the aasIdentifiers file
-                blobClient = blobContainer.GetBlobClient($"{containerpath}/AASIDENTIFIERSBLOBNAME");
-                await UploadAASIdentifers(blobClient, aasIds, false);                
+                if (CreateExtraAASIdentifierBlob)
+                { 
+                    blobClient = blobContainer.GetBlobClient($"{containerpath}/{AASIDENTIFIERSBLOBNAME}");
+                    await UploadAASIdentifers(blobClient, aasIds, false);
+                }
             }
             catch(RequestFailedException exc)
             {
@@ -128,11 +148,12 @@ namespace AAS.API.AASXFile
             try
             {
                 BlobContainerClient blobContainer = await GetContainerClient();
+                string containerpath = WebUtility.UrlEncode(packageId);
 
-                BlobItem blob = await FindPackageBlob(blobContainer, packageId);
-                if (blob != null)
+                BlobClient blobClient = blobContainer.GetBlobClient($"{containerpath}/{PACKAGE_BLOBNAME}");
+                if (await blobClient.ExistsAsync())
                 {
-                    BlobDownloadResult downloadResult = await blobContainer.GetBlobClient(blob.Name).DownloadContentAsync();
+                    BlobDownloadResult downloadResult = await blobClient.DownloadContentAsync();
                     result = downloadResult.Content.ToArray();
                 }
             }
@@ -148,7 +169,26 @@ namespace AAS.API.AASXFile
 
         public async Task<List<PackageDescription>> GetAllAASXPackageIds(string aasId)
         {
-            throw new NotImplementedException();
+            if (aasId == null || aasId.Length == 0)
+                throw new AASXFileServiceException("Parameter 'aasId' must not be empty");
+
+            List<PackageDescription> result = new List<PackageDescription>();
+            BlobContainerClient blobContainer = await GetContainerClient();
+
+            await foreach (BlobItem item in blobContainer.GetBlobsAsync(BlobTraits.Metadata, BlobStates.None))
+            {
+                if (item.Metadata.ContainsKey(PACKAGE_METADATA_KEY))
+                {
+                    List<string> aasIds = item.Metadata.Where(key => key.Key.StartsWith("aasId_")).Select(key => key.Value).ToList();
+                    if (aasIds != null && aasIds.Contains(aasId) && item.Name.Contains('/'))
+                    {
+                        string packId = WebUtility.UrlDecode(item.Name.Split('/')[0]);
+                        result.Add(new PackageDescription() { PackageId = packId, AasIds = aasIds });
+                    }
+                }
+            }
+
+            return result;
         }
 
         public async Task<PackageDescription> UpdateAASXPackage(string packageId, List<string> aasIds, byte[] file, string fileName)
@@ -165,46 +205,53 @@ namespace AAS.API.AASXFile
             {
                 BlobContainerClient blobContainer = await GetContainerClient();
                 string containerpath = WebUtility.UrlEncode(packageId);
-                BlobClient blobClient;
 
-                if (fileName != null || file != null)
+                BlobClient blobClient = blobContainer.GetBlobClient($"{containerpath}/{PACKAGE_BLOBNAME}");
+                if (await blobClient.ExistsAsync())
                 {
-                    BlobItem existingBlob = await FindPackageBlob(blobContainer, packageId);
+                    IDictionary<string, string> blobMetadata = (await blobClient.GetPropertiesAsync()).Value.Metadata;
 
-                    if (fileName != null && file != null)
+                    if (file != null)
                     {
-                        // First delete old package blob
-                        if (existingBlob != null)
-                        {
-                            await blobContainer.DeleteBlobAsync(existingBlob.Name);
-                        }
-
-                        // Then create the new blob
-                        blobClient = blobContainer.GetBlobClient($"{containerpath}/{fileName}");
-                        await UploadPackage(blobClient, file, aasIds);
-                    } else
-                    {
-                        if (fileName != null)
-                        {
-                            // See https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-copy?tabs=dotnet
-                            //blobClient.StartCopyFromUriAsync();
-                        }
-                        else
-                        {
-                            // Just replace contents
-                            if (existingBlob != null)
-                            {
-                                blobClient = blobContainer.GetBlobClient(existingBlob.Name);
-                                await UploadPackage(blobClient, file, aasIds, true);
-                            }
-                        }
+                        //BlobHttpHeaders headers = (await blobClient.GetPropertiesAsync()).Value.
+                        await blobClient.UploadAsync(new BinaryData(file), true);
+                        await blobClient.SetMetadataAsync(blobMetadata);
                     }
-                }
 
-                if (aasIds != null && aasIds.Count > 0)
-                {
-                    blobClient = blobContainer.GetBlobClient($"{containerpath}/AASIDENTIFIERSBLOBNAME");
-                    await UploadAASIdentifers(blobClient, aasIds, true);
+                    bool needsMetadataUpdate = false;
+
+                    if (fileName != null)
+                    {
+                        blobMetadata[PACKAGE_FILENAME_KEY] = fileName;
+                        needsMetadataUpdate = true;
+                    }
+
+                    result = new PackageDescription() { PackageId = packageId};
+                    List<string> aasIdKeys = blobMetadata.Where(key => key.Key.StartsWith("aasId_")).Select(key => key.Key).ToList();
+                    result.AasIds = aasIdKeys.Select(key => blobMetadata[key]).ToList();
+
+                    if (aasIds != null && aasIds.Count > 0)
+                    {
+                        foreach(string key in aasIdKeys)
+                        {
+                            blobMetadata.Remove(key);
+                        }
+                        for (int i = 0; i < aasIds.Count; i++)
+                            blobMetadata.Add($"aasId_{i + 1}", aasIds[i]);
+
+                        needsMetadataUpdate = true;
+
+                        if (CreateExtraAASIdentifierBlob)
+                        {
+                            blobClient = blobContainer.GetBlobClient($"{containerpath}/AASIDENTIFIERSBLOBNAME");
+                            await UploadAASIdentifers(blobClient, aasIds, true);
+                        }
+
+                        result.AasIds = aasIds;
+                    }
+
+                    if (needsMetadataUpdate)
+                        await blobClient.SetMetadataAsync(blobMetadata);
                 }
             }
             catch (RequestFailedException exc)
@@ -235,11 +282,13 @@ namespace AAS.API.AASXFile
             return result;
         }
 
-        private async Task UploadPackage(BlobClient blobClient, byte[] file, List<string> aasIds, bool overwrite = false)
+        private async Task UploadPackage(BlobClient blobClient, string fileName, byte[] file, List<string> aasIds, bool overwrite = false)
         {
             await blobClient.UploadAsync(new BinaryData(file), overwrite);
 
-            IDictionary<string, string> metadata = new Dictionary<string, string>() { { PACKAGE_METADATA_KEY, "true" } };
+            IDictionary<string, string> metadata = new Dictionary<string, string>() { 
+                { PACKAGE_METADATA_KEY, "true" }, { PACKAGE_FILENAME_KEY, fileName } };
+
             if (aasIds != null)
             {
                 for (int i = 0; i < aasIds.Count; i++)
@@ -285,20 +334,25 @@ namespace AAS.API.AASXFile
 
             return result;
         }
-        private string BuildBlobnameFor(string fileName, List<string> aasIds = null)
-        {
-            string containerpath = WebUtility.UrlEncode(Path.GetFileNameWithoutExtension(fileName));
-            return $"{containerpath}/{fileName}";
-        }
 
         private string BuildPackageIdFrom(List<string> aasIds, string fileName)
         {
-            return Path.GetFileNameWithoutExtension(fileName);
+            // Make sure we are using a valid blob name. See https://docs.microsoft.com/en-us/rest/api/storageservices/naming-and-referencing-containers--blobs--and-metadata
+            string result = fileName.Trim(); // Remove whitespaces at the end and at the beginning
+            if (result.Contains('.'))
+                result = Path.GetFileNameWithoutExtension(fileName);
+
+            result = result.Replace("/", "");
+
+            if (result.EndsWith('.'))
+                result = result.Substring(0, result.Length - 1);
+
+            return result;
         }
 
         private async Task<BlobContainerClient> GetContainerClient()
         {
-            if (autoCreateContainer)
+            if (AutoCreateContainer)
             {
                 await containerClient.CreateIfNotExistsAsync();
             }
