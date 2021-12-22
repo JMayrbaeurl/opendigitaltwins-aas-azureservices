@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,6 +21,8 @@ namespace AAS.API.AASXFile
         private BlobServiceClient blobServiceClient; // See https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet#upload-a-blob-to-a-container
 
         private readonly ILogger _logger;
+
+        private readonly HttpClient httpClient;
 
         private string aasxfilesContainername = "aasxfiles";
 
@@ -46,7 +49,7 @@ namespace AAS.API.AASXFile
 
         public bool AutoCreateContainer { get => autoCreateContainer; set => autoCreateContainer = value; }
 
-        public AzureBlobAASXFileService(BlobServiceClient serviceClient, IConfiguration config, ILogger<AzureBlobAASXFileService> logger)
+        public AzureBlobAASXFileService(BlobServiceClient serviceClient, IConfiguration config, ILogger<AzureBlobAASXFileService> logger, IHttpClientFactory httpClientFactory)
         {
             blobServiceClient = serviceClient;
             _logger = logger;
@@ -59,6 +62,8 @@ namespace AAS.API.AASXFile
             }
 
             containerClient = serviceClient.GetBlobContainerClient(aasxfilesContainername);
+
+            httpClient = httpClientFactory.CreateClient();
         }
 
         public async Task<PackageDescription> StoreAASXPackage(List<string> aasIds, byte[] file, string fileName)
@@ -69,10 +74,25 @@ namespace AAS.API.AASXFile
             if (fileName == null || fileName.Length == 0)
                 throw new AASXFileServiceException("Parameter 'fileName' must not be empty");
 
+            bool isDownload = false;
             if (file == null || file.Length == 0)
-                throw new AASXFileServiceException("Parameter 'file' must not be empty");
+            {
+                Uri uriResult;
+                isDownload = Uri.TryCreate(fileName, UriKind.Absolute, out uriResult)
+                    && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
 
-            PackageDescription result = CreatePackageDescriptionFor(aasIds, fileName);
+                if(!isDownload)
+                    throw new AASXFileServiceException("Parameter 'file' must not be empty");
+            }
+
+            string aFilename = fileName;
+            if (isDownload)
+            {
+                file = await httpClient.GetByteArrayAsync(fileName);
+                aFilename = fileName.Substring(fileName.LastIndexOf('/')+1);
+            }
+
+            PackageDescription result = CreatePackageDescriptionFor(aasIds, aFilename);
 
             try
             {
@@ -81,7 +101,7 @@ namespace AAS.API.AASXFile
 
                 // First write the Package file
                 BlobClient blobClient = blobContainer.GetBlobClient($"{containerpath}/{PACKAGE_BLOBNAME}");
-                await UploadPackage(blobClient, fileName, file, aasIds);
+                await UploadPackage(blobClient, aFilename, file, aasIds);
 
                 // Second write the aasIdentifiers file
                 if (CreateExtraAASIdentifierBlob)

@@ -2,7 +2,10 @@ using AAS.API.Models;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -17,9 +20,33 @@ namespace AAS.API.AASXFile.Tests
     {
         private IConfiguration configuration;
 
+        private AASAASXFile fileService;
+
         public AASXFileServerTests()
         {
             configuration = new ConfigurationBuilder().AddJsonFile("appsettings.tests.json").Build();
+        }
+
+        [TestInitialize]
+        public void Setup()
+        {
+            var builder = new HostBuilder()
+                .ConfigureAppConfiguration((hostContext, configBuilder) => { configBuilder.AddJsonFile("appsettings.tests.json"); })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services.AddHttpClient();
+                    services.AddLogging(configure => configure.AddConsole());
+                    services.AddAzureClients(builder =>
+                    {
+                        builder.AddBlobServiceClient(new Uri(hostContext.Configuration["AASX_FILESERVICE_BLOBSTORAGEURL"]));
+                        builder.UseCredential(new DefaultAzureCredential());
+                    });
+                    services.AddSingleton<AASAASXFile, AzureBlobAASXFileService>();
+                    configuration = hostContext.Configuration;
+                }).UseConsoleLifetime();
+
+            var host = builder.Build();
+            fileService = host.Services.GetService<AASAASXFile>();
         }
 
         private BlobServiceClient CreateBlobServiceClient()
@@ -30,15 +57,8 @@ namespace AAS.API.AASXFile.Tests
         [TestMethod]
         public void TestSimpleConstruction()
         {
-            using var logFactory = LoggerFactory.Create(builder => builder.AddConsole());
-            var logger = logFactory.CreateLogger<AzureBlobAASXFileService>();
-            Assert.IsNotNull(logger);
-
-            var config = configuration;
-            Assert.IsNotNull(config);
-
-            AzureBlobAASXFileService service = new AzureBlobAASXFileService(CreateBlobServiceClient(),config, logger);
-            Assert.IsNotNull(service);
+            Assert.IsNotNull(fileService);
+            Assert.IsNotNull(configuration);
         }
 
         [TestMethod]
@@ -84,6 +104,16 @@ namespace AAS.API.AASXFile.Tests
         }
 
         [TestMethod]
+        public void TestStoreAASXPackageForStdSampleFestoWithDownload()
+        {
+            AASAASXFile service = CreateAASAASXFileService();
+            PackageDescription packageDesc = service.StoreAASXPackage(new List<string> { "smart.festo.com/demo/aas/1/1/454576463545648365874" },
+                null, "https://admin-shell-io.com/samples/aasx/01_Festo.aasx").GetAwaiter().GetResult();
+            Assert.IsNotNull(packageDesc);
+            Assert.IsNotNull(packageDesc.PackageId);
+        }
+
+        [TestMethod]
         public void TestDeleteAASXByPackageIdSimple()
         {
             BlobContainerClient container = CreateBlobServiceClient().GetBlobContainerClient("aasxfiles");
@@ -108,9 +138,13 @@ namespace AAS.API.AASXFile.Tests
             BlobClient blob = container.GetBlobClient("Simple/Package.aasx");
             string teststring = "This is a simple test";
             blob.Upload(new BinaryData(Encoding.UTF8.GetBytes(teststring)));
-
+            
             try
             {
+                IDictionary<string, string> metadata = new Dictionary<string, string>() {
+                { "package", "true" }, { "filename", "Simple.aasx" } };
+                blob.SetMetadata(metadata);
+
                 AASAASXFile service = CreateAASAASXFileService();
                 byte[] packageContents = service.GetAASXByPackageId("Simple").GetAwaiter().GetResult().Contents;
                 Assert.IsNotNull(packageContents);
@@ -256,16 +290,9 @@ namespace AAS.API.AASXFile.Tests
             }
         }
 
-        private AASAASXFile CreateAASAASXFileService(string uri = null)
+        private AASAASXFile CreateAASAASXFileService()
         {
-            using var logFactory = LoggerFactory.Create(builder => builder.AddConsole());
-            var logger = logFactory.CreateLogger<AzureBlobAASXFileService>();
-
-            AzureBlobAASXFileService service = new AzureBlobAASXFileService(
-                new BlobServiceClient(new Uri(uri != null ? uri : configuration["AASX_FILESERVICE_BLOBSTORAGEURL"]), new DefaultAzureCredential()),
-                configuration, logger);
-
-            return service;
+            return fileService;
         }
     }
 }
