@@ -90,6 +90,7 @@ namespace AAS.API.Discovery.Server
                 builder.UseCredential(new DefaultAzureCredential());
             });
 
+            services.AddHttpClient();
             services.AddSingleton<AASAASXFile, AzureBlobAASXFileService>();
         }
 

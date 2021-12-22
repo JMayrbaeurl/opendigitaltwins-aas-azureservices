@@ -96,7 +96,6 @@ namespace IO.Swagger
 
             services.AddSingleton<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
             services.AddSingleton<AASDiscovery, ADTAASDiscovery>();
-            //services.AddSingleton<AASDiscovery, ADTAASDiscovery>(s => (ADTAASDiscovery)new AASDiscoveryFactory().CreateAASDiscoveryForADT(Configuration["ADT_SERVICE_URL"]));
 
             services.AddAzureClients(builder =>
             {
@@ -105,6 +104,7 @@ namespace IO.Swagger
                 builder.UseCredential(new DefaultAzureCredential());
             });
 
+            services.AddHttpClient();
             services.AddSingleton<AASAASXFile, AzureBlobAASXFileService>();
         }
 
