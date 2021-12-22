@@ -7,11 +7,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
-COPY ["nuget.config", "."]
-COPY ["src/AAS WebApp AASX File Server/AAS WebApp AASX File Server.csproj", "src/AAS WebApp AASX File Server/"]
-RUN dotnet restore "src/AAS WebApp AASX File Server/AAS WebApp AASX File Server.csproj"
+COPY ["src/aas-api-webapp-aasxfile/AAS WebApp AASX File Server.csproj", "src/aas-api-webapp-aasxfile/"]
+RUN dotnet restore "src/aas-api-webapp-aasxfile/AAS WebApp AASX File Server.csproj"
 COPY . .
-WORKDIR "/src/src/AAS WebApp AASX File Server"
+WORKDIR "/src/src/aas-api-webapp-aasxfile"
 RUN dotnet build "AAS WebApp AASX File Server.csproj" -c Release -o /app/build
 
 FROM build AS publish

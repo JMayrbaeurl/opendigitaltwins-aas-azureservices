@@ -6,6 +6,7 @@
 		<UserSecretsId>8307df6a-cd8c-45e8-9ab0-2cbc62a85639</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileContext>..\..</DockerfileContext>
+		<DockerfileTag>aas-aasxfile-server:latest</DockerfileTag>
 	</PropertyGroup>
 
 	<ItemGroup>
