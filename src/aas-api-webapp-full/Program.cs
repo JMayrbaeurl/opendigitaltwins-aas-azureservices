@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore;
 
-namespace IO.Swagger
+namespace AAS.API.Full.Server
 {
     /// <summary>
     /// Program

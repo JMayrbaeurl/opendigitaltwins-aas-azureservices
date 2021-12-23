@@ -30,7 +30,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS WebApp AASX File Server
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS AASX File Service", "src\aas-aasxfile-service\AAS AASX File Service.csproj", "{E3D5DCB3-4CA1-4833-8A86-DA3D33D1748E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AAS AASX File Service Tests", "src\aas-aasxfile-service-tests\AAS AASX File Service Tests.csproj", "{82A9C310-4E09-4FD7-B3DB-F9E6C670A536}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS AASX File Service Tests", "src\aas-aasxfile-service-tests\AAS AASX File Service Tests.csproj", "{82A9C310-4E09-4FD7-B3DB-F9E6C670A536}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AAS WebApp Discovery", "src\aas-api-webapp-discovery\AAS WebApp Discovery.csproj", "{F54DA57A-DC54-4F84-A0C7-0ED10B60C226}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,6 +80,10 @@ Global
 		{82A9C310-4E09-4FD7-B3DB-F9E6C670A536}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82A9C310-4E09-4FD7-B3DB-F9E6C670A536}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82A9C310-4E09-4FD7-B3DB-F9E6C670A536}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F54DA57A-DC54-4F84-A0C7-0ED10B60C226}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F54DA57A-DC54-4F84-A0C7-0ED10B60C226}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F54DA57A-DC54-4F84-A0C7-0ED10B60C226}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F54DA57A-DC54-4F84-A0C7-0ED10B60C226}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

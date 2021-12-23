@@ -1,7 +1,10 @@
+using AAS.API.Discovery.Models;
+using AAS.API.Services.ADT;
 using AAS.API.WebApp.Filters;
-using Azure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,9 +14,16 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace AAS.API.AASXFile.Server
+namespace AAS.API.Discovery.Server
 {
+    /// <summary>
+    /// Startup
+    /// </summary>
     public class Startup
     {
         private readonly IWebHostEnvironment _hostingEnv;
@@ -43,6 +53,7 @@ namespace AAS.API.AASXFile.Server
                 {
                     options.InputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonInputFormatter>();
                     options.OutputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonOutputFormatter>();
+                    options.ModelBinderProviders.Insert(0, new IdentifierKeyValuePairModelBinderProvider());
                 })
                 .AddNewtonsoftJson(opts =>
                 {
@@ -76,15 +87,8 @@ namespace AAS.API.AASXFile.Server
                     c.OperationFilter<GeneratePathParamsValidationFilter>();
                 });
 
-            services.AddAzureClients(builder =>
-            {
-                builder.AddBlobServiceClient(new Uri(Configuration["AASX_FILESERVICE_BLOBSTORAGEURL"]));
-
-                builder.UseCredential(new DefaultAzureCredential());
-            });
-
-            services.AddHttpClient();
-            services.AddSingleton<AASAASXFile, AzureBlobAASXFileService>();
+            services.AddSingleton<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
+            services.AddSingleton<AASDiscovery, ADTAASDiscovery>();
         }
 
         /// <summary>

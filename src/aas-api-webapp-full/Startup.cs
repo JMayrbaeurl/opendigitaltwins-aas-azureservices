@@ -26,7 +26,7 @@ using AAS.API.AASXFile;
 using Microsoft.Extensions.Azure;
 using Azure.Identity;
 
-namespace IO.Swagger
+namespace AAS.API.Full.Server
 {
     /// <summary>
     /// Startup
