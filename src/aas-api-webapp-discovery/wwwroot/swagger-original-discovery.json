@@ -1,0 +1,258 @@
+{
+  "openapi" : "3.0.3",
+  "info" : {
+    "title" : "AAS Part 2 | HTTP/REST | Discovery interface",
+    "description" : "Discovery interface of the Asset Administration Shell Part 2",
+    "termsOfService" : "https://github.com/admin-shell-io/aas-specs",
+    "contact" : {
+      "name" : "Michael Hoffmeister, Torben Miny, Andreas Orzelski, Manuel Sauer, Constantin Ziesche"
+    },
+    "version" : "Final-Draft"
+  },
+  "servers" : [ {
+    "url" : "/"
+  } ],
+  "paths" : {
+    "/lookup/shells" : {
+      "get" : {
+        "tags" : [ "Asset Administration Shell Basic Discovery" ],
+        "summary" : "Returns a list of Asset Administration Shell ids based on Asset identifier key-value-pairs",
+        "operationId" : "GetAllAssetAdministrationShellIdsByAssetLink",
+        "parameters" : [ {
+          "name" : "assetIds",
+          "in" : "query",
+          "description" : "The key-value-pair of an Asset identifier",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "example" : "[{\"key\": \"globalAssetId\",\"value\": \"http://example.company/myAsset\"},{\"key\": \"myOwnInternalAssetId\",\"value\": \"12345ABC\"}]",
+            "items" : {
+              "$ref" : "#/components/schemas/IdentifierKeyValuePair"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Requested Asset Administration Shell ids",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Identifier"
+                  },
+                  "x-content-type" : "application/json"
+                }
+              }
+            }
+          }
+        },
+        "x-semanticIds" : [ "https://admin-shell.io/aas/API/GetAllAssetAdministrationShellIdsByAssetLink/1/0/RC02" ]
+      }
+    },
+    "/lookup/shells/{aasIdentifier}" : {
+      "get" : {
+        "tags" : [ "Asset Administration Shell Basic Discovery" ],
+        "summary" : "Returns a list of Asset identifier key-value-pairs based on an Asset Administration Shell id to edit discoverable content",
+        "operationId" : "GetAllAssetLinksById",
+        "parameters" : [ {
+          "name" : "aasIdentifier",
+          "in" : "path",
+          "description" : "The Asset Administration Shell’s unique id (BASE64-URL-encoded)",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Requested Asset identifier key-value-pairs",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/IdentifierKeyValuePair"
+                  },
+                  "x-content-type" : "application/json"
+                }
+              }
+            }
+          }
+        },
+        "x-semanticIds" : [ "https://admin-shell.io/aas/API/GetAllAssetLinksById/1/0/RC02" ]
+      },
+      "post" : {
+        "tags" : [ "Asset Administration Shell Basic Discovery" ],
+        "summary" : "Creates all Asset identifier key-value-pair linked to an Asset Administration Shell to edit discoverable content",
+        "operationId" : "PostAllAssetLinksById",
+        "parameters" : [ {
+          "name" : "aasIdentifier",
+          "in" : "path",
+          "description" : "The Asset Administration Shell’s unique id (BASE64-URL-encoded)",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Asset identifier key-value-pairs",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/IdentifierKeyValuePair"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Asset identifier key-value-pairs created successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/IdentifierKeyValuePair"
+                  },
+                  "x-content-type" : "application/json"
+                }
+              }
+            }
+          }
+        },
+        "x-semanticIds" : [ "https://admin-shell.io/aas/API/PostAllAssetLinksById/1/0/RC02" ]
+      },
+      "delete" : {
+        "tags" : [ "Asset Administration Shell Basic Discovery" ],
+        "summary" : "Deletes all Asset identifier key-value-pair linked to an Asset Administration Shell to edit discoverable content",
+        "operationId" : "DeleteAllAssetLinksById",
+        "parameters" : [ {
+          "name" : "aasIdentifier",
+          "in" : "path",
+          "description" : "The Asset Administration Shell’s unique id (BASE64-URL-encoded)",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Asset identifier key-value-pairs deleted successfully"
+          }
+        },
+        "x-semanticIds" : [ "https://admin-shell.io/aas/API/DeleteAllAssetLinksById/1/0/RC02" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas": {
+      "IdentifierKeyValuePair": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/HasSemantics"
+          },
+          {
+            "required": [ "key", "subjectId", "value" ],
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "subjectId": {
+                "$ref": "#/components/schemas/Reference"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "Identifier": {
+        "type": "string"
+      },
+      "HasSemantics": {
+        "type": "object",
+        "properties": {
+          "semanticId": {
+            "$ref": "#/components/schemas/Reference"
+          }
+        }
+      },
+      "Reference": {
+        "type": "object",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/GlobalReference"
+          },
+          {
+            "$ref": "#/components/schemas/ModelReference"
+          }
+        ]
+      },
+      "GlobalReference": {
+        "required": [ "value" ],
+        "properties": {
+          "value": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Identifier"
+            }
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Reference"
+          }
+        ]
+      },
+      "ModelReference": {
+        "required": [ "keys" ],
+        "properties": {
+          "referredSemanticId": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "keys": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Key"
+            }
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Reference"
+          }
+        ]
+      },
+      "Key": {
+        "required": [ "type", "value" ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/KeyElements"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "KeyElements": {
+        "type": "string",
+        "enum": [ "AssetAdministrationShell", "AccessPermissionRule", "ConceptDescription", "Submodel", "AnnotatedRelationshipElement", "BasicEvent", "Blob", "Capability", "DataElement", "File", "Entity", "Event", "MultiLanguageProperty", "Operation", "Property", "Range", "ReferenceElement", "RelationshipElement", "SubmodelElement", "SubmodelElementList", "SubmodelElementStruct", "View", "FragmentReference" ]
+      }
+    }
+  }
+}

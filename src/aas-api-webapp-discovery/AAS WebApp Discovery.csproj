@@ -24,5 +24,11 @@
 		<ProjectReference Include="..\aas-discovery-service\AAS Discovery Service.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Update="wwwroot\swagger-original-discovery.json">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
 
 </Project>

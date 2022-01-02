@@ -108,7 +108,10 @@ namespace AAS.API.Registry
 
             app.UseAuthorization();
 
-            app.UseSwagger();
+            app.UseSwagger(options =>
+            {
+                options.SerializeAsV2 = Configuration.GetValue<bool>("OPENAPI_JSON_VERSION_2");
+            });
             app.UseSwaggerUI(c =>
             {
                 //TODO: Either use the SwaggerGen generated Swagger contract (generated from C# classes)

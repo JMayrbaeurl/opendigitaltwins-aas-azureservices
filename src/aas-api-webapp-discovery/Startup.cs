@@ -102,18 +102,21 @@ namespace AAS.API.Discovery.Server
             app.UseRouting();
 
             //TODO: Uncomment this if you need wwwroot folder
-            // app.UseStaticFiles();
+            //app.UseStaticFiles();
 
             app.UseAuthorization();
 
-            app.UseSwagger();
+            app.UseSwagger(options =>
+            {
+                options.SerializeAsV2 = Configuration.GetValue<bool>("OPENAPI_JSON_VERSION_2");
+            });
             app.UseSwaggerUI(c =>
             {
                 //TODO: Either use the SwaggerGen generated Swagger contract (generated from C# classes)
-                c.SwaggerEndpoint("/swagger/Final-Draft/swagger.json", "DotAAS Part 2 | HTTP/REST | Entire Interface Collection");
+                c.SwaggerEndpoint("/swagger/Final-Draft/swagger.json", "Asset Administration Shell Part 2 | HTTP/REST | Discovery Interface");
 
-                //TODO: Or alternatively use the original Swagger contract that's included in the static files
-                // c.SwaggerEndpoint("/swagger-original.json", "DotAAS Part 2 | HTTP/REST | Entire Interface Collection Original");
+                //TODO: Or alternatively use the original Swagger contract that's included in the static files - Dont forget to uncomment app.UseStaticFiles
+                //c.SwaggerEndpoint("/swagger-original-discovery.json", "Asset Administration Shell Part 2 | HTTP/REST | Discovery Interface");
             });
 
             //TODO: Use Https Redirection
