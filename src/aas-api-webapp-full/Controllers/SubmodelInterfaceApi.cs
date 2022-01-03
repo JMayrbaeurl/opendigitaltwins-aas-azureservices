@@ -20,10 +20,11 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 
 namespace AAS.API.WebApp.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class SubmodelInterfaceApiController : ControllerBase
     { 
@@ -33,7 +34,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="idShortPath">IdShort path to the submodel element (dot-separated)</param>
         /// <response code="204">Submodel element deleted successfully</response>
         [HttpDelete]
-        [Route("/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteSubmodelElementByPath")]
         public virtual IActionResult DeleteSubmodelElementByPath([FromRoute][Required]string idShortPath)
@@ -52,7 +53,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="200">List of found submodel elements</response>
         [HttpGet]
-        [Route("/submodel/submodel-elements")]
+        [Route("api/v1/submodel/submodel-elements")]
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodelElements")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<SubmodelElement>), description: "List of found submodel elements")]
@@ -77,7 +78,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="content"></param>
         /// <response code="200">Operation result object</response>
         [HttpGet]
-        [Route("/submodel/submodel-elements/{idShortPath}/operation-results/{handleId}")]
+        [Route("api/v1/submodel/submodel-elements/{idShortPath}/operation-results/{handleId}")]
         [ValidateModelState]
         [SwaggerOperation("GetOperationAsyncResult")]
         [SwaggerResponse(statusCode: 200, type: typeof(OperationResult), description: "Operation result object")]
@@ -102,7 +103,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="200">Requested Submodel</response>
         [HttpGet]
-        [Route("/submodel")]
+        [Route("api/v1/submodel")]
         [ValidateModelState]
         [SwaggerOperation("GetSubmodel")]
         [SwaggerResponse(statusCode: 200, type: typeof(Submodel), description: "Requested Submodel")]
@@ -128,7 +129,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="200">Requested submodel element</response>
         [HttpGet]
-        [Route("/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("GetSubmodelElementByPath")]
         [SwaggerResponse(statusCode: 200, type: typeof(SubmodelElement), description: "Requested submodel element")]
@@ -154,7 +155,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="content">Determines the request or response kind of the resource</param>
         /// <response code="200">Operation result object</response>
         [HttpPost]
-        [Route("/submodel/submodel-elements/{idShortPath}/invoke")]
+        [Route("api/v1/submodel/submodel-elements/{idShortPath}/invoke")]
         [ValidateModelState]
         [SwaggerOperation("InvokeOperation")]
         [SwaggerResponse(statusCode: 200, type: typeof(OperationResult), description: "Operation result object")]
@@ -180,7 +181,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="201">Submodel element created successfully</response>
         [HttpPost]
-        [Route("/submodel/submodel-elements")]
+        [Route("api/v1/submodel/submodel-elements")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodelElement")]
         [SwaggerResponse(statusCode: 201, type: typeof(SubmodelElement), description: "Submodel element created successfully")]
@@ -207,7 +208,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="201">Submodel element created successfully</response>
         [HttpPost]
-        [Route("/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodelElementByPath")]
         [SwaggerResponse(statusCode: 201, type: typeof(SubmodelElement), description: "Submodel element created successfully")]
@@ -233,7 +234,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="204">Submodel updated successfully</response>
         [HttpPut]
-        [Route("/submodel")]
+        [Route("api/v1/submodel")]
         [ValidateModelState]
         [SwaggerOperation("PutSubmodel")]
         public virtual IActionResult PutSubmodel([FromBody]Submodel body, [FromQuery]string level, [FromQuery]string content, [FromQuery]string extent)
@@ -254,7 +255,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="204">Submodel element updated successfully</response>
         [HttpPut]
-        [Route("/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("PutSubmodelElementByPath")]
         public virtual IActionResult PutSubmodelElementByPath([FromBody]SubmodelElement body, [FromRoute][Required]string idShortPath, [FromQuery]string level, [FromQuery]string content, [FromQuery]string extent)

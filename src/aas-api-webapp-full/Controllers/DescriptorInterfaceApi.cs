@@ -20,10 +20,11 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 
 namespace AAS.API.WebApp.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class DescriptorInterfaceApiController : ControllerBase
     { 
@@ -32,7 +33,7 @@ namespace AAS.API.WebApp.Controllers
         /// </summary>
         /// <response code="200">Requested Descriptor</response>
         [HttpGet]
-        [Route("/descriptor")]
+        [Route("api/v1/descriptor")]
         [ValidateModelState]
         [SwaggerOperation("GetDescriptor")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<Descriptor>), description: "Requested Descriptor")]

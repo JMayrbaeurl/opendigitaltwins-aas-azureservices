@@ -20,10 +20,11 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 
 namespace AAS.API.WebApp.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class AssetAdministrationShellSerializationInterfaceApiController : ControllerBase
     { 
@@ -35,7 +36,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="includeConceptDescriptions">Include Concept Descriptions?</param>
         /// <response code="200">Requested serialization based on SerializationFormat</response>
         [HttpGet]
-        [Route("/serialization")]
+        [Route("api/v1/serialization")]
         [ValidateModelState]
         [SwaggerOperation("GenerateSerializationByIds")]
         [SwaggerResponse(statusCode: 200, type: typeof(byte[]), description: "Requested serialization based on SerializationFormat")]

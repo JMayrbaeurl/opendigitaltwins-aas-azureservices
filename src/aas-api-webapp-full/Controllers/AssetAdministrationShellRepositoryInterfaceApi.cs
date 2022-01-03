@@ -22,10 +22,11 @@ using Microsoft.Extensions.Configuration;
 using AAS.API.Repository;
 
 namespace AAS.API.WebApp.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class AssetAdministrationShellRepositoryInterfaceApiController : ControllerBase
     {
@@ -50,7 +51,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Asset Administration Shell deleted successfully</response>
         [HttpDelete]
-        [Route("/shells/{aasIdentifier}")]
+        [Route("api/v1/shells/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteAssetAdministrationShellById")]
         public virtual IActionResult DeleteAssetAdministrationShellById([FromRoute][Required]string aasIdentifier)
@@ -68,7 +69,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="idShort">The Asset Administration Shell’s IdShort</param>
         /// <response code="200">Requested Asset Administration Shells</response>
         [HttpGet]
-        [Route("/shells")]
+        [Route("api/v1/shells")]
         [ValidateModelState]
         [SwaggerOperation("GetAllAssetAdministrationShells")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<AssetAdministrationShell>), description: "Requested Asset Administration Shells")]
@@ -104,7 +105,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Asset Administration Shell</response>
         [HttpGet]
-        [Route("/shells/{aasIdentifier}")]
+        [Route("api/v1/shells/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("GetAssetAdministrationShellById")]
         [SwaggerResponse(statusCode: 200, type: typeof(AssetAdministrationShell), description: "Requested Asset Administration Shell")]
@@ -127,7 +128,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="body">Asset Administration Shell object</param>
         /// <response code="201">Asset Administration Shell created successfully</response>
         [HttpPost]
-        [Route("/shells")]
+        [Route("api/v1/shells")]
         [ValidateModelState]
         [SwaggerOperation("PostAssetAdministrationShell")]
         [SwaggerResponse(statusCode: 201, type: typeof(AssetAdministrationShell), description: "Asset Administration Shell created successfully")]
@@ -151,7 +152,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Asset Administration Shell updated successfully</response>
         [HttpPut]
-        [Route("/shells/{aasIdentifier}")]
+        [Route("api/v1/shells/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("PutAssetAdministrationShellById")]
         public virtual IActionResult PutAssetAdministrationShellById([FromBody]AssetAdministrationShell body, [FromRoute][Required]string aasIdentifier)

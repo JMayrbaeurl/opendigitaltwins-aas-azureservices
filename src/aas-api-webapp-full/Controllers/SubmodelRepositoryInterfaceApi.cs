@@ -20,10 +20,11 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 
 namespace AAS.API.WebApp.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class SubmodelRepositoryInterfaceApiController : ControllerBase
     { 
@@ -33,7 +34,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Submodel deleted successfully</response>
         [HttpDelete]
-        [Route("/submodels/{submodelIdentifier}")]
+        [Route("api/v1/submodels/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteSubmodelById")]
         public virtual IActionResult DeleteSubmodelById([FromRoute][Required]string submodelIdentifier)
@@ -51,7 +52,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="idShort">The Submodel’s idShort</param>
         /// <response code="200">Requested Submodels</response>
         [HttpGet]
-        [Route("/submodels")]
+        [Route("api/v1/submodels")]
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodels")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<Submodel>), description: "Requested Submodels")]
@@ -74,7 +75,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Submodel</response>
         [HttpGet]
-        [Route("/submodels/{submodelIdentifier}")]
+        [Route("api/v1/submodels/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("GetSubmodelById")]
         [SwaggerResponse(statusCode: 200, type: typeof(Submodel), description: "Requested Submodel")]
@@ -97,7 +98,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="body">Submodel object</param>
         /// <response code="201">Submodel created successfully</response>
         [HttpPost]
-        [Route("/submodels")]
+        [Route("api/v1/submodels")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodel")]
         [SwaggerResponse(statusCode: 201, type: typeof(Submodel), description: "Submodel created successfully")]
@@ -122,7 +123,7 @@ namespace AAS.API.WebApp.Controllers
         /// <response code="201">Submodel created successfully</response>
         /// <response code="204">Submodel updated successfully</response>
         [HttpPut]
-        [Route("/submodels/{submodelIdentifier}")]
+        [Route("api/v1/submodels/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("PutSubmodelById")]
         [SwaggerResponse(statusCode: 201, type: typeof(Submodel), description: "Submodel created successfully")]

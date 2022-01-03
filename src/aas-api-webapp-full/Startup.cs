@@ -25,6 +25,9 @@ using AAS.API.Services.ADT;
 using AAS.API.AASXFile;
 using Microsoft.Extensions.Azure;
 using Azure.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AAS.API.Full.Server
 {
@@ -54,6 +57,9 @@ namespace AAS.API.Full.Server
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+
             // Add framework services.
             services
                 .AddMvc(options =>
@@ -121,11 +127,12 @@ namespace AAS.API.Full.Server
             //TODO: Uncomment this if you need wwwroot folder
             // app.UseStaticFiles();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseSwagger(options =>
             {
-                options.SerializeAsV2 = Configuration.GetValue<bool>("OPENAPI_JSON_VERSION_2");
+                options.SerializeAsV2 = Configuration.GetValue<bool>("OPENAPI_JSON_VERSION_2", false);
             });
             app.UseSwaggerUI(c =>
             {
@@ -141,11 +148,15 @@ namespace AAS.API.Full.Server
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                if (env.IsDevelopment())
+                    endpoints.MapControllers().WithMetadata(new AllowAnonymousAttribute());
+                else
+                    endpoints.MapControllers();
             });
 
             if (env.IsDevelopment())
             {
+                Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
                 app.UseDeveloperExceptionPage();
             }
             else

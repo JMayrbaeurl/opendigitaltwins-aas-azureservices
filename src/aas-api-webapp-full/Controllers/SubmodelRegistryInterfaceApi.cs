@@ -20,10 +20,11 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 
 namespace AAS.API.WebApp.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class SubmodelRegistryInterfaceApiController : ControllerBase
     { 
@@ -33,7 +34,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Submodel Descriptor deleted successfully</response>
         [HttpDelete]
-        [Route("/registry/submodel-descriptors/{submodelIdentifier}")]
+        [Route("api/v1/registry/submodel-descriptors/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteSubmodelDescriptorById")]
         public virtual IActionResult DeleteSubmodelDescriptorById([FromRoute][Required]string submodelIdentifier)
@@ -49,7 +50,7 @@ namespace AAS.API.WebApp.Controllers
         /// </summary>
         /// <response code="200">Requested Submodel Descriptors</response>
         [HttpGet]
-        [Route("/registry/submodel-descriptors")]
+        [Route("api/v1/registry/submodel-descriptors")]
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodelDescriptors")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<SubmodelDescriptor>), description: "Requested Submodel Descriptors")]
@@ -72,7 +73,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Submodel Descriptor</response>
         [HttpGet]
-        [Route("/registry/submodel-descriptors/{submodelIdentifier}")]
+        [Route("api/v1/registry/submodel-descriptors/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("GetSubmodelDescriptorById")]
         [SwaggerResponse(statusCode: 200, type: typeof(SubmodelDescriptor), description: "Requested Submodel Descriptor")]
@@ -95,7 +96,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="body">Submodel Descriptor object</param>
         /// <response code="201">Submodel Descriptor created successfully</response>
         [HttpPost]
-        [Route("/registry/submodel-descriptors")]
+        [Route("api/v1/registry/submodel-descriptors")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodelDescriptor")]
         [SwaggerResponse(statusCode: 201, type: typeof(SubmodelDescriptor), description: "Submodel Descriptor created successfully")]
@@ -119,7 +120,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Submodel Descriptor updated successfully</response>
         [HttpPut]
-        [Route("/registry/submodel-descriptors/{submodelIdentifier}")]
+        [Route("api/v1/registry/submodel-descriptors/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("PutSubmodelDescriptorById")]
         public virtual IActionResult PutSubmodelDescriptorById([FromBody]SubmodelDescriptor body, [FromRoute][Required]string submodelIdentifier)

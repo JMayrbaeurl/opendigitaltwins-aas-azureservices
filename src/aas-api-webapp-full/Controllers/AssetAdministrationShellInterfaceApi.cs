@@ -20,10 +20,11 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 
 namespace AAS.API.WebApp.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class AssetAdministrationShellInterfaceApiController : ControllerBase
     { 
@@ -33,7 +34,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Submodel reference deleted successfully</response>
         [HttpDelete]
-        [Route("/aas/submodels/{submodelIdentifier}")]
+        [Route("api/v1/aas/submodels/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteSubmodelReferenceById")]
         public virtual IActionResult DeleteSubmodelReferenceById([FromRoute][Required]string submodelIdentifier)
@@ -49,7 +50,7 @@ namespace AAS.API.WebApp.Controllers
         /// </summary>
         /// <response code="200">Requested submodel references</response>
         [HttpGet]
-        [Route("/aas/submodels")]
+        [Route("api/v1/aas/submodels")]
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodelReferences")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<Reference>), description: "Requested submodel references")]
@@ -72,7 +73,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="content">Determines the request or response kind of the resource</param>
         /// <response code="200">Requested Asset Administration Shell</response>
         [HttpGet]
-        [Route("/aas")]
+        [Route("api/v1/aas")]
         [ValidateModelState]
         [SwaggerOperation("GetAssetAdministrationShell")]
         [SwaggerResponse(statusCode: 200, type: typeof(AssetAdministrationShell), description: "Requested Asset Administration Shell")]
@@ -94,7 +95,7 @@ namespace AAS.API.WebApp.Controllers
         /// </summary>
         /// <response code="200">Requested Asset Information</response>
         [HttpGet]
-        [Route("/aas/asset-information")]
+        [Route("api/v1/aas/asset-information")]
         [ValidateModelState]
         [SwaggerOperation("GetAssetInformation")]
         [SwaggerResponse(statusCode: 200, type: typeof(AssetInformation), description: "Requested Asset Information")]
@@ -117,7 +118,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="body">Reference to the Submodel</param>
         /// <response code="201">Submodel reference created successfully</response>
         [HttpPost]
-        [Route("/aas/submodels")]
+        [Route("api/v1/aas/submodels")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodelReference")]
         [SwaggerResponse(statusCode: 201, type: typeof(Reference), description: "Submodel reference created successfully")]
@@ -141,7 +142,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="content">Determines the request or response kind of the resource</param>
         /// <response code="204">Asset Administration Shell updated successfully</response>
         [HttpPut]
-        [Route("/aas")]
+        [Route("api/v1/aas")]
         [ValidateModelState]
         [SwaggerOperation("PutAssetAdministrationShell")]
         public virtual IActionResult PutAssetAdministrationShell([FromBody]AssetAdministrationShell body, [FromQuery]string content)
@@ -158,7 +159,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="body">Asset Information object</param>
         /// <response code="204">Asset Information updated successfully</response>
         [HttpPut]
-        [Route("/aas/asset-information")]
+        [Route("api/v1/aas/asset-information")]
         [ValidateModelState]
         [SwaggerOperation("PutAssetInformation")]
         public virtual IActionResult PutAssetInformation([FromBody]AssetInformation body)

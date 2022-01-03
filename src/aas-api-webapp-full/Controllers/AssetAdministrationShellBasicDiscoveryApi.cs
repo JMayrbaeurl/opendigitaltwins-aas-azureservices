@@ -19,12 +19,14 @@ using AAS.API.Models;
 using AAS.API.Discovery;
 using System.Web;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AAS.API.WebApp.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class AssetAdministrationShellBasicDiscoveryApiController : ControllerBase
     {
@@ -49,7 +51,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Asset identifier key-value-pairs deleted successfully</response>
         [HttpDelete]
-        [Route("/lookup/shells/{aasIdentifier}")]
+        [Route("api/v1/lookup/shells/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteAllAssetLinksById")]
         public virtual IActionResult DeleteAllAssetLinksById([FromRoute][Required]string aasIdentifier)
@@ -71,7 +73,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="assetIds">The key-value-pair of an Asset identifier</param>
         /// <response code="200">Requested Asset Administration Shell ids</response>
         [HttpGet]
-        [Route("/lookup/shells")]
+        [Route("api/v1/lookup/shells")]
         [ValidateModelState]
         [SwaggerOperation("GetAllAssetAdministrationShellIdsByAssetLink")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<string>), description: "Requested Asset Administration Shell ids")]
@@ -94,7 +96,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Asset identifier key-value-pairs</response>
         [HttpGet]
-        [Route("/lookup/shells/{aasIdentifier}")]
+        [Route("api/v1/lookup/shells/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("GetAllAssetLinksById")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<IdentifierKeyValuePair>), description: "Requested Asset identifier key-value-pairs")]
@@ -118,7 +120,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="201">Asset identifier key-value-pairs created successfully</response>
         [HttpPost]
-        [Route("/lookup/shells/{aasIdentifier}")]
+        [Route("api/v1/lookup/shells/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("PostAllAssetLinksById")]
         [SwaggerResponse(statusCode: 201, type: typeof(List<IdentifierKeyValuePair>), description: "Asset identifier key-value-pairs created successfully")]

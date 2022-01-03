@@ -20,10 +20,11 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 
 namespace AAS.API.WebApp.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class AssetAdministrationShellRegistryInterfaceApiController : ControllerBase
     { 
@@ -33,7 +34,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Asset Administration Shell Descriptor deleted successfully</response>
         [HttpDelete]
-        [Route("/registry/shell-descriptors/{aasIdentifier}")]
+        [Route("api/v1/registry/shell-descriptors/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteAssetAdministrationShellDescriptorById")]
         public virtual IActionResult DeleteAssetAdministrationShellDescriptorById([FromRoute][Required]string aasIdentifier)
@@ -51,7 +52,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Submodel Descriptor deleted successfully</response>
         [HttpDelete]
-        [Route("/registry/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")]
+        [Route("api/v1/registry/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteSubmodelDescriptorByIdAASRegistry")]
         public virtual IActionResult DeleteSubmodelDescriptorByIdAASRegistry([FromRoute][Required]string aasIdentifier, [FromRoute][Required]string submodelIdentifier)
@@ -67,7 +68,7 @@ namespace AAS.API.WebApp.Controllers
         /// </summary>
         /// <response code="200">Requested Asset Administration Shell Descriptors</response>
         [HttpGet]
-        [Route("/registry/shell-descriptors")]
+        [Route("api/v1/registry/shell-descriptors")]
         [ValidateModelState]
         [SwaggerOperation("GetAllAssetAdministrationShellDescriptors")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<AssetAdministrationShellDescriptor>), description: "Requested Asset Administration Shell Descriptors")]
@@ -90,7 +91,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Submodel Descriptors</response>
         [HttpGet]
-        [Route("/registry/shell-descriptors/{aasIdentifier}/submodel-descriptors")]
+        [Route("api/v1/registry/shell-descriptors/{aasIdentifier}/submodel-descriptors")]
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodelDescriptorsAASRegistry")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<SubmodelDescriptor>), description: "Requested Submodel Descriptors")]
@@ -113,7 +114,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Asset Administration Shell Descriptor</response>
         [HttpGet]
-        [Route("/registry/shell-descriptors/{aasIdentifier}")]
+        [Route("api/v1/registry/shell-descriptors/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("GetAssetAdministrationShellDescriptorById")]
         [SwaggerResponse(statusCode: 200, type: typeof(AssetAdministrationShellDescriptor), description: "Requested Asset Administration Shell Descriptor")]
@@ -137,7 +138,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Submodel Descriptor</response>
         [HttpGet]
-        [Route("/registry/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")]
+        [Route("api/v1/registry/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("GetSubmodelDescriptorByIdAASRegistry")]
         [SwaggerResponse(statusCode: 200, type: typeof(SubmodelDescriptor), description: "Requested Submodel Descriptor")]
@@ -160,7 +161,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="body">Asset Administration Shell Descriptor object</param>
         /// <response code="201">Asset Administration Shell Descriptor created successfully</response>
         [HttpPost]
-        [Route("/registry/shell-descriptors")]
+        [Route("api/v1/registry/shell-descriptors")]
         [ValidateModelState]
         [SwaggerOperation("PostAssetAdministrationShellDescriptor")]
         [SwaggerResponse(statusCode: 201, type: typeof(AssetAdministrationShellDescriptor), description: "Asset Administration Shell Descriptor created successfully")]
@@ -184,7 +185,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="201">Submodel Descriptor created successfully</response>
         [HttpPost]
-        [Route("/registry/shell-descriptors/{aasIdentifier}/submodel-descriptors")]
+        [Route("api/v1/registry/shell-descriptors/{aasIdentifier}/submodel-descriptors")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodelDescriptorAASRegistry")]
         [SwaggerResponse(statusCode: 201, type: typeof(SubmodelDescriptor), description: "Submodel Descriptor created successfully")]
@@ -208,7 +209,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Asset Administration Shell Descriptor updated successfully</response>
         [HttpPut]
-        [Route("/registry/shell-descriptors/{aasIdentifier}")]
+        [Route("api/v1/registry/shell-descriptors/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("PutAssetAdministrationShellDescriptorById")]
         public virtual IActionResult PutAssetAdministrationShellDescriptorById([FromBody]AssetAdministrationShellDescriptor body, [FromRoute][Required]string aasIdentifier)
@@ -227,7 +228,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Submodel Descriptor updated successfully</response>
         [HttpPut]
-        [Route("/registry/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")]
+        [Route("api/v1/registry/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("PutSubmodelDescriptorByIdAASRegistry")]
         public virtual IActionResult PutSubmodelDescriptorByIdAASRegistry([FromBody]SubmodelDescriptor body, [FromRoute][Required]string aasIdentifier, [FromRoute][Required]string submodelIdentifier)

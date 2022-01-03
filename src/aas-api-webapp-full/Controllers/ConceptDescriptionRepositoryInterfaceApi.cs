@@ -20,10 +20,11 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 
 namespace AAS.API.WebApp.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class ConceptDescriptionRepositoryInterfaceApiController : ControllerBase
     { 
@@ -33,7 +34,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="cdIdentifier">The Concept Description’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Concept Description deleted successfully</response>
         [HttpDelete]
-        [Route("/concept-descriptions/{cdIdentifier}")]
+        [Route("api/v1/concept-descriptions/{cdIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteConceptDescriptionById")]
         public virtual IActionResult DeleteConceptDescriptionById([FromRoute][Required]string cdIdentifier)
@@ -52,7 +53,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="dataSpecificationRef">DataSpecification reference (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Concept Descriptions</response>
         [HttpGet]
-        [Route("/concept-descriptions")]
+        [Route("api/v1/concept-descriptions")]
         [ValidateModelState]
         [SwaggerOperation("GetAllConceptDescriptions")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<ConceptDescription>), description: "Requested Concept Descriptions")]
@@ -75,7 +76,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="cdIdentifier">The Concept Description’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Concept Description</response>
         [HttpGet]
-        [Route("/concept-descriptions/{cdIdentifier}")]
+        [Route("api/v1/concept-descriptions/{cdIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("GetConceptDescriptionById")]
         [SwaggerResponse(statusCode: 200, type: typeof(ConceptDescription), description: "Requested Concept Description")]
@@ -98,7 +99,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="body">Concept Description object</param>
         /// <response code="201">Concept Description created successfully</response>
         [HttpPost]
-        [Route("/concept-descriptions")]
+        [Route("api/v1/concept-descriptions")]
         [ValidateModelState]
         [SwaggerOperation("PostConceptDescription")]
         [SwaggerResponse(statusCode: 201, type: typeof(ConceptDescription), description: "Concept Description created successfully")]
@@ -122,7 +123,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="cdIdentifier">The Concept Description’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Concept Description updated successfully</response>
         [HttpPut]
-        [Route("/concept-descriptions/{cdIdentifier}")]
+        [Route("api/v1/concept-descriptions/{cdIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("PutConceptDescriptionById")]
         public virtual IActionResult PutConceptDescriptionById([FromBody]ConceptDescription body, [FromRoute][Required]string cdIdentifier)

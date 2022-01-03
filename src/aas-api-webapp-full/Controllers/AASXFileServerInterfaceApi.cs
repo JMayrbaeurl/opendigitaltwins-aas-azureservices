@@ -27,6 +27,7 @@ namespace AAS.API.WebApp.Controllers
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class AASXFileServerInterfaceApiController : ControllerBase
     {
@@ -46,7 +47,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="packageId">The Package Id (BASE64-URL-encoded)</param>
         /// <response code="204">Deleted successfully</response>
         [HttpDelete]
-        [Route("/packages/{packageId}")]
+        [Route("api/v1/packages/{packageId}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteAASXByPackageId")]
         public virtual IActionResult DeleteAASXByPackageId([FromRoute][Required] string packageId)
@@ -70,7 +71,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="packageId">The package Id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested AASX package</response>
         [HttpGet]
-        [Route("/packages/{packageId}")]
+        [Route("api/v1/packages/{packageId}")]
         [ValidateModelState]
         [SwaggerOperation("GetAASXByPackageId")]
         [SwaggerResponse(statusCode: 200, type: typeof(byte[]), description: "Requested AASX package")]
@@ -104,7 +105,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasId">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested package list</response>
         [HttpGet]
-        [Route("/packages")]
+        [Route("api/v1/packages")]
         [ValidateModelState]
         [SwaggerOperation("GetAllAASXPackageIds")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<PackageDescription>), description: "Requested package list")]
@@ -128,7 +129,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="aasxPackage"></param>
         /// <response code="201">AASX package stored successfully</response>
         [HttpPost]
-        [Route("/packages")]
+        [Route("api/v1/packages")]
         [ValidateModelState]
         [SwaggerOperation("PostAASXPackage")]
         [SwaggerResponse(statusCode: 201, type: typeof(PackageDescription), description: "AASX package stored successfully")]
@@ -153,7 +154,7 @@ namespace AAS.API.WebApp.Controllers
         /// <param name="packageId">The Package Id (BASE64-URL-encoded)</param>
         /// <response code="204">AASX package updated successfully</response>
         [HttpPut]
-        [Route("/packages/{packageId}")]
+        [Route("api/v1/packages/{packageId}")]
         [ValidateModelState]
         [SwaggerOperation("PutAASXByPackageId")]
         [SwaggerResponse(statusCode: 204, type: typeof(PackageDescription), description: "AASX package updated successfully")]
