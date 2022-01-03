@@ -26,6 +26,7 @@ namespace AAS.API.Registry.Controllers
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class AssetAdministrationShellRepositoryApiController : ControllerBase
     {
@@ -50,7 +51,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Asset Administration Shell deleted successfully</response>
         [HttpDelete]
-        [Route("/shells/{aasIdentifier}")]
+        [Route("api/v1/shells/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteAssetAdministrationShellById")]
         public virtual IActionResult DeleteAssetAdministrationShellById([FromRoute][Required]string aasIdentifier)
@@ -67,7 +68,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="cdIdentifier">The Concept Description’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Concept Description deleted successfully</response>
         [HttpDelete]
-        [Route("/concept-descriptions/{cdIdentifier}")]
+        [Route("api/v1/concept-descriptions/{cdIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteConceptDescriptionById")]
         public virtual IActionResult DeleteConceptDescriptionById([FromRoute][Required]string cdIdentifier)
@@ -86,7 +87,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="idShortPath">IdShort path to the submodel element (dot-separated)</param>
         /// <response code="204">Submodel element deleted successfully</response>
         [HttpDelete]
-        [Route("/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteSubmodelElementByPath")]
         public virtual IActionResult DeleteSubmodelElementByPath([FromRoute][Required]string aasIdentifier, [FromRoute][Required]string submodelIdentifier, [FromRoute][Required]string idShortPath)
@@ -104,7 +105,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="idShortPath">IdShort path to the submodel element (dot-separated)</param>
         /// <response code="204">Submodel element deleted successfully</response>
         [HttpDelete]
-        [Route("/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteSubmodelElementByPathSubmodelRepo")]
         public virtual IActionResult DeleteSubmodelElementByPathSubmodelRepo([FromRoute][Required]string submodelIdentifier, [FromRoute][Required]string idShortPath)
@@ -122,7 +123,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Submodel reference deleted successfully</response>
         [HttpDelete]
-        [Route("/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteSubmodelReferenceById")]
         public virtual IActionResult DeleteSubmodelReferenceById([FromRoute][Required]string aasIdentifier, [FromRoute][Required]string submodelIdentifier)
@@ -141,7 +142,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="includeConceptDescriptions">Include Concept Descriptions?</param>
         /// <response code="200">Requested serialization based on SerializationFormat</response>
         [HttpGet]
-        [Route("/serialization")]
+        [Route("api/v1/serialization")]
         [ValidateModelState]
         [SwaggerOperation("GenerateSerializationByIds")]
         [SwaggerResponse(statusCode: 200, type: typeof(byte[]), description: "Requested serialization based on SerializationFormat")]
@@ -165,7 +166,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="idShort">The Asset Administration Shell’s IdShort</param>
         /// <response code="200">Requested Asset Administration Shells</response>
         [HttpGet]
-        [Route("/shells")]
+        [Route("api/v1/shells")]
         [ValidateModelState]
         [SwaggerOperation("GetAllAssetAdministrationShells")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<AssetAdministrationShell>), description: "Requested Asset Administration Shells")]
@@ -203,7 +204,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="dataSpecificationRef">DataSpecification reference (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Concept Descriptions</response>
         [HttpGet]
-        [Route("/concept-descriptions")]
+        [Route("api/v1/concept-descriptions")]
         [ValidateModelState]
         [SwaggerOperation("GetAllConceptDescriptions")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<ConceptDescription>), description: "Requested Concept Descriptions")]
@@ -230,7 +231,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="200">List of found submodel elements</response>
         [HttpGet]
-        [Route("/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements")]
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodelElements")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<SubmodelElement>), description: "List of found submodel elements")]
@@ -256,7 +257,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="200">List of found submodel elements</response>
         [HttpGet]
-        [Route("/submodels/{submodelIdentifier}/submodel/submodel-elements")]
+        [Route("api/v1/submodels/{submodelIdentifier}/submodel/submodel-elements")]
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodelElementsSubmodelRepo")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<SubmodelElement>), description: "List of found submodel elements")]
@@ -279,7 +280,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested submodel references</response>
         [HttpGet]
-        [Route("/shells/{aasIdentifier}/aas/submodels")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels")]
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodelReferences")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<Reference>), description: "Requested submodel references")]
@@ -303,7 +304,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="idShort">The Submodel’s idShort</param>
         /// <response code="200">Requested Submodels</response>
         [HttpGet]
-        [Route("/submodels")]
+        [Route("api/v1/submodels")]
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodels")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<Submodel>), description: "Requested Submodels")]
@@ -327,7 +328,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="content">Determines the request or response kind of the resource</param>
         /// <response code="200">Requested Asset Administration Shell</response>
         [HttpGet]
-        [Route("/shells/{aasIdentifier}/aas")]
+        [Route("api/v1/shells/{aasIdentifier}/aas")]
         [ValidateModelState]
         [SwaggerOperation("GetAssetAdministrationShell")]
         [SwaggerResponse(statusCode: 200, type: typeof(AssetAdministrationShell), description: "Requested Asset Administration Shell")]
@@ -350,7 +351,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Asset Administration Shell</response>
         [HttpGet]
-        [Route("/shells/{aasIdentifier}")]
+        [Route("api/v1/shells/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("GetAssetAdministrationShellById")]
         [SwaggerResponse(statusCode: 200, type: typeof(AssetAdministrationShell), description: "Requested Asset Administration Shell")]
@@ -373,7 +374,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Asset Information</response>
         [HttpGet]
-        [Route("/shells/{aasIdentifier}/aas/asset-information")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/asset-information")]
         [ValidateModelState]
         [SwaggerOperation("GetAssetInformation")]
         [SwaggerResponse(statusCode: 200, type: typeof(AssetInformation), description: "Requested Asset Information")]
@@ -396,7 +397,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="cdIdentifier">The Concept Description’s unique id (BASE64-URL-encoded)</param>
         /// <response code="200">Requested Concept Description</response>
         [HttpGet]
-        [Route("/concept-descriptions/{cdIdentifier}")]
+        [Route("api/v1/concept-descriptions/{cdIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("GetConceptDescriptionById")]
         [SwaggerResponse(statusCode: 200, type: typeof(ConceptDescription), description: "Requested Concept Description")]
@@ -423,7 +424,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="content"></param>
         /// <response code="200">Operation result object</response>
         [HttpGet]
-        [Route("/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/{handleId}")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/{handleId}")]
         [ValidateModelState]
         [SwaggerOperation("GetOperationAsyncResult")]
         [SwaggerResponse(statusCode: 200, type: typeof(OperationResult), description: "Operation result object")]
@@ -449,7 +450,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="content"></param>
         /// <response code="200">Operation result object</response>
         [HttpGet]
-        [Route("/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/{handleId}")]
+        [Route("api/v1/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/operation-results/{handleId}")]
         [ValidateModelState]
         [SwaggerOperation("GetOperationAsyncResultSubmodelRepo")]
         [SwaggerResponse(statusCode: 200, type: typeof(OperationResult), description: "Operation result object")]
@@ -476,7 +477,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="200">Requested Submodel</response>
         [HttpGet]
-        [Route("/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel")]
         [ValidateModelState]
         [SwaggerOperation("GetSubmodel")]
         [SwaggerResponse(statusCode: 200, type: typeof(Submodel), description: "Requested Submodel")]
@@ -504,7 +505,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="200">Requested submodel element</response>
         [HttpGet]
-        [Route("/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("GetSubmodelElementByPath")]
         [SwaggerResponse(statusCode: 200, type: typeof(SubmodelElement), description: "Requested submodel element")]
@@ -531,7 +532,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="200">Requested submodel element</response>
         [HttpGet]
-        [Route("/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("GetSubmodelElementByPathSubmodelRepo")]
         [SwaggerResponse(statusCode: 200, type: typeof(SubmodelElement), description: "Requested submodel element")]
@@ -557,7 +558,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="200">Requested Submodel</response>
         [HttpGet]
-        [Route("/submodels/{submodelIdentifier}/submodel")]
+        [Route("api/v1/submodels/{submodelIdentifier}/submodel")]
         [ValidateModelState]
         [SwaggerOperation("GetSubmodelSubmodelRepo")]
         [SwaggerResponse(statusCode: 200, type: typeof(Submodel), description: "Requested Submodel")]
@@ -585,7 +586,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="content">Determines the request or response kind of the resource</param>
         /// <response code="200">Operation result object</response>
         [HttpPost]
-        [Route("/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke")]
         [ValidateModelState]
         [SwaggerOperation("InvokeOperation")]
         [SwaggerResponse(statusCode: 200, type: typeof(OperationResult), description: "Operation result object")]
@@ -612,7 +613,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="content">Determines the request or response kind of the resource</param>
         /// <response code="200">Operation result object</response>
         [HttpPost]
-        [Route("/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke")]
+        [Route("api/v1/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}/invoke")]
         [ValidateModelState]
         [SwaggerOperation("InvokeOperationSubmodelRepo")]
         [SwaggerResponse(statusCode: 200, type: typeof(OperationResult), description: "Operation result object")]
@@ -635,7 +636,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="body">Asset Administration Shell object</param>
         /// <response code="201">Asset Administration Shell created successfully</response>
         [HttpPost]
-        [Route("/shells")]
+        [Route("api/v1/shells")]
         [ValidateModelState]
         [SwaggerOperation("PostAssetAdministrationShell")]
         [SwaggerResponse(statusCode: 201, type: typeof(AssetAdministrationShell), description: "Asset Administration Shell created successfully")]
@@ -658,7 +659,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="body">Concept Description object</param>
         /// <response code="201">Concept Description created successfully</response>
         [HttpPost]
-        [Route("/concept-descriptions")]
+        [Route("api/v1/concept-descriptions")]
         [ValidateModelState]
         [SwaggerOperation("PostConceptDescription")]
         [SwaggerResponse(statusCode: 201, type: typeof(ConceptDescription), description: "Concept Description created successfully")]
@@ -681,7 +682,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="body">Submodel object</param>
         /// <response code="201">Submodel created successfully</response>
         [HttpPost]
-        [Route("/submodels")]
+        [Route("api/v1/submodels")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodel")]
         [SwaggerResponse(statusCode: 201, type: typeof(Submodel), description: "Submodel created successfully")]
@@ -709,7 +710,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="201">Submodel element created successfully</response>
         [HttpPost]
-        [Route("/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodelElement")]
         [SwaggerResponse(statusCode: 201, type: typeof(SubmodelElement), description: "Submodel element created successfully")]
@@ -738,7 +739,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="201">Submodel element created successfully</response>
         [HttpPost]
-        [Route("/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodelElementByPath")]
         [SwaggerResponse(statusCode: 201, type: typeof(SubmodelElement), description: "Submodel element created successfully")]
@@ -766,7 +767,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="201">Submodel element created successfully</response>
         [HttpPost]
-        [Route("/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodelElementByPathSubmodelRepo")]
         [SwaggerResponse(statusCode: 201, type: typeof(SubmodelElement), description: "Submodel element created successfully")]
@@ -793,7 +794,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="201">Submodel element created successfully</response>
         [HttpPost]
-        [Route("/submodels/{submodelIdentifier}/submodel/submodel-elements")]
+        [Route("api/v1/submodels/{submodelIdentifier}/submodel/submodel-elements")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodelElementSubmodelRepo")]
         [SwaggerResponse(statusCode: 201, type: typeof(SubmodelElement), description: "Submodel element created successfully")]
@@ -817,7 +818,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="201">Submodel reference created successfully</response>
         [HttpPost]
-        [Route("/shells/{aasIdentifier}/aas/submodels")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodelReference")]
         [SwaggerResponse(statusCode: 201, type: typeof(Reference), description: "Submodel reference created successfully")]
@@ -842,7 +843,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="content">Determines the request or response kind of the resource</param>
         /// <response code="204">Asset Administration Shell updated successfully</response>
         [HttpPut]
-        [Route("/shells/{aasIdentifier}/aas")]
+        [Route("api/v1/shells/{aasIdentifier}/aas")]
         [ValidateModelState]
         [SwaggerOperation("PutAssetAdministrationShell")]
         public virtual IActionResult PutAssetAdministrationShell([FromBody]AssetAdministrationShell body, [FromRoute][Required]string aasIdentifier, [FromQuery]string content)
@@ -860,7 +861,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Asset Administration Shell updated successfully</response>
         [HttpPut]
-        [Route("/shells/{aasIdentifier}")]
+        [Route("api/v1/shells/{aasIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("PutAssetAdministrationShellById")]
         public virtual IActionResult PutAssetAdministrationShellById([FromBody]AssetAdministrationShell body, [FromRoute][Required]string aasIdentifier)
@@ -878,7 +879,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Asset Information updated successfully</response>
         [HttpPut]
-        [Route("/shells/{aasIdentifier}/aas/asset-information")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/asset-information")]
         [ValidateModelState]
         [SwaggerOperation("PutAssetInformation")]
         public virtual IActionResult PutAssetInformation([FromBody]AssetInformation body, [FromRoute][Required]string aasIdentifier)
@@ -896,7 +897,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="cdIdentifier">The Concept Description’s unique id (BASE64-URL-encoded)</param>
         /// <response code="204">Concept Description updated successfully</response>
         [HttpPut]
-        [Route("/concept-descriptions/{cdIdentifier}")]
+        [Route("api/v1/concept-descriptions/{cdIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("PutConceptDescriptionById")]
         public virtual IActionResult PutConceptDescriptionById([FromBody]ConceptDescription body, [FromRoute][Required]string cdIdentifier)
@@ -918,7 +919,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="204">Submodel updated successfully</response>
         [HttpPut]
-        [Route("/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel")]
         [ValidateModelState]
         [SwaggerOperation("PutSubmodel")]
         public virtual IActionResult PutSubmodel([FromBody]Submodel body, [FromRoute][Required]string aasIdentifier, [FromRoute][Required]string submodelIdentifier, [FromQuery]string level, [FromQuery]string content, [FromQuery]string extent)
@@ -941,7 +942,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="204">Submodel element updated successfully</response>
         [HttpPut]
-        [Route("/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/shells/{aasIdentifier}/aas/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("PutSubmodelElementByPath")]
         public virtual IActionResult PutSubmodelElementByPath([FromBody]SubmodelElement body, [FromRoute][Required]string aasIdentifier, [FromRoute][Required]string submodelIdentifier, [FromRoute][Required]string idShortPath, [FromQuery]string level, [FromQuery]string content, [FromQuery]string extent)
@@ -963,7 +964,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="204">Submodel element updated successfully</response>
         [HttpPut]
-        [Route("/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
+        [Route("api/v1/submodels/{submodelIdentifier}/submodel/submodel-elements/{idShortPath}")]
         [ValidateModelState]
         [SwaggerOperation("PutSubmodelElementByPathSubmodelRepo")]
         public virtual IActionResult PutSubmodelElementByPathSubmodelRepo([FromBody]SubmodelElement body, [FromRoute][Required]string submodelIdentifier, [FromRoute][Required]string idShortPath, [FromQuery]string level, [FromQuery]string content, [FromQuery]string extent)
@@ -984,7 +985,7 @@ namespace AAS.API.Registry.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="204">Submodel updated successfully</response>
         [HttpPut]
-        [Route("/submodels/{submodelIdentifier}/submodel")]
+        [Route("api/v1/submodels/{submodelIdentifier}/submodel")]
         [ValidateModelState]
         [SwaggerOperation("PutSubmodelSubmodelRepo")]
         public virtual IActionResult PutSubmodelSubmodelRepo([FromBody]Submodel body, [FromRoute][Required]string submodelIdentifier, [FromQuery]string level, [FromQuery]string content, [FromQuery]string extent)

@@ -41,6 +41,13 @@ The REST API operation `PostAASXPackage`of the AASX File Server Interface has so
 If a valid download link (URL) to an AASX package file is provided in the parameter `fileName` and the parameter `file` is null, than the 
 server will download the file directly to the storage. 
 
+### Configuration
+- Azure Blob storage configuration: Use `AASX_FILESERVICE_BLOBSTORAGEURL` in Application Settings to configure the url of the target
+storage. E.g. `https://aasxstoragejm.blob.core.windows.net/`. By default a container titled `aasxfiles` will be used to store the aasx
+packages. This can be changed by specifying another value in the Application settings for `AASX_FILESERVICE_CONTAINERNAME`. 
+- Security: Beside the generic security setup (Azure AD App registration) the role `Storage Blob Data Contributor` has to be assigned 
+to the AASX File server. E.g. by leveraging its Managed Identity of the App service.
+
 ## AAS Discovery server
 TBD
 

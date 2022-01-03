@@ -10,6 +10,7 @@
     <RootNamespace>AAS.API.Registry</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+	<PackageReference Include="Microsoft.Identity.Web" Version="1.*" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.5.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.5.1" />

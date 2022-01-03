@@ -23,6 +23,9 @@ using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using AAS.API.Registry.Filters;
 using AAS.API.Registry.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AAS.API.Registry
 {
@@ -52,6 +55,9 @@ namespace AAS.API.Registry
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+
             // Add framework services.
             services
                 .AddMvc(options =>
@@ -106,6 +112,7 @@ namespace AAS.API.Registry
             //TODO: Uncomment this if you need wwwroot folder
             // app.UseStaticFiles();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseSwagger(options =>
@@ -126,7 +133,10 @@ namespace AAS.API.Registry
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                if (env.IsDevelopment())
+                    endpoints.MapControllers().WithMetadata(new AllowAnonymousAttribute());
+                else
+                    endpoints.MapControllers();
             });
 
             if (env.IsDevelopment())
