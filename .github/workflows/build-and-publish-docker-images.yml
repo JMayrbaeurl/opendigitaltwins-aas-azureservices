@@ -3,7 +3,7 @@ name: Build-and-publish-docker-images-workflow
 on:
   # run it on push to the default repository branch
   push:
-    branches: [main]
+    branches: [master]
   # run it during pull request
   pull_request:
 
@@ -40,7 +40,7 @@ jobs:
           tags: |
             jmayrbaeurl/aas-aasxfile-server:latest
           # build on feature branches, push only on main branch
-          push: ${{ github.ref == 'refs/heads/main' }}
+          push: ${{ github.ref == 'refs/heads/master' }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
