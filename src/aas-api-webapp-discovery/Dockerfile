@@ -7,7 +7,6 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
-COPY ["nuget.config", "."]
 COPY ["src/aas-api-webapp-discovery/AAS WebApp Discovery.csproj", "src/aas-api-webapp-discovery/"]
 RUN dotnet restore "src/aas-api-webapp-discovery/AAS WebApp Discovery.csproj"
 COPY . .
