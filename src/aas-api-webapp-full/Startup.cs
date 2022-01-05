@@ -130,7 +130,8 @@ namespace AAS.API.Full.Server
             {
                 builder.AddBlobServiceClient(new Uri(Configuration["AASX_FILESERVICE_BLOBSTORAGEURL"]));
 
-                builder.UseCredential(new DefaultAzureCredential());
+                // First use DefaultAzureCredentials and second EnvironmentCredential to enable local docker execution
+                builder.UseCredential(new ChainedTokenCredential(new DefaultAzureCredential(), new EnvironmentCredential()));
             });
 
             services.AddHttpClient();

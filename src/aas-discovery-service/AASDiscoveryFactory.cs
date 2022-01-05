@@ -10,7 +10,9 @@ namespace AAS.API.Discovery
     {
         public AASDiscovery CreateAASDiscoveryForADT(string adtInstanceURL)
         {
-            var credentials = new DefaultAzureCredential();
+            // First use DefaultAzureCredentials and second EnvironmentCredential to enable local docker execution
+            var credentials = new ChainedTokenCredential(new DefaultAzureCredential(), new EnvironmentCredential());
+            
             DigitalTwinsClient client = new DigitalTwinsClient(new Uri(adtInstanceURL),
                         credentials, new DigitalTwinsClientOptions { Transport = new HttpClientTransport(new HttpClient()) });
 
