@@ -10,7 +10,7 @@ on:
 jobs:
   # define job to build and publish docker image
   build-and-push-docker-image:
-    name: Build Docker image and push to repositories
+    name: Build Docker images and push to DockerHub
     # run only when code is compiling and tests are passing
     runs-on: ubuntu-latest
 
@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
-      - name: Build image and push to Docker Hub and GitHub Container Registry
+      - name: Build image for AASX File Server and push to Docker Hub
         uses: docker/build-push-action@v2
         with:
           # relative path to the place where source code with Dockerfile is located
@@ -42,5 +42,36 @@ jobs:
           # build on feature branches, push only on main branch
           push: ${{ github.ref == 'refs/heads/master' }}
 
-      - name: Image digest
+      - name: Image digest for AASX File Server
         run: echo ${{ steps.docker_build.outputs.digest }}
+
+      - name: Build image for Discovery Server and push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          # relative path to the place where source code with Dockerfile is located
+          context: .
+          file: src/aas-api-webapp-discovery/Dockerfile
+          # Note: tags has to be all lower-case
+          tags: |
+            jmayrbaeurl/aas-discovery-server:latest
+          # build on feature branches, push only on main branch
+          push: ${{ github.ref == 'refs/heads/master' }}
+
+      - name: Image digest for Discovery Server
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+      - name: Build image for Full Server and push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          # relative path to the place where source code with Dockerfile is located
+          context: .
+          file: src/aas-api-webapp-full/Dockerfile
+          # Note: tags has to be all lower-case
+          tags: |
+            jmayrbaeurl/aas-fullapi-server:latest
+          # build on feature branches, push only on main branch
+          push: ${{ github.ref == 'refs/heads/master' }}
+
+      - name: Image digest for Full Server
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
