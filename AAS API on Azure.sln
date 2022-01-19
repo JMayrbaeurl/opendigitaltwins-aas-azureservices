@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31911.196
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS WebApp Repository", "src\aas-api-webapp-repository\AAS WebApp Repository.csproj", "{37E281C2-FC84-4BD9-AFB5-AC55A9D92B0F}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -32,7 +32,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS AASX File Service", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS AASX File Service Tests", "src\aas-aasxfile-service-tests\AAS AASX File Service Tests.csproj", "{82A9C310-4E09-4FD7-B3DB-F9E6C670A536}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AAS WebApp Discovery", "src\aas-api-webapp-discovery\AAS WebApp Discovery.csproj", "{F54DA57A-DC54-4F84-A0C7-0ED10B60C226}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS WebApp Discovery", "src\aas-api-webapp-discovery\AAS WebApp Discovery.csproj", "{F54DA57A-DC54-4F84-A0C7-0ED10B60C226}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Registry Service", "src\aas-registry-service\AAS Registry Service.csproj", "{0D0AD4E2-C76D-43F7-B62E-6D386DF2A93E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Registry Service Tests", "src\aas-registry-service-tests\AAS Registry Service Tests.csproj", "{A4F5E0BC-2400-422E-9D38-6B82BB3E1347}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AAS WebApp Registry", "src\aas-api-webapp-registry\AAS WebApp Registry.csproj", "{B3AA9231-9B5E-4A71-AE05-57A687CD9097}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +90,18 @@ Global
 		{F54DA57A-DC54-4F84-A0C7-0ED10B60C226}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F54DA57A-DC54-4F84-A0C7-0ED10B60C226}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F54DA57A-DC54-4F84-A0C7-0ED10B60C226}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D0AD4E2-C76D-43F7-B62E-6D386DF2A93E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D0AD4E2-C76D-43F7-B62E-6D386DF2A93E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D0AD4E2-C76D-43F7-B62E-6D386DF2A93E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D0AD4E2-C76D-43F7-B62E-6D386DF2A93E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4F5E0BC-2400-422E-9D38-6B82BB3E1347}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4F5E0BC-2400-422E-9D38-6B82BB3E1347}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4F5E0BC-2400-422E-9D38-6B82BB3E1347}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4F5E0BC-2400-422E-9D38-6B82BB3E1347}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3AA9231-9B5E-4A71-AE05-57A687CD9097}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3AA9231-9B5E-4A71-AE05-57A687CD9097}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3AA9231-9B5E-4A71-AE05-57A687CD9097}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3AA9231-9B5E-4A71-AE05-57A687CD9097}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

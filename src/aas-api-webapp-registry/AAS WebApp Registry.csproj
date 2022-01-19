@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>AAS_WebApp_Registry</RootNamespace>
+    <UserSecretsId>c7576273-fad3-4cb6-8ad2-9e25bafa9106</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+  </PropertyGroup>
+  <ItemGroup>
+	<PackageReference Include="Microsoft.Extensions.Azure" Version="1.1.1" />
+	<PackageReference Include="Microsoft.Identity.Web" Version="1.*" />
+	<PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
+	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.5.1" />
+	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.5.1" />
+	<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.5.1" />
+	<PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.5.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\aas-registry-service\AAS Registry Service.csproj" />
+  </ItemGroup>
+
+
+</Project>
