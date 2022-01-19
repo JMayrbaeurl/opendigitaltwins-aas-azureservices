@@ -60,6 +60,21 @@ jobs:
       - name: Image digest for Discovery Server
         run: echo ${{ steps.docker_build.outputs.digest }}
 
+      - name: Build image for Registry Server and push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          # relative path to the place where source code with Dockerfile is located
+          context: .
+          file: src/aas-api-webapp-registry/Dockerfile
+          # Note: tags has to be all lower-case
+          tags: |
+            jmayrbaeurl/aas-registry-server:latest
+          # build on feature branches, push only on main branch
+          push: ${{ github.ref == 'refs/heads/master' }}
+
+      - name: Image digest for Registry Server
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
       - name: Build image for Full Server and push to Docker Hub
         uses: docker/build-push-action@v2
         with:
