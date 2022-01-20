@@ -56,6 +56,43 @@ namespace AAS.API.Registry
             return aasDesc;
         }
 
+        public async Task<SubmodelDescriptor> CreateSubmodelDescriptor(SubmodelDescriptor submodelDescriptor)
+        {
+            if (submodelDescriptor == null)
+            {
+                if (_logger != null)
+                    _logger.LogError($"Parameter 'submodelDescriptor' must not be null");
+
+                throw new AASRegistryException($"Parameter 'submodelDescriptor' must not be null", new ArgumentNullException(nameof(submodelDescriptor)));
+            }
+
+            if (_cache == null)
+            {
+                if (_logger != null)
+                    _logger.LogError("Wrong DI configuration. No '_cache' configured");
+
+                throw new AASRegistryException("Wrong DI configuration. No '_cache' configured");
+            }
+
+            if (_logger != null)
+                _logger.LogTrace($"CreateSubmodelDescriptor called for submodel Descriptor with id '{submodelDescriptor.Identification}'");
+
+            try
+            {
+                await _cache.Set<SubmodelDescriptor>($"sm_{submodelDescriptor.Identification}", submodelDescriptor, new DistributedCacheEntryOptions());
+
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                    _logger.LogError($"Exception while setting a value in the cache: {ex.Message}");
+
+                throw new AASRegistryException("Exception while setting a value in the cache", ex);
+            }
+
+            return submodelDescriptor;
+        }
+
         public async Task DeleteAssetAdministrationShellDescriptorById(string aasIdentifier)
         {
             if (string.IsNullOrEmpty(aasIdentifier))
@@ -90,7 +127,48 @@ namespace AAS.API.Registry
             }
         }
 
+        public async Task DeleteSubmodelDescriptorById(string submodelIdentifier)
+        {
+            if (string.IsNullOrEmpty(submodelIdentifier))
+            {
+                if (_logger != null)
+                    _logger.LogError($"Parameter 'submodelIdentifier' must not be empty");
+
+                throw new AASRegistryException($"Parameter 'submodelIdentifier' must not be empty", new ArgumentNullException(nameof(submodelIdentifier)));
+            }
+
+            if (_cache == null)
+            {
+                if (_logger != null)
+                    _logger.LogError("Wrong DI configuration. No '_cache' configured");
+
+                throw new AASRegistryException("Wrong DI configuration. No '_cache' configured");
+            }
+
+            if (_logger != null)
+                _logger.LogTrace($"DeleteSubmodelDescriptorById called with id '{submodelIdentifier}'");
+
+            try
+            {
+                await _cache.Clear($"sm_{submodelIdentifier}");
+
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                    _logger.LogError($"Exception while deleting submodel descriptor for id '{submodelIdentifier}' from the cache: {ex.Message}");
+
+                throw new AASRegistryException($"Exception while deleting submodel descriptor for id '{submodelIdentifier}' from the cache", ex);
+            }
+
+        }
+
         public async Task<List<AssetAdministrationShellDescriptor>> GetAllAssetAdministrationShellDescriptors()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<List<SubmodelDescriptor>> GetAllSubmodelDescriptors()
         {
             throw new NotImplementedException();
         }
@@ -102,7 +180,7 @@ namespace AAS.API.Registry
                 if (_logger != null)
                     _logger.LogError($"Parameter 'aasIdentifier' must not be empty");
 
-                throw new AASRegistryException($"Parameter 'aasDesc' must not be empty", new ArgumentNullException(nameof(aasIdentifier)));
+                throw new AASRegistryException($"Parameter 'aasIdentifier' must not be empty", new ArgumentNullException(nameof(aasIdentifier)));
             }
 
             if (_cache == null)
@@ -130,6 +208,41 @@ namespace AAS.API.Registry
             }
         }
 
+        public async Task<SubmodelDescriptor> GetSubmodelDescriptorById(string submodelIdentifier)
+        {
+            if (string.IsNullOrEmpty(submodelIdentifier))
+            {
+                if (_logger != null)
+                    _logger.LogError($"Parameter 'submodelIdentifier' must not be empty");
+
+                throw new AASRegistryException($"Parameter 'submodelIdentifier' must not be empty", new ArgumentNullException(nameof(submodelIdentifier)));
+            }
+
+            if (_cache == null)
+            {
+                if (_logger != null)
+                    _logger.LogError("Wrong DI configuration. No '_cache' configured");
+
+                throw new AASRegistryException("Wrong DI configuration. No '_cache' configured");
+            }
+
+            if (_logger != null)
+                _logger.LogTrace($"GetSubmodelDescriptorById called with id '{submodelIdentifier}'");
+
+            try
+            {
+                return await _cache.Get<SubmodelDescriptor>($"sm_{submodelIdentifier}");
+
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                    _logger.LogError($"Exception while reading submodel descriptor for id '{submodelIdentifier}' from the cache: {ex.Message}");
+
+                throw new AASRegistryException($"Exception while reading submodel descriptor for id '{submodelIdentifier}' from the cache", ex);
+            }
+        }
+
         public async Task UpdateAssetAdministrationShellDescriptorById(AssetAdministrationShellDescriptor aasDesc, string aasIdentifier)
         {
             if (aasDesc == null)
@@ -145,7 +258,7 @@ namespace AAS.API.Registry
                 if (_logger != null)
                     _logger.LogError($"Parameter 'aasIdentifier' must not be empty");
 
-                throw new AASRegistryException($"Parameter 'aasDesc' must not be empty", new ArgumentNullException(nameof(aasIdentifier)));
+                throw new AASRegistryException($"Parameter 'aasIdentifier' must not be empty", new ArgumentNullException(nameof(aasIdentifier)));
             }
 
             if (_cache == null)
@@ -168,6 +281,49 @@ namespace AAS.API.Registry
             {
                 if (_logger != null)
                     _logger.LogError($"Exception while updating '{aasIdentifier}' from the cache: {ex.Message}");
+
+                throw new AASRegistryException("Exception while updating a value in the cache", ex);
+            }
+        }
+
+        public async Task UpdateSubmodelDescriptorById(string submodelIdentifier, SubmodelDescriptor submodelDescriptor)
+        {
+            if (submodelDescriptor == null)
+            {
+                if (_logger != null)
+                    _logger.LogError($"Parameter 'submodelDescriptor' must not be null");
+
+                throw new AASRegistryException($"Parameter 'submodelDescriptor' must not be null", new ArgumentNullException(nameof(submodelDescriptor)));
+            }
+
+            if (string.IsNullOrEmpty(submodelIdentifier))
+            {
+                if (_logger != null)
+                    _logger.LogError($"Parameter 'submodelIdentifier' must not be empty");
+
+                throw new AASRegistryException($"Parameter 'submodelIdentifier' must not be empty", new ArgumentNullException(nameof(submodelIdentifier)));
+            }
+
+            if (_cache == null)
+            {
+                if (_logger != null)
+                    _logger.LogError("Wrong DI configuration. No '_cache' configured");
+
+                throw new AASRegistryException("Wrong DI configuration. No '_cache' configured");
+            }
+
+            if (_logger != null)
+                _logger.LogTrace($"UpdateSubmodelDescriptorById called for Submodel Descriptor with id '{submodelIdentifier}'");
+
+            try
+            {
+                await _cache.Set<SubmodelDescriptor>(submodelIdentifier, submodelDescriptor, new DistributedCacheEntryOptions());
+
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                    _logger.LogError($"Exception while updating '{submodelIdentifier}' from the cache: {ex.Message}");
 
                 throw new AASRegistryException("Exception while updating a value in the cache", ex);
             }

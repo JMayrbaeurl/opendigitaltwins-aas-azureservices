@@ -18,6 +18,9 @@ using AAS.API.Attributes;
 
 using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
+using Microsoft.Extensions.Logging;
+using AAS.API.Registry;
+using System.Web;
 
 namespace AAS.API.WebApp.Controllers
 {
@@ -27,7 +30,17 @@ namespace AAS.API.WebApp.Controllers
     [Authorize]
     [ApiController]
     public class AssetAdministrationShellRegistryInterfaceApiController : ControllerBase
-    { 
+    {
+        private readonly ILogger _logger;
+
+        private AASRegistry registryService;
+
+        public AssetAdministrationShellRegistryInterfaceApiController(ILogger<AssetAdministrationShellRegistryInterfaceApiController> log, AASRegistry registry)
+        {
+            _logger = log;
+            registryService = registry;
+        }
+
         /// <summary>
         /// Deletes an Asset Administration Shell Descriptor, i.e. de-registers an AAS
         /// </summary>
@@ -38,13 +51,21 @@ namespace AAS.API.WebApp.Controllers
         [ValidateModelState]
         [SwaggerOperation("DeleteAssetAdministrationShellDescriptorById")]
         public virtual IActionResult DeleteAssetAdministrationShellDescriptorById([FromRoute][Required]string aasIdentifier)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204);
+        {
+            _logger.LogInformation($"DeleteAssetAdministrationShellDescriptorById called for Asset identifier '{aasIdentifier}'");
 
-            throw new NotImplementedException();
+            if (registryService == null)
+            {
+                _logger.LogError("Invalid setup. No Registry service configured. Check DI setup");
+                throw new AASRegistryException("Invalid setup. No Registry service configured. Check DI setup");
+            }
+
+            registryService.DeleteAssetAdministrationShellDescriptorById(HttpUtility.UrlDecode(aasIdentifier)).GetAwaiter().GetResult();
+
+            return StatusCode(204);
         }
 
+        /*
         /// <summary>
         /// Deletes a Submodel Descriptor, i.e. de-registers a submodel
         /// </summary>
@@ -62,6 +83,7 @@ namespace AAS.API.WebApp.Controllers
 
             throw new NotImplementedException();
         }
+        */
 
         /// <summary>
         /// Returns all Asset Administration Shell Descriptors
@@ -74,17 +96,11 @@ namespace AAS.API.WebApp.Controllers
         [SwaggerResponse(statusCode: 200, type: typeof(List<AssetAdministrationShellDescriptor>), description: "Requested Asset Administration Shell Descriptors")]
         public virtual IActionResult GetAllAssetAdministrationShellDescriptors()
         { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<AssetAdministrationShellDescriptor>));
-            string exampleJson = null;
-            exampleJson = "[ {\n  \"identification\" : \"identification\",\n  \"idShort\" : \"idShort\",\n  \"specificAssetIds\" : [ \"\", \"\" ],\n  \"administration\" : {\n    \"version\" : \"version\",\n    \"revision\" : \"revision\"\n  },\n  \"description\" : [ {\n    \"language\" : \"language\",\n    \"text\" : \"text\"\n  }, {\n    \"language\" : \"language\",\n    \"text\" : \"text\"\n  } ],\n  \"submodelDescriptors\" : [ {\n    \"idShort\" : \"idShort\",\n    \"description\" : [ null, null ]\n  }, {\n    \"idShort\" : \"idShort\",\n    \"description\" : [ null, null ]\n  } ],\n  \"globalAssetId\" : \"\"\n}, {\n  \"identification\" : \"identification\",\n  \"idShort\" : \"idShort\",\n  \"specificAssetIds\" : [ \"\", \"\" ],\n  \"administration\" : {\n    \"version\" : \"version\",\n    \"revision\" : \"revision\"\n  },\n  \"description\" : [ {\n    \"language\" : \"language\",\n    \"text\" : \"text\"\n  }, {\n    \"language\" : \"language\",\n    \"text\" : \"text\"\n  } ],\n  \"submodelDescriptors\" : [ {\n    \"idShort\" : \"idShort\",\n    \"description\" : [ null, null ]\n  }, {\n    \"idShort\" : \"idShort\",\n    \"description\" : [ null, null ]\n  } ],\n  \"globalAssetId\" : \"\"\n} ]";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<List<AssetAdministrationShellDescriptor>>(exampleJson)
-                        : default(List<AssetAdministrationShellDescriptor>);            //TODO: Change the data returned
-            return new ObjectResult(example);
+            // Currently not supported. Redis Cache doesn't have 'list all' operations
+            return StatusCode(200, default(List<AssetAdministrationShellDescriptor>));
         }
 
+        /*
         /// <summary>
         /// Returns all Submodel Descriptors
         /// </summary>
@@ -107,6 +123,7 @@ namespace AAS.API.WebApp.Controllers
                         : default(List<SubmodelDescriptor>);            //TODO: Change the data returned
             return new ObjectResult(example);
         }
+        */
 
         /// <summary>
         /// Returns a specific Asset Administration Shell Descriptor
@@ -119,18 +136,19 @@ namespace AAS.API.WebApp.Controllers
         [SwaggerOperation("GetAssetAdministrationShellDescriptorById")]
         [SwaggerResponse(statusCode: 200, type: typeof(AssetAdministrationShellDescriptor), description: "Requested Asset Administration Shell Descriptor")]
         public virtual IActionResult GetAssetAdministrationShellDescriptorById([FromRoute][Required]string aasIdentifier)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(AssetAdministrationShellDescriptor));
-            string exampleJson = null;
-            exampleJson = "{\n  \"identification\" : \"identification\",\n  \"idShort\" : \"idShort\",\n  \"specificAssetIds\" : [ \"\", \"\" ],\n  \"administration\" : {\n    \"version\" : \"version\",\n    \"revision\" : \"revision\"\n  },\n  \"description\" : [ {\n    \"language\" : \"language\",\n    \"text\" : \"text\"\n  }, {\n    \"language\" : \"language\",\n    \"text\" : \"text\"\n  } ],\n  \"submodelDescriptors\" : [ {\n    \"idShort\" : \"idShort\",\n    \"description\" : [ null, null ]\n  }, {\n    \"idShort\" : \"idShort\",\n    \"description\" : [ null, null ]\n  } ],\n  \"globalAssetId\" : \"\"\n}";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<AssetAdministrationShellDescriptor>(exampleJson)
-                        : default(AssetAdministrationShellDescriptor);            //TODO: Change the data returned
-            return new ObjectResult(example);
+        {
+            _logger.LogInformation($"GetAssetAdministrationShellDescriptorById called for Asset identifier '{aasIdentifier}'");
+
+            if (registryService == null)
+            {
+                _logger.LogError("Invalid setup. No Registry service configured. Check DI setup");
+                throw new AASRegistryException("Invalid setup. No Registry service configured. Check DI setup");
+            }
+
+            return new ObjectResult(registryService.GetAssetAdministrationShellDescriptorById(HttpUtility.UrlDecode(aasIdentifier)).GetAwaiter().GetResult());
         }
 
+        /*
         /// <summary>
         /// Returns a specific Submodel Descriptor
         /// </summary>
@@ -154,6 +172,7 @@ namespace AAS.API.WebApp.Controllers
                         : default(SubmodelDescriptor);            //TODO: Change the data returned
             return new ObjectResult(example);
         }
+        */
 
         /// <summary>
         /// Creates a new Asset Administration Shell Descriptor, i.e. registers an AAS
@@ -166,18 +185,19 @@ namespace AAS.API.WebApp.Controllers
         [SwaggerOperation("PostAssetAdministrationShellDescriptor")]
         [SwaggerResponse(statusCode: 201, type: typeof(AssetAdministrationShellDescriptor), description: "Asset Administration Shell Descriptor created successfully")]
         public virtual IActionResult PostAssetAdministrationShellDescriptor([FromBody]AssetAdministrationShellDescriptor body)
-        { 
-            //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(201, default(AssetAdministrationShellDescriptor));
-            string exampleJson = null;
-            exampleJson = "{\n  \"identification\" : \"identification\",\n  \"idShort\" : \"idShort\",\n  \"specificAssetIds\" : [ \"\", \"\" ],\n  \"administration\" : {\n    \"version\" : \"version\",\n    \"revision\" : \"revision\"\n  },\n  \"description\" : [ {\n    \"language\" : \"language\",\n    \"text\" : \"text\"\n  }, {\n    \"language\" : \"language\",\n    \"text\" : \"text\"\n  } ],\n  \"submodelDescriptors\" : [ {\n    \"idShort\" : \"idShort\",\n    \"description\" : [ null, null ]\n  }, {\n    \"idShort\" : \"idShort\",\n    \"description\" : [ null, null ]\n  } ],\n  \"globalAssetId\" : \"\"\n}";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<AssetAdministrationShellDescriptor>(exampleJson)
-                        : default(AssetAdministrationShellDescriptor);            //TODO: Change the data returned
-            return new ObjectResult(example);
+        {
+            _logger.LogInformation($"PostAssetAdministrationShellDescriptor called for AAS with identifier '{body.Identification}'");
+
+            if (registryService == null)
+            {
+                _logger.LogError("Invalid setup. No Registry service configured. Check DI setup");
+                throw new AASRegistryException("Invalid setup. No Registry service configured. Check DI setup");
+            }
+
+            return StatusCode(201, registryService.CreateAssetAdministrationShellDescriptor(body).GetAwaiter().GetResult());
         }
 
+        /*
         /// <summary>
         /// Creates a new Submodel Descriptor, i.e. registers a submodel
         /// </summary>
@@ -201,6 +221,7 @@ namespace AAS.API.WebApp.Controllers
                         : default(SubmodelDescriptor);            //TODO: Change the data returned
             return new ObjectResult(example);
         }
+        */
 
         /// <summary>
         /// Updates an existing Asset Administration Shell Descriptor
@@ -213,13 +234,21 @@ namespace AAS.API.WebApp.Controllers
         [ValidateModelState]
         [SwaggerOperation("PutAssetAdministrationShellDescriptorById")]
         public virtual IActionResult PutAssetAdministrationShellDescriptorById([FromBody]AssetAdministrationShellDescriptor body, [FromRoute][Required]string aasIdentifier)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204);
+        {
+            _logger.LogInformation($"PutAssetAdministrationShellDescriptorById called for AAS with identifier '{body.Identification}'");
 
-            throw new NotImplementedException();
+            if (registryService == null)
+            {
+                _logger.LogError("Invalid setup. No Registry service configured. Check DI setup");
+                throw new AASRegistryException("Invalid setup. No Registry service configured. Check DI setup");
+            }
+
+            registryService.UpdateAssetAdministrationShellDescriptorById(body, HttpUtility.UrlDecode(aasIdentifier)).GetAwaiter().GetResult();
+
+            return StatusCode(204);
         }
 
+        /*
         /// <summary>
         /// Updates an existing Submodel Descriptor
         /// </summary>
@@ -238,5 +267,6 @@ namespace AAS.API.WebApp.Controllers
 
             throw new NotImplementedException();
         }
+        */
     }
 }

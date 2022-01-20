@@ -28,6 +28,7 @@ using Azure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authorization;
+using AAS.API.Registry;
 
 namespace AAS.API.Full.Server
 {
@@ -136,6 +137,12 @@ namespace AAS.API.Full.Server
 
             services.AddHttpClient();
             services.AddSingleton<AASAASXFile, AzureBlobAASXFileService>();
+
+            services.AddStackExchangeRedisCache(setupAction =>
+            {
+                setupAction.Configuration = Configuration.GetConnectionString("RedisCache");
+            });
+            services.AddSingleton<AASRegistry, RedisAASRegistry>();
         }
 
         /// <summary>

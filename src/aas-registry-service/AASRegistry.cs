@@ -3,7 +3,7 @@ using System;
 
 namespace AAS.API.Registry
 {
-    public interface AASRegistry : AAS.API.Interfaces.Registry
+    public interface AASRegistry : AAS.API.Interfaces.Registry, AAS.API.Interfaces.SubmodelRegistry
     {
     }
     public class AASRegistryException : AASServiceException
