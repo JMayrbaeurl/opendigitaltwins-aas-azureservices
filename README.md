@@ -10,10 +10,13 @@ using [Azure Blob Storage](https://azure.microsoft.com/en-us/services/storage/bl
 in a container called `aasxfiles`. The name of the container to be used can be configured. If the container doesn't exist in the Blob storage account, 
 it will be created automatically. For each package a folder with the file name without the file extension will be created in the container. 
 Samples from [AASX Browser](https://admin-shell-io.com/5001/) were used for testing.
-- **AAS Discovery server**: See 'aas-api-webapp-discovery' folder in 'src'. Not implemented yet.
-- **AAS Shell Repository server**: See 'aas-api-webapp-repository' folder in 'src'. 
+- **AAS Discovery server**: See 'aas-api-webapp-discovery' folder in 'src'. Partially implemented.
+- **AAS Registry server**: See 'aas-api-webapp-registry' folder in 'src'. Partially implemented.
+- **AAS Shell Repository server**: See 'aas-api-webapp-repository' folder in 'src'. Partially implemented.
 - **AAS Full server**: See 'aas-api-webapp-full' folder in 'src'. Implementation of the entire interface collection as part of 
 [Details of the Asset Administration Shell Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.pdf)
+
+![Sample Architecture](Assets/images/AzureIIoTHeroscenarioRefArch.png)
 
 ## Security
 All servers use [Default Azure credentials](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/identity-readme) 
@@ -49,6 +52,9 @@ packages. This can be changed by specifying another value in the Application set
 to the AASX File server. E.g. by leveraging its Managed Identity of the App service.
 
 ## AAS Discovery server
+TBD
+
+## AAS Registry server
 TBD
 
 ## AAS Shell Repository server
