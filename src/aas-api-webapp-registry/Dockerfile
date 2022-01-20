@@ -7,7 +7,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
 WORKDIR /src
-COPY ["src/aas-api-webapp-registry/AAS WebApp Registry.csproj", "src/AAS WebApp Registry/"]
+COPY ["src/aas-api-webapp-registry/AAS WebApp Registry.csproj", "src/aas-api-webapp-registry/"]
 RUN dotnet restore "src/aas-api-webapp-registry/AAS WebApp Registry.csproj"
 COPY . .
 WORKDIR "/src/src/aas-api-webapp-registry"
