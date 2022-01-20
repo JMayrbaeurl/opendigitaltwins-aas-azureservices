@@ -1,0 +1,11 @@
+[
+  {
+    "allowedMemberTypes": [
+      "Application"
+    ],
+    "description": "Contributors have to right to read and write AAS objects",
+    "displayName": "AAS Contributor",
+    "isEnabled": true,
+    "value": "AAS.ReadWrite"
+  }
+]

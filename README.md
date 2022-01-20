@@ -16,6 +16,8 @@ Samples from [AASX Browser](https://admin-shell-io.com/5001/) were used for test
 - **AAS Full server**: See 'aas-api-webapp-full' folder in 'src'. Implementation of the entire interface collection as part of 
 [Details of the Asset Administration Shell Part 2](https://www.plattform-i40.de/IP/Redaktion/EN/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part2_V1.pdf)
 
+![Sample Architecture](Assets/images/AzureIIoTHeroscenarioRefArch.png)
+
 ## Security
 All servers use [Default Azure credentials](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/identity-readme) 
 for authorization ([Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview)) 
