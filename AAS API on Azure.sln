@@ -38,7 +38,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Registry Service", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Registry Service Tests", "src\aas-registry-service-tests\AAS Registry Service Tests.csproj", "{A4F5E0BC-2400-422E-9D38-6B82BB3E1347}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AAS WebApp Registry", "src\aas-api-webapp-registry\AAS WebApp Registry.csproj", "{B3AA9231-9B5E-4A71-AE05-57A687CD9097}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS WebApp Registry", "src\aas-api-webapp-registry\AAS WebApp Registry.csproj", "{B3AA9231-9B5E-4A71-AE05-57A687CD9097}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AASX Package Command line", "tools\aasx-cmdline\AASX Package Command line.csproj", "{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,6 +104,10 @@ Global
 		{B3AA9231-9B5E-4A71-AE05-57A687CD9097}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3AA9231-9B5E-4A71-AE05-57A687CD9097}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3AA9231-9B5E-4A71-AE05-57A687CD9097}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
