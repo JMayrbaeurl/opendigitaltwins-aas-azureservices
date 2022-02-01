@@ -2,7 +2,7 @@
   "profiles": {
     "aasx-cmdline": {
       "commandName": "Project",
-      "commandLineArgs": "import -f \"C:\\Dev\\ADT\\AAS\\AASX Samples\\01_Festo.aasx\" -u https://aasadtdevjm.api.weu.digitaltwins.azure.net"
+      "commandLineArgs": "import -f \"C:\\Dev\\ADT\\AAS\\AASX Samples\\01_Festo.aasx\" -u https://aasadtdevjm.api.weu.digitaltwins.azure.net --ignoreConceptDescriptions"
     }
   }
 }

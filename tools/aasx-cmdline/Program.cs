@@ -21,6 +21,8 @@ namespace AAS.AASX.CmdLine
         public string PackageFilePath { get; set; }
         [Option('u', "url", Required = true, HelpText = "ADT instance url")]
         public string Url { get; set; }
+        [Option("ignoreConceptDescriptions", Default = false)]
+        public bool IgnoreConceptDescriptions { get; set; }
     }
 
     internal class Program
@@ -60,7 +62,8 @@ namespace AAS.AASX.CmdLine
             IServiceProvider provider = serviceScope.ServiceProvider;
 
             AASXImporter importer = provider.GetRequiredService<AASXImporter>();
-            importer.ImportFromPackageFile(importOpts.PackageFilePath).GetAwaiter().GetResult();
+            importer.ImportFromPackageFile(importOpts.PackageFilePath, 
+                importOpts.IgnoreConceptDescriptions).GetAwaiter().GetResult();
 
             host.RunAsync().GetAwaiter().GetResult();
 
