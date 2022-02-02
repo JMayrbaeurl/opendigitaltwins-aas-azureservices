@@ -1,8 +1,12 @@
 {
   "profiles": {
-    "aasx-cmdline": {
+    "aasx-cmdline ignoreConceptDesc and delete AAS first": {
       "commandName": "Project",
-      "commandLineArgs": "import -f \"C:\\Dev\\ADT\\AAS\\AASX Samples\\01_Festo.aasx\" -u https://aasadtdevjm.api.weu.digitaltwins.azure.net --ignoreConceptDescriptions"
+      "commandLineArgs": "import -f \"C:\\Dev\\ADT\\AAS\\AASX Samples\\01_Festo.aasx\" -u https://aasadtdevjm.api.weu.digitaltwins.azure.net --ignoreConceptDescriptions --DeleteShellsBeforeImport"
+    },
+    "aasx-cmdline full import": {
+      "commandName": "Project",
+      "commandLineArgs": "import -f \"C:\\Dev\\ADT\\AAS\\AASX Samples\\01_Festo.aasx\" -u https://aasadtdevjm.api.weu.digitaltwins.azure.net"
     }
   }
 }

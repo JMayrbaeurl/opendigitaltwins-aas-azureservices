@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
+using System.ComponentModel;
 using System.Net.Http;
 
 namespace AAS.AASX.CmdLine
@@ -23,6 +24,8 @@ namespace AAS.AASX.CmdLine
         public string Url { get; set; }
         [Option("ignoreConceptDescriptions", Default = false)]
         public bool IgnoreConceptDescriptions { get; set; }
+        [Option("DeleteShellsBeforeImport", Default = false)]
+        public bool DeleteShellsBeforeImport { get; set; }
     }
 
     internal class Program
@@ -62,8 +65,13 @@ namespace AAS.AASX.CmdLine
             IServiceProvider provider = serviceScope.ServiceProvider;
 
             AASXImporter importer = provider.GetRequiredService<AASXImporter>();
-            importer.ImportFromPackageFile(importOpts.PackageFilePath, 
-                importOpts.IgnoreConceptDescriptions).GetAwaiter().GetResult();
+            ImportResult result = importer.ImportFromPackageFile(importOpts.PackageFilePath, 
+                new ImportContext() { 
+                    Configuration = new ImportConfiguration() { 
+                        IgnoreConceptDescriptions = importOpts.IgnoreConceptDescriptions,
+                        DeleteShellBeforeImport = importOpts.DeleteShellsBeforeImport
+                    } }
+                ).GetAwaiter().GetResult();
 
             host.RunAsync().GetAwaiter().GetResult();
 

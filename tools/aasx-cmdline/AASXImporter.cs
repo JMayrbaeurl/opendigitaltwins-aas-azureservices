@@ -7,7 +7,7 @@ namespace AAS.AASX.Support
 {
     public interface AASXImporter
     {
-        public Task<ImportResult> ImportFromPackageFile(string packageFilePath, bool ignConceptDescs);
+        public Task<ImportResult> ImportFromPackageFile(string packageFilePath, ImportContext processInfo);
     }
 
     public class TwinRef<T>
@@ -38,6 +38,34 @@ namespace AAS.AASX.Support
         {
             get { return assets; }
             set { assets = value; }
+        }
+    }
+
+    public class ImportConfiguration
+    {
+        public bool DryRun { get; set; }
+        public bool DeleteShellBeforeImport { get; set; }
+        public bool IgnoreConceptDescriptions { get; set; }
+        public bool IgnoreShells { get; set; }
+
+        public ImportConfiguration()
+        {
+            IgnoreConceptDescriptions = false;
+            IgnoreShells = false;
+            DryRun = false;
+            DeleteShellBeforeImport = false;
+        }
+    }
+
+    public class ImportContext
+    {
+        public ImportConfiguration Configuration { get; set; }
+        public ImportResult Result { get; set; }
+
+        public ImportContext()
+        {
+            Configuration = new ImportConfiguration();
+            Result = new ImportResult();
         }
     }
 }
