@@ -257,6 +257,10 @@ namespace AAS.AASX.ADT
             {
                 return await ImportProperty(submodelElementWrapper.GetAs<Property>(), submodelElementWrapper, subModelTwinData, processInfo);
             }
+            else if (submodelElementWrapper.submodelElement.GetType() == typeof(File))
+            {
+                return await ImportFile(submodelElementWrapper.GetAs<File>(), submodelElementWrapper, subModelTwinData, processInfo);
+            }
 
             _logger.LogError($"ImportSubmodelElement called for unsupported SubmodelElement '{submodelElementWrapper.submodelElement.GetType()}'");
 
@@ -265,9 +269,41 @@ namespace AAS.AASX.ADT
 
         private async Task<string> ImportSubmodelElementCollection(SubmodelElementCollection submodelElementCollection, SubmodelElementWrapper submodelElementWrapper, BasicDigitalTwin subModelTwinData, ImportContext processInfo)
         {
-            _logger.LogError("ImportSubmodelElementCollection not implemented yet");
+            _logger.LogInformation($"Now importing submodel element collection '{submodelElementCollection.idShort}'");
 
-            return null;
+            // Start by creating a twin for the Submodel Element collection
+            var twinData = new BasicDigitalTwin();
+            twinData.Metadata.ModelId = ADTAASOntology.MODEL_SUBMODELELEMENTCOLLECTION;
+            twinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_SUBMODELELEMENTCOLLECTION]["dtId"]}{Guid.NewGuid()}";
+
+            AddSubmodelElementAttributes(twinData, submodelElementCollection);
+            twinData.Contents.Add("ordered", submodelElementCollection.ordered);
+            twinData.Contents.Add("allowDuplicates", submodelElementCollection.allowDuplicates);
+
+            await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(twinData.Id, twinData);
+            processInfo.Result.DTInstances.Add(new Tuple<string, string>(twinData.Id, twinData.Metadata.ModelId));
+
+            await AddSubmodelElementRelationships(twinData, submodelElementCollection, processInfo);
+
+            var enumerator = submodelElementCollection.EnumerateChildren();
+            foreach (var submodelElement in enumerator)
+            {
+                string submodelElementDtId = await ImportSubmodelElement(submodelElement, twinData, processInfo);
+                if (submodelElementDtId != null)
+                {
+                    // Create relationship between Submodel and SubmodelElement
+                    var rs = new BasicRelationship
+                    {
+                        TargetId = submodelElementDtId,
+                        Name = "value"
+                    };
+
+                    string relationId = $"{twinData.Id}-value->{submodelElementDtId}";
+                    await dtClient.CreateOrReplaceRelationshipAsync(twinData.Id, relationId, rs);
+                }
+            }
+
+            return twinData.Id;
         }
 
         private async Task<string> ImportProperty(Property property, SubmodelElementWrapper submodelElementWrapper, BasicDigitalTwin subModelTwinData, ImportContext processInfo)
@@ -285,11 +321,20 @@ namespace AAS.AASX.ADT
                 twinData.Contents.Add("valueType", property.valueType);
             if (property.value != null)
                 twinData.Contents.Add("value", property.value);
+
+            try
+            {
+                await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(twinData.Id, twinData);
+                processInfo.Result.DTInstances.Add(new Tuple<string, string>(twinData.Id, twinData.Metadata.ModelId));
+            }
+            catch (RequestFailedException ex)
+            {
+                _logger.LogError($"Exeception on creating twin with id '{twinData.Id}' and model '{twinData.Metadata.ModelId}': {ex.Message}");
+                throw new ImportException($"Exeception on creating twin with id '{twinData.Id}' and model '{twinData.Metadata.ModelId}': {ex.Message}", ex);
+            }
+
             if (property.valueId != null)
                 await AddReference(twinData, property.valueId, "valueId", processInfo);
-
-            await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(twinData.Id, twinData);
-            processInfo.Result.DTInstances.Add(new Tuple<string, string>(twinData.Id, twinData.Metadata.ModelId));
 
             await AddDataElementRelationships(twinData, property, processInfo);
 
@@ -327,6 +372,37 @@ namespace AAS.AASX.ADT
 
             if (submodelElement.hasDataSpecification != null)
                 await AddHasDataSpecification(twinData, submodelElement.hasDataSpecification, processInfo);
+        }
+
+        private async Task<string> ImportFile(File fileSpec, SubmodelElementWrapper submodelElementWrapper, BasicDigitalTwin subModelTwinData, ImportContext processInfo)
+        {
+            _logger.LogInformation($"Now importing file '{fileSpec.idShort}'");
+
+            // Start by creating a twin for the Asset
+            var twinData = new BasicDigitalTwin();
+            twinData.Metadata.ModelId = ADTAASOntology.MODEL_FILE;
+            twinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_FILE]["dtId"]}{Guid.NewGuid()}";
+
+            AddDataElementAttributes(twinData, fileSpec);
+
+            if (fileSpec.mimeType != null)
+                twinData.Contents.Add("mimeType", fileSpec.mimeType);
+            if (fileSpec.value != null)
+                twinData.Contents.Add("value", fileSpec.value);
+
+            try
+            {
+                await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(twinData.Id, twinData);
+                processInfo.Result.DTInstances.Add(new Tuple<string, string>(twinData.Id, twinData.Metadata.ModelId));
+            } catch (RequestFailedException ex)
+            {
+                _logger.LogError($"Exeception on creating twin with id '{twinData.Id}' and model '{twinData.Metadata.ModelId}': {ex.Message}");
+                throw new ImportException($"Exeception on creating twin with id '{twinData.Id}' and model '{twinData.Metadata.ModelId}': {ex.Message}", ex);
+            }
+
+            await AddDataElementRelationships(twinData, fileSpec, processInfo);
+
+            return twinData.Id;
         }
 
         private Submodel FindSubmodelWithRef(Key submodelKey, AdministrationShell shell, AdminShellPackageEnv package)

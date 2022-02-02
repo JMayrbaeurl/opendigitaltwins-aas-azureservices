@@ -15,6 +15,8 @@ namespace AAS.AASX.ADT
         public static readonly string MODEL_ASSETINFORMATION = "dtmi:digitaltwins:aas:AssetInformation;1";
         public static readonly string MODEL_SUBMODEL = "dtmi:digitaltwins:aas:Submodel;1";
         public static readonly string MODEL_PROPERTY = "dtmi:digitaltwins:aas:Property;1";
+        public static readonly string MODEL_SUBMODELELEMENTCOLLECTION = "dtmi:digitaltwins:aas:SubmodelElementCollection;1";
+        public static readonly string MODEL_FILE = "dtmi:digitaltwins:aas:File;1";
 
         public static readonly Dictionary<string, Dictionary<string, string>> DTIDMap = new Dictionary<string, Dictionary<string, string>>()
         {
@@ -26,7 +28,9 @@ namespace AAS.AASX.ADT
             { $"{MODEL_SHELL}", new Dictionary<string, string>() { { "dtId", "Shell_" } } },
             { $"{MODEL_ASSETINFORMATION}", new Dictionary<string, string>() { { "dtId", "AssetInfo_" } } },
             { $"{MODEL_SUBMODEL}", new Dictionary<string, string>() { { "dtId", "Submodel_" } } },
-            { $"{MODEL_PROPERTY}", new Dictionary<string, string>() { { "dtId", "Property_" } } }
+            { $"{MODEL_PROPERTY}", new Dictionary<string, string>() { { "dtId", "Property_" } } },
+            { $"{MODEL_SUBMODELELEMENTCOLLECTION}", new Dictionary<string, string>() { { "dtId", "SubmodelElements_" } } },
+            { $"{MODEL_FILE}", new Dictionary<string, string>() { { "dtId", "SubmodelElements_" } } }
         };
     }
 }
