@@ -1,6 +1,8 @@
 ﻿using AdminShellNS;
 using Azure;
 using Azure.DigitalTwins.Core;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition.Primitives;
 using System.Threading.Tasks;
@@ -12,9 +14,12 @@ namespace AAS.AASX.ADT
     {
         protected readonly DigitalTwinsClient dtClient;
 
-        public AbstractADTCommand(DigitalTwinsClient adtClient)
+        protected readonly ILogger _logger;
+
+        public AbstractADTCommand(DigitalTwinsClient adtClient, ILogger log)
         {
             this.dtClient = adtClient;
+            this._logger = log;
         }
 
         public async Task<bool> DeleteShell(AdministrationShell shell)
@@ -123,6 +128,54 @@ namespace AAS.AASX.ADT
             }
 
             return result;
+        }
+
+        public async Task<BasicDigitalTwin> FindTwinForReference(Reference reference)
+        {
+            if (reference == null)
+                throw new ArgumentNullException("Parameter 'reference' must not be null");
+
+            if (reference.Keys.Count > 1)
+            {
+                _logger.LogWarning($"FindTwinForReference called with Reference that contains multiple keys. Only one key supported.");
+            }
+
+            Key key = reference.First;
+
+            _logger.LogDebug($"Trying to find Twin with key '{key}'");
+
+            if (!key.local)
+                return null;
+
+            if (key.IsIdType(Key.IdShort))
+            {
+                string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL('{ADTAASOntology.MODEL_REFERABLE}') " +
+                    $"AND idShort = '{key.value}' ";
+                AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+                await foreach (BasicDigitalTwin twin in queryResult)
+                {
+                    // TODO: See if there is more than one Referable with the same IdShort
+                    return twin;
+                }
+            } 
+            else if (key.IsIdType(Key.FragmentId))
+            {
+                return null;
+            }
+            else
+            {
+                string keyIdType = URITOIRI(key.idType);
+                string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL('{ADTAASOntology.MODEL_IDENTIFIABLE}') " +
+                    $"AND identification.idType = '{keyIdType}' AND identification.id = '{key.value}'";
+                AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+                await foreach (BasicDigitalTwin twin in queryResult)
+                {
+                    // TODO: See if there is more than one Referable with the same IdShort
+                    return twin;
+                }
+            }
+
+            return null;
         }
 
         public static string DescToString(Description desc)
