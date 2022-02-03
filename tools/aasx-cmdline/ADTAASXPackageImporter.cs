@@ -6,13 +6,12 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using static AdminShellNS.AdminShellV20;
 
 namespace AAS.AASX.ADT
 {
-    public class ADTAASXPackageImporter : AbstractADTCommand, AASXImporter
+    public class ADTAASXPackageImporter : AbstractADTCommand, IAASXImporter
     {
         private readonly ILogger _logger;
 
@@ -37,7 +36,7 @@ namespace AAS.AASX.ADT
                         {
                             try
                             {
-                                await ImportAsset(asset, package, processInfo);
+                                await ImportAsset(asset, processInfo);
                             }
                             catch (RequestFailedException ex)
                             {
@@ -57,7 +56,7 @@ namespace AAS.AASX.ADT
                             try
                             {
                                 if (processInfo.Configuration.DeleteShellBeforeImport)
-                                    await DeleteShell(shell, package);
+                                    await DeleteShell(shell);
 
                                 await ImportShell(shell, package, processInfo);
                             }
@@ -81,7 +80,7 @@ namespace AAS.AASX.ADT
                         {
                             try
                             {
-                                await ImportConceptDescription(desc, package, processInfo);
+                                await ImportConceptDescription(desc, processInfo);
                             }
                             catch (RequestFailedException ex)
                             {
@@ -108,14 +107,10 @@ namespace AAS.AASX.ADT
             }
 
             // Start by creating a twin for the Shell
-            var twinData = new BasicDigitalTwin();
-            twinData.Metadata.ModelId = ADTAASOntology.MODEL_SHELL;
-            twinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_SHELL]["dtId"]}{Guid.NewGuid()}";
-
+            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_SHELL);
             AddIdentifiableAttributes(twinData, shell);
 
-            await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(twinData.Id, twinData);
-            processInfo.Result.DTInstances.Add(new Tuple<string, string>(twinData.Id, twinData.Metadata.ModelId));
+            await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             // Create twins and relationships for embedded data specifications
             if (shell.hasDataSpecification != null)
@@ -128,35 +123,19 @@ namespace AAS.AASX.ADT
             {
                 TwinRef<Asset> assetRef = processInfo.Result.AASAssets[shell.assetRef.First.idType+ shell.assetRef.First.value];
 
-                var assetInfoTwinData = new BasicDigitalTwin();
-                assetInfoTwinData.Metadata.ModelId = ADTAASOntology.MODEL_ASSETINFORMATION;
-                assetInfoTwinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_ASSETINFORMATION]["dtId"]}{Guid.NewGuid()}";
+                var assetInfoTwinData = CreateTwinForModel(ADTAASOntology.MODEL_ASSETINFORMATION);
+               
                 BasicDigitalTwinComponent assetKind = new BasicDigitalTwinComponent();
                 assetKind.Contents.Add("assetKind", assetRef.AASOject.kind.kind);
                 assetInfoTwinData.Contents.Add("assetKind", assetKind);
 
-                await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(assetInfoTwinData.Id, assetInfoTwinData);
-                processInfo.Result.DTInstances.Add(new Tuple<string, string>(assetInfoTwinData.Id, assetInfoTwinData.Metadata.ModelId));
+                await DoCreateOrReplaceDigitalTwinAsync(assetInfoTwinData, processInfo);
 
                 // Create relationship from Shell to AssetInfo
-                var relationship = new BasicRelationship
-                {
-                    TargetId = assetInfoTwinData.Id,
-                    Name = "assetInformation"
-                };
-
-                string relId = $"{twinData.Id}-assetInformation->{assetInfoTwinData.Id}";
-                await dtClient.CreateOrReplaceRelationshipAsync(twinData.Id, relId, relationship);
+                await DoCreateOrReplaceRelationshipAsync(twinData, "assetInformation", assetInfoTwinData.Id);
 
                 // Create relationship from AssetInfo to Asset
-                relationship = new BasicRelationship
-                {
-                    TargetId = assetRef.DtId,
-                    Name = "globalAssetRef"
-                };
-
-                relId = $"{assetInfoTwinData.Id}-globalAssetRef->{assetRef.DtId}";
-                await dtClient.CreateOrReplaceRelationshipAsync(assetInfoTwinData.Id, relId, relationship);
+                await DoCreateOrReplaceRelationshipAsync(assetInfoTwinData, "globalAssetRef", assetRef.DtId);
             }
 
             // Create Derived from reference
@@ -172,26 +151,24 @@ namespace AAS.AASX.ADT
                 {
                     if (submodelRef.First.local && submodelRef.First.type == "Submodel")
                     {
-                        Submodel submodel = FindSubmodelWithRef(submodelRef.First, shell, package);
+                        Submodel submodel = FindSubmodelWithRef(submodelRef.First, package);
                         if (submodel != null)
                         {
-                            await ImportSubmodelFor(submodel, shell, package, twinData, processInfo);
+                            await ImportSubmodelFor(submodel, shell, twinData, processInfo);
                         }
                     }
                 }
             }
         }
 
-        private async Task ImportSubmodelFor(Submodel submodel, AdministrationShell shell, AdminShellPackageEnv package,
+        private async Task ImportSubmodelFor(Submodel submodel, AdministrationShell shell,
             BasicDigitalTwin shellTwin, ImportContext processInfo)
         {
             _logger.LogInformation($"Now importing Submodel '{submodel.idShort}' for shell '{shell.idShort}' into ADT instance");
 
             // Start by creating a twin for the Submodel
-            BasicDigitalTwin subModelTwinData = new BasicDigitalTwin();
-            subModelTwinData.Metadata.ModelId = ADTAASOntology.MODEL_SUBMODEL;
-            subModelTwinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_SUBMODEL]["dtId"]}{Guid.NewGuid()}";
-
+            BasicDigitalTwin subModelTwinData = CreateTwinForModel(ADTAASOntology.MODEL_SUBMODEL);
+            
             AddIdentifiableAttributes(subModelTwinData, submodel);
             if (submodel.GetQualifiers() != null && submodel.GetQualifiers().Any())
                 AddQualifiableAttributes(subModelTwinData, submodel.GetQualifiers());
@@ -200,8 +177,7 @@ namespace AAS.AASX.ADT
             assetKind.Contents.Add("kind", submodel.kind.kind);
             subModelTwinData.Contents.Add("kind", assetKind);
 
-            await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(subModelTwinData.Id, subModelTwinData);
-            processInfo.Result.DTInstances.Add(new Tuple<string, string>(subModelTwinData.Id, subModelTwinData.Metadata.ModelId));
+            await DoCreateOrReplaceDigitalTwinAsync(subModelTwinData, processInfo);
 
             // Create semantic Id
             if (submodel.semanticId != null)
@@ -224,42 +200,28 @@ namespace AAS.AASX.ADT
                     if (submodelElementDtId != null)
                     {
                         // Create relationship between Submodel and SubmodelElement
-                        var rs = new BasicRelationship
-                        {
-                            TargetId = submodelElementDtId,
-                            Name = "submodelElement"
-                        };
-
-                        string relationId = $"{subModelTwinData.Id}-submodelElement->{submodelElementDtId}";
-                        await dtClient.CreateOrReplaceRelationshipAsync(subModelTwinData.Id, relationId, rs);
+                        await DoCreateOrReplaceRelationshipAsync(subModelTwinData, "submodelElement", submodelElementDtId);
                     }
                 }
             }
 
             // Create relationship between Shell and Submodel
-            var relationship = new BasicRelationship
-            {
-                TargetId = subModelTwinData.Id,
-                Name = "submodel"
-            };
-
-            string relId = $"{shellTwin.Id}-submodel->{subModelTwinData.Id}";
-            await dtClient.CreateOrReplaceRelationshipAsync(shellTwin.Id, relId, relationship);
+            await DoCreateOrReplaceRelationshipAsync(shellTwin, "submodel", subModelTwinData.Id);
         }
 
         private async Task<string> ImportSubmodelElement(SubmodelElementWrapper submodelElementWrapper, BasicDigitalTwin subModelTwinData, ImportContext processInfo)
         {
             if (submodelElementWrapper.submodelElement.GetType() == typeof(SubmodelElementCollection))
             {
-                return await ImportSubmodelElementCollection(submodelElementWrapper.GetAs<SubmodelElementCollection>(), submodelElementWrapper, subModelTwinData, processInfo);
+                return await ImportSubmodelElementCollection(submodelElementWrapper.GetAs<SubmodelElementCollection>(), processInfo);
             } 
             else if (submodelElementWrapper.submodelElement.GetType() == typeof (Property))
             {
-                return await ImportProperty(submodelElementWrapper.GetAs<Property>(), submodelElementWrapper, subModelTwinData, processInfo);
+                return await ImportProperty(submodelElementWrapper.GetAs<Property>(), processInfo);
             }
             else if (submodelElementWrapper.submodelElement.GetType() == typeof(File))
             {
-                return await ImportFile(submodelElementWrapper.GetAs<File>(), submodelElementWrapper, subModelTwinData, processInfo);
+                return await ImportFile(submodelElementWrapper.GetAs<File>(), processInfo);
             }
 
             _logger.LogError($"ImportSubmodelElement called for unsupported SubmodelElement '{submodelElementWrapper.submodelElement.GetType()}'");
@@ -267,53 +229,41 @@ namespace AAS.AASX.ADT
             return null;
         }
 
-        private async Task<string> ImportSubmodelElementCollection(SubmodelElementCollection submodelElementCollection, SubmodelElementWrapper submodelElementWrapper, BasicDigitalTwin subModelTwinData, ImportContext processInfo)
+        private async Task<string> ImportSubmodelElementCollection(SubmodelElementCollection submodelElementCollection, ImportContext processInfo)
         {
             _logger.LogInformation($"Now importing submodel element collection '{submodelElementCollection.idShort}'");
 
             // Start by creating a twin for the Submodel Element collection
-            var twinData = new BasicDigitalTwin();
-            twinData.Metadata.ModelId = ADTAASOntology.MODEL_SUBMODELELEMENTCOLLECTION;
-            twinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_SUBMODELELEMENTCOLLECTION]["dtId"]}{Guid.NewGuid()}";
+            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_SUBMODELELEMENTCOLLECTION);
 
             AddSubmodelElementAttributes(twinData, submodelElementCollection);
             twinData.Contents.Add("ordered", submodelElementCollection.ordered);
             twinData.Contents.Add("allowDuplicates", submodelElementCollection.allowDuplicates);
 
-            await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(twinData.Id, twinData);
-            processInfo.Result.DTInstances.Add(new Tuple<string, string>(twinData.Id, twinData.Metadata.ModelId));
+            await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             await AddSubmodelElementRelationships(twinData, submodelElementCollection, processInfo);
 
+            // Add all submodel elements
             var enumerator = submodelElementCollection.EnumerateChildren();
             foreach (var submodelElement in enumerator)
             {
                 string submodelElementDtId = await ImportSubmodelElement(submodelElement, twinData, processInfo);
                 if (submodelElementDtId != null)
                 {
-                    // Create relationship between Submodel and SubmodelElement
-                    var rs = new BasicRelationship
-                    {
-                        TargetId = submodelElementDtId,
-                        Name = "value"
-                    };
-
-                    string relationId = $"{twinData.Id}-value->{submodelElementDtId}";
-                    await dtClient.CreateOrReplaceRelationshipAsync(twinData.Id, relationId, rs);
+                    await DoCreateOrReplaceRelationshipAsync(twinData, "value", submodelElementDtId);
                 }
             }
 
             return twinData.Id;
         }
 
-        private async Task<string> ImportProperty(Property property, SubmodelElementWrapper submodelElementWrapper, BasicDigitalTwin subModelTwinData, ImportContext processInfo)
+        private async Task<string> ImportProperty(Property property, ImportContext processInfo)
         {
             _logger.LogInformation($"Now importing property '{property.idShort}'");
 
-            // Start by creating a twin for the Asset
-            var twinData = new BasicDigitalTwin();
-            twinData.Metadata.ModelId = ADTAASOntology.MODEL_PROPERTY;
-            twinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_PROPERTY]["dtId"]}{Guid.NewGuid()}";
+            // Start by creating a twin for the Property
+            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_PROPERTY);
 
             AddDataElementAttributes(twinData, property);
 
@@ -322,16 +272,7 @@ namespace AAS.AASX.ADT
             if (property.value != null)
                 twinData.Contents.Add("value", property.value);
 
-            try
-            {
-                await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(twinData.Id, twinData);
-                processInfo.Result.DTInstances.Add(new Tuple<string, string>(twinData.Id, twinData.Metadata.ModelId));
-            }
-            catch (RequestFailedException ex)
-            {
-                _logger.LogError($"Exeception on creating twin with id '{twinData.Id}' and model '{twinData.Metadata.ModelId}': {ex.Message}");
-                throw new ImportException($"Exeception on creating twin with id '{twinData.Id}' and model '{twinData.Metadata.ModelId}': {ex.Message}", ex);
-            }
+            await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             if (property.valueId != null)
                 await AddReference(twinData, property.valueId, "valueId", processInfo);
@@ -374,15 +315,13 @@ namespace AAS.AASX.ADT
                 await AddHasDataSpecification(twinData, submodelElement.hasDataSpecification, processInfo);
         }
 
-        private async Task<string> ImportFile(File fileSpec, SubmodelElementWrapper submodelElementWrapper, BasicDigitalTwin subModelTwinData, ImportContext processInfo)
+        private async Task<string> ImportFile(File fileSpec, ImportContext processInfo)
         {
             _logger.LogInformation($"Now importing file '{fileSpec.idShort}'");
 
             // Start by creating a twin for the Asset
-            var twinData = new BasicDigitalTwin();
-            twinData.Metadata.ModelId = ADTAASOntology.MODEL_FILE;
-            twinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_FILE]["dtId"]}{Guid.NewGuid()}";
-
+            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_FILE);
+            
             AddDataElementAttributes(twinData, fileSpec);
 
             if (fileSpec.mimeType != null)
@@ -390,22 +329,14 @@ namespace AAS.AASX.ADT
             if (fileSpec.value != null)
                 twinData.Contents.Add("value", fileSpec.value);
 
-            try
-            {
-                await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(twinData.Id, twinData);
-                processInfo.Result.DTInstances.Add(new Tuple<string, string>(twinData.Id, twinData.Metadata.ModelId));
-            } catch (RequestFailedException ex)
-            {
-                _logger.LogError($"Exeception on creating twin with id '{twinData.Id}' and model '{twinData.Metadata.ModelId}': {ex.Message}");
-                throw new ImportException($"Exeception on creating twin with id '{twinData.Id}' and model '{twinData.Metadata.ModelId}': {ex.Message}", ex);
-            }
+            await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             await AddDataElementRelationships(twinData, fileSpec, processInfo);
 
             return twinData.Id;
         }
 
-        private Submodel FindSubmodelWithRef(Key submodelKey, AdministrationShell shell, AdminShellPackageEnv package)
+        private Submodel FindSubmodelWithRef(Key submodelKey, AdminShellPackageEnv package)
         {
             Submodel result = package.AasEnv.Submodels.First<Submodel>(
                 submodel => submodel.identification.id == submodelKey.value && submodel.identification.idType == submodelKey.idType );
@@ -413,7 +344,7 @@ namespace AAS.AASX.ADT
             return result;
         }
 
-        public async Task ImportAsset(Asset asset, AdminShellPackageEnv package, ImportContext processInfo)
+        public async Task ImportAsset(Asset asset, ImportContext processInfo)
         {
             _logger.LogInformation($"Now importing Asset '{asset.idShort}' into ADT instance");
 
@@ -424,14 +355,10 @@ namespace AAS.AASX.ADT
             }
 
             // Start by creating a twin for the Asset
-            var twinData = new BasicDigitalTwin();
-            twinData.Metadata.ModelId = ADTAASOntology.MODEL_ASSET;
-            twinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_ASSET]["dtId"]}{Guid.NewGuid()}";
-
+            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_ASSET);
             AddIdentifiableAttributes(twinData, asset);
 
-            await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(twinData.Id, twinData);
-            processInfo.Result.DTInstances.Add(new Tuple<string, string>(twinData.Id, twinData.Metadata.ModelId));
+            await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
             processInfo.Result.AASAssets.Add(asset.identification.idType + asset.identification.id, 
                 new TwinRef<Asset>() { DtId = twinData.Id, AASOject = asset});
 
@@ -442,7 +369,7 @@ namespace AAS.AASX.ADT
             }
         }
 
-        public async Task ImportConceptDescription(ConceptDescription conceptDescription, AdminShellPackageEnv package, ImportContext processInfo)
+        public async Task ImportConceptDescription(ConceptDescription conceptDescription, ImportContext processInfo)
         {
             _logger.LogInformation($"Now importing Concept description '{conceptDescription.idShort}' into ADT instance");
 
@@ -453,16 +380,12 @@ namespace AAS.AASX.ADT
             }
 
             // Start by creating a twin for the Concept description
-            var twinData = new BasicDigitalTwin();
-            twinData.Metadata.ModelId = ADTAASOntology.MODEL_CONCEPTDESCRIPTION;
-            twinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_CONCEPTDESCRIPTION]["dtId"]}{Guid.NewGuid()}";
-
+            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_CONCEPTDESCRIPTION);
             AddIdentifiableAttributes(twinData, conceptDescription,
                 (conceptDescription.IEC61360Content != null && conceptDescription.IEC61360Content.shortName != null) ?
                 conceptDescription.IEC61360Content.shortName.GetDefaultStr() : null);
 
-            await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(twinData.Id, twinData);
-            processInfo.Result.DTInstances.Add(new Tuple<string, string>(twinData.Id, twinData.Metadata.ModelId));
+            await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             // Create twins and relationships for embedded data specifications
             if (conceptDescription.embeddedDataSpecification != null)
@@ -484,9 +407,7 @@ namespace AAS.AASX.ADT
                 DataSpecificationIEC61360 content = embeddedDataSpecification.IEC61360Content;
 
                 // Create the DataSpecificationIEC61360 twin
-                var dsTwinData = new BasicDigitalTwin();
-                dsTwinData.Metadata.ModelId = ADTAASOntology.MODEL_DATASPECIEC61360;
-                dsTwinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_DATASPECIEC61360]["dtId"]}{Guid.NewGuid()}";
+                var dsTwinData = CreateTwinForModel(ADTAASOntology.MODEL_DATASPECIEC61360);
 
                 if (content.preferredName != null)
                 {
@@ -515,18 +436,10 @@ namespace AAS.AASX.ADT
                 // TODO: value
                 // TODO: levelType
 
-                await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(dsTwinData.Id, dsTwinData);
-                processInfo.Result.DTInstances.Add(new Tuple<string, string>(dsTwinData.Id, dsTwinData.Metadata.ModelId));
+                await DoCreateOrReplaceDigitalTwinAsync(dsTwinData, processInfo);
 
                 // Create relationship to 
-                var relationship = new BasicRelationship
-                {
-                    TargetId = dsTwinData.Id,
-                    Name = "dataSpecification"
-                };
-
-                string relId = $"{twinData.Id}-dataSpecification->{dsTwinData.Id}";
-                await dtClient.CreateOrReplaceRelationshipAsync(twinData.Id, relId, relationship);
+                await DoCreateOrReplaceRelationshipAsync(twinData, "dataSpecification", dsTwinData.Id);
             }
         }
 
@@ -541,21 +454,11 @@ namespace AAS.AASX.ADT
         private async Task AddReference(BasicDigitalTwin twinData, Reference reference, string relationshipName, ImportContext processInfo)
         {
             // Create Reference twin
-            var refTwinData = new BasicDigitalTwin();
-            refTwinData.Metadata.ModelId = ADTAASOntology.MODEL_REFERENCE;
-            refTwinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_REFERENCE]["dtId"]}{Guid.NewGuid()}";
-            await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(refTwinData.Id, refTwinData);
-            processInfo.Result.DTInstances.Add(new Tuple<string, string>(refTwinData.Id, refTwinData.Metadata.ModelId));
+            var refTwinData = CreateTwinForModel(ADTAASOntology.MODEL_REFERENCE);
+            await DoCreateOrReplaceDigitalTwinAsync(refTwinData, processInfo);
 
             // Create relationship between source twin and Reference twin
-            var relationship = new BasicRelationship
-            {
-                TargetId = refTwinData.Id,
-                Name = relationshipName
-            };
-
-            string relId = $"{twinData.Id}-{relationshipName}->{refTwinData.Id}";
-            await dtClient.CreateOrReplaceRelationshipAsync(twinData.Id, relId, relationship);
+            await DoCreateOrReplaceRelationshipAsync(twinData, relationshipName, refTwinData.Id);
 
             await AddKey(refTwinData, reference, processInfo);
         }
@@ -568,26 +471,17 @@ namespace AAS.AASX.ADT
                 if (keyDtId == null)
                 {
                     // Create key
-                    var keyTwinData = new BasicDigitalTwin();
-                    keyTwinData.Metadata.ModelId = ADTAASOntology.MODEL_KEY;
-                    keyTwinData.Id = $"{ADTAASOntology.DTIDMap[ADTAASOntology.MODEL_KEY]["dtId"]}{Guid.NewGuid()}";
+                    var keyTwinData = CreateTwinForModel(ADTAASOntology.MODEL_KEY);
                     keyTwinData.Contents.Add("key", key.type);
                     keyTwinData.Contents.Add("value", key.value);
                     keyTwinData.Contents.Add("idType", URITOIRI(key.idType));
-                    await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(keyTwinData.Id, keyTwinData);
-                    processInfo.Result.DTInstances.Add(new Tuple<string, string>(keyTwinData.Id, keyTwinData.Metadata.ModelId));
+
+                    await DoCreateOrReplaceDigitalTwinAsync(keyTwinData, processInfo);
 
                     keyDtId = keyTwinData.Id;
                 }
 
-                var keyRel = new BasicRelationship
-                {
-                    TargetId = keyDtId,
-                    Name = "key"
-                };
-                
-                string relId = $"{refTwinData.Id}-key->{keyDtId}";
-                await dtClient.CreateOrReplaceRelationshipAsync(refTwinData.Id, relId, keyRel);
+                await DoCreateOrReplaceRelationshipAsync(refTwinData, "key", keyDtId);
             }
         }
 
@@ -633,6 +527,61 @@ namespace AAS.AASX.ADT
         {
             // TODO: To be implemented
             _logger.LogError("Adding qualifiers is not implemented yet.");
+        }
+
+        private async Task<Response<BasicDigitalTwin>> DoCreateOrReplaceDigitalTwinAsync(BasicDigitalTwin twinData, ImportContext processInfo = null)
+        {
+            Response<BasicDigitalTwin> result;
+            try
+            {
+                result = await dtClient.CreateOrReplaceDigitalTwinAsync<BasicDigitalTwin>(twinData.Id, twinData);
+
+                if (processInfo != null && processInfo.Result != null)
+                    processInfo.Result.DTInstances.Add(new Tuple<string, string>(twinData.Id, twinData.Metadata.ModelId));
+            }
+            catch (RequestFailedException ex)
+            {
+                if (_logger.IsEnabled(LogLevel.Error))
+                    _logger.LogError($"Exeception on creating twin with id '{twinData.Id}' and model '{twinData.Metadata.ModelId}': {ex.Message}");
+                
+                throw new ImportException($"Exeception on creating twin with id '{twinData.Id}' and model '{twinData.Metadata.ModelId}': {ex.Message}", ex);
+            }
+
+            return result;
+        }
+
+        private BasicDigitalTwin CreateTwinForModel(string modelName)
+        {
+            var twinData = new BasicDigitalTwin();
+            twinData.Metadata.ModelId = modelName;
+            twinData.Id = $"{ADTAASOntology.DTIDMap[modelName]["dtId"]}{Guid.NewGuid()}";
+
+            return twinData;
+        }
+
+        private async Task<Response<BasicRelationship>> DoCreateOrReplaceRelationshipAsync(BasicDigitalTwin twinData, string relName, string targetId, ImportContext processInfo = null)
+        {
+            var relationship = new BasicRelationship
+            {
+                TargetId = targetId,
+                Name = relName
+            };
+
+            string relId = $"{twinData.Id}-{relName}->{targetId}";
+            Response<BasicRelationship> result;
+            try
+            {
+                result = await dtClient.CreateOrReplaceRelationshipAsync(twinData.Id, relId, relationship);
+            }
+            catch (RequestFailedException ex)
+            {
+                if (_logger.IsEnabled(LogLevel.Error))
+                    _logger.LogError($"Exeception on creating relationship with name'{relName}' for twin with id '{twinData.Id}' and target id '{targetId}': {ex.Message}");
+
+                throw new ImportException($"Exeception on creating relationship with name'{relName}' for twin with id '{twinData.Id}' and target id '{targetId}': {ex.Message}", ex);
+            }
+
+            return result;
         }
     }
 }

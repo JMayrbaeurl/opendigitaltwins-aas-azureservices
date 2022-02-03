@@ -17,7 +17,7 @@ namespace AAS.AASX.ADT
             this.dtClient = adtClient;
         }
 
-        public async Task<bool> DeleteShell(AdministrationShell shell, AdminShellPackageEnv package)
+        public async Task<bool> DeleteShell(AdministrationShell shell)
         {
             bool result = false;
 
@@ -100,16 +100,12 @@ namespace AAS.AASX.ADT
 
         public async Task<bool> AssetExists(Asset asset)
         {
-            bool result = false;
-
             string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL(dt, '{ADTAASOntology.MODEL_ASSET}') " +
                 $"AND dt.identification.id = '{asset.identification.id}' " +
                 $"AND dt.identification.idType = '{asset.identification.idType}'";
 
             AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
-            result = await queryResult.GetAsyncEnumerator().MoveNextAsync();
-
-            return result;
+            return await queryResult.GetAsyncEnumerator().MoveNextAsync();
         }
 
         public async Task<string> KeyExists(Key key)
@@ -132,7 +128,7 @@ namespace AAS.AASX.ADT
         public static string DescToString(Description desc)
         {
             if (desc == null)
-                return default(string);
+                return default;
             else
             {
                 string result = "";
@@ -150,7 +146,7 @@ namespace AAS.AASX.ADT
         public static string LangStringSetIEC61360ToString(LangStringSetIEC61360 langStrs)
         {
             if (langStrs == null)
-                return default(string);
+                return default;
             else
             {
                 string result = "";

@@ -57,14 +57,14 @@ namespace AAS.AASX.CmdLine
                         builder.UseCredential(new ChainedTokenCredential(new DefaultAzureCredential(), new EnvironmentCredential()));
                     });
 
-                    services.AddSingleton<AASXImporter, ADTAASXPackageImporter>();
+                    services.AddSingleton<IAASXImporter, ADTAASXPackageImporter>();
                 })
                 .Build();
 
             using IServiceScope serviceScope = host.Services.CreateScope();
             IServiceProvider provider = serviceScope.ServiceProvider;
 
-            AASXImporter importer = provider.GetRequiredService<AASXImporter>();
+            IAASXImporter importer = provider.GetRequiredService<IAASXImporter>();
             ImportResult result = importer.ImportFromPackageFile(importOpts.PackageFilePath, 
                 new ImportContext() { 
                     Configuration = new ImportConfiguration() { 
@@ -81,15 +81,6 @@ namespace AAS.AASX.CmdLine
         public class DigitalTwinsClientOptions
         {
             public Uri ADTEndpoint { get; set; }
-        }
-
-        static void SimpleMain(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-
-            using var package = new AdminShellPackageEnv(args[0]);
-
-            Console.WriteLine(package.AasEnv.AdministrationShells[0].GetFriendlyName());
         }
     }
 }
