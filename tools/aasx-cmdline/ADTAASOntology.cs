@@ -17,6 +17,10 @@ namespace AAS.AASX.ADT
         public static readonly string MODEL_PROPERTY = "dtmi:digitaltwins:aas:Property;1";
         public static readonly string MODEL_SUBMODELELEMENTCOLLECTION = "dtmi:digitaltwins:aas:SubmodelElementCollection;1";
         public static readonly string MODEL_FILE = "dtmi:digitaltwins:aas:File;1";
+        public static readonly string MODEL_BLOB = "dtmi:digitaltwins:aas:Blob;1";
+        public static readonly string MODEL_RANGE = "dtmi:digitaltwins:aas:Range;1";
+        public static readonly string MODEL_MULTILANGUAGEPROPERTY = "dtmi:digitaltwins:aas:MultiLanguageProperty;1";
+        public static readonly string MODEL_REFERENCEELEMENT = "dtmi:digitaltwins:aas:ReferenceElement;1";
 
         public static readonly Dictionary<string, Dictionary<string, string>> DTIDMap = new Dictionary<string, Dictionary<string, string>>()
         {
@@ -30,7 +34,11 @@ namespace AAS.AASX.ADT
             { $"{MODEL_SUBMODEL}", new Dictionary<string, string>() { { "dtId", "Submodel_" } } },
             { $"{MODEL_PROPERTY}", new Dictionary<string, string>() { { "dtId", "Property_" } } },
             { $"{MODEL_SUBMODELELEMENTCOLLECTION}", new Dictionary<string, string>() { { "dtId", "SubmodelElements_" } } },
-            { $"{MODEL_FILE}", new Dictionary<string, string>() { { "dtId", "SubmodelElements_" } } }
+            { $"{MODEL_FILE}", new Dictionary<string, string>() { { "dtId", "File_" } } },
+            { $"{MODEL_BLOB}", new Dictionary<string, string>() { { "dtId", "Blob_" } } },
+            { $"{MODEL_RANGE}", new Dictionary<string, string>() { { "dtId", "Range_" } } },
+            { $"{MODEL_MULTILANGUAGEPROPERTY}", new Dictionary<string, string>() { { "dtId", "MultiLangProp_" } } },
+            { $"{MODEL_REFERENCEELEMENT}", new Dictionary<string, string>() { { "dtId", "RefElement_" } } }
         };
     }
 }

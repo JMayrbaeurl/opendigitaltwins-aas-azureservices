@@ -219,9 +219,25 @@ namespace AAS.AASX.ADT
             {
                 return await ImportProperty(submodelElementWrapper.GetAs<Property>(), processInfo);
             }
+            else if (submodelElementWrapper.submodelElement.GetType() == typeof(MultiLanguageProperty))
+            {
+                return await ImportMultiLanguageProperty(submodelElementWrapper.GetAs<MultiLanguageProperty>(), processInfo);
+            }
+            else if (submodelElementWrapper.submodelElement.GetType() == typeof(AdminShellV20.Range))
+            {
+                return await ImportRange(submodelElementWrapper.GetAs<AdminShellV20.Range>(), processInfo);
+            }
             else if (submodelElementWrapper.submodelElement.GetType() == typeof(File))
             {
                 return await ImportFile(submodelElementWrapper.GetAs<File>(), processInfo);
+            }
+            else if (submodelElementWrapper.submodelElement.GetType() == typeof(Blob))
+            {
+                return await ImportBlob(submodelElementWrapper.GetAs<Blob>(), processInfo);
+            }
+            else if (submodelElementWrapper.submodelElement.GetType() == typeof(ReferenceElement))
+            {
+                return await ImportReferenceElement(submodelElementWrapper.GetAs<ReferenceElement>(), processInfo);
             }
 
             _logger.LogError($"ImportSubmodelElement called for unsupported SubmodelElement '{submodelElementWrapper.submodelElement.GetType()}'");
@@ -282,6 +298,68 @@ namespace AAS.AASX.ADT
             return twinData.Id;
         }
 
+        private async Task<string> ImportReferenceElement(ReferenceElement refElement, ImportContext processInfo)
+        {
+            _logger.LogInformation($"Now importing reference element '{refElement.idShort}'");
+
+            // Start by creating a twin for the Property
+            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_REFERENCEELEMENT);
+
+            AddDataElementAttributes(twinData, refElement);
+            await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
+
+            await AddDataElementRelationships(twinData, refElement, processInfo);
+
+            await AddReference(twinData, refElement.value, "value", processInfo);
+
+            return twinData.Id;
+        }
+
+        private async Task<string> ImportMultiLanguageProperty(MultiLanguageProperty property, ImportContext processInfo)
+        {
+            _logger.LogInformation($"Now importing mulit language property '{property.idShort}'");
+
+            // Start by creating a twin for the Property
+            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_MULTILANGUAGEPROPERTY);
+
+            AddDataElementAttributes(twinData, property);
+
+            if (property.value != null)
+                twinData.Contents.Add("value", LangStringSetToString(property.value));
+
+            await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
+
+            if (property.valueId != null)
+                await AddReference(twinData, property.valueId, "valueId", processInfo);
+
+            await AddDataElementRelationships(twinData, property, processInfo);
+
+            return twinData.Id;
+        }
+
+        private async Task<string> ImportRange(AdminShellV20.Range rangeProp, ImportContext processInfo)
+        {
+            _logger.LogInformation($"Now importing range '{rangeProp.idShort}'");
+
+            // Start by creating a twin for the Property
+            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_RANGE);
+
+            AddDataElementAttributes(twinData, rangeProp);
+
+            if (rangeProp.valueType != null)
+                twinData.Contents.Add("valueType", rangeProp.valueType);
+            if (rangeProp.min != null)
+                twinData.Contents.Add("min", rangeProp.min);
+            if (rangeProp.max != null)
+                twinData.Contents.Add("max", rangeProp.max);
+
+            await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
+
+            await AddDataElementRelationships(twinData, rangeProp, processInfo);
+
+            return twinData.Id;
+        }
+
         private void AddDataElementAttributes(BasicDigitalTwin twinData, DataElement dataElement)
         {
             AddSubmodelElementAttributes(twinData, dataElement);
@@ -332,6 +410,28 @@ namespace AAS.AASX.ADT
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             await AddDataElementRelationships(twinData, fileSpec, processInfo);
+
+            return twinData.Id;
+        }
+
+        private async Task<string> ImportBlob(Blob blob, ImportContext processInfo)
+        {
+            _logger.LogInformation($"Now importing blob '{blob.idShort}'");
+
+            // Start by creating a twin for the Asset
+            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_BLOB);
+
+            AddDataElementAttributes(twinData, blob);
+
+            if (blob.mimeType != null)
+                twinData.Contents.Add("mimeType", blob.mimeType);
+            // Attention: ADT has a 4k limit for strings
+            if (blob.value != null)
+                twinData.Contents.Add("value", blob.value);
+
+            await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
+
+            await AddDataElementRelationships(twinData, blob, processInfo);
 
             return twinData.Id;
         }

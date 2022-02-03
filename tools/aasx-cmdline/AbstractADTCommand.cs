@@ -161,6 +161,24 @@ namespace AAS.AASX.ADT
             }
         }
 
+        public static string LangStringSetToString(LangStringSet langStrs)
+        {
+            if (langStrs == null)
+                return default;
+            else
+            {
+                string result = "";
+                foreach (var entry in langStrs.langString)
+                {
+                    if (result.Length > 0)
+                        result += "\n";
+                    result += $"{entry.lang},{entry.str}";
+                }
+
+                return result;
+            }
+        }
+
         public static string StripInvalidTwinIdCharacters(string dtIdProposal)
         {
             string result = dtIdProposal.Trim();
