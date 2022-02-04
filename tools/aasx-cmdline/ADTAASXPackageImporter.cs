@@ -1,4 +1,4 @@
-﻿using AAS.AASX.Support;
+﻿using AAS.AASX.CmdLine.ADT;
 using AdminShellNS;
 using Azure;
 using Azure.DigitalTwins.Core;
@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 using static AdminShellNS.AdminShellV20;
 using File = AdminShellNS.AdminShellV20.File;
 
-namespace AAS.AASX.ADT
+namespace AAS.AASX.CmdLine.Import.ADT
 {
     public class ADTAASXPackageImporter : AbstractADTCommand, IAASXImporter
     {
         
-
-        public ADTAASXPackageImporter(DigitalTwinsClient adtClient, ILogger<ADTAASXPackageImporter> logger) : base(adtClient, logger)
+        public ADTAASXPackageImporter(DigitalTwinsClient adtClient, ILogger<ADTAASXPackageImporter> logger, IAASRepo repo) 
+            : base(adtClient, logger, repo)
         {
         }
 
@@ -351,8 +351,11 @@ namespace AAS.AASX.ADT
             return twinData.Id;
         }
 
-        private async Task<string> ImportRelationshipElement(RelationshipElement relElement, ImportContext processInfo)
+        public async Task<string> ImportRelationshipElement(RelationshipElement relElement, ImportContext processInfo = null)
         {
+            if (relElement == null)
+                throw new ArgumentNullException(nameof(relElement));
+
             _logger.LogInformation($"Now importing relationship element '{relElement.idShort}'");
 
             // Start by creating a twin for the Property
@@ -366,7 +369,7 @@ namespace AAS.AASX.ADT
             // Create relationship to first referable
             var firstTwin = await FindTwinForReference(relElement.first);
             if (firstTwin != null)
-                await DoCreateOrReplaceRelationshipAsync(twinData, "first", firstTwin.Id);
+                await DoCreateOrReplaceRelationshipAsync(twinData, "first", firstTwin);
             else
             {
                 _logger.LogError($"Creating relationship to first element didn't work.");
@@ -375,7 +378,7 @@ namespace AAS.AASX.ADT
             // Create relationship to second referable
             var secondTwin = await FindTwinForReference(relElement.second);
             if (secondTwin != null)
-                await DoCreateOrReplaceRelationshipAsync(twinData, "second", secondTwin.Id);
+                await DoCreateOrReplaceRelationshipAsync(twinData, "second", secondTwin);
             else
             {
                 _logger.LogError($"Creating relationship to second element didn't work.");
@@ -411,7 +414,7 @@ namespace AAS.AASX.ADT
             AddDataElementAttributes(twinData, property);
 
             if (property.value != null)
-                twinData.Contents.Add("value", LangStringSetToString(property.value));
+                twinData.Contents.Add("value", AASUtils.LangStringSetToString(property.value));
 
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
@@ -598,12 +601,12 @@ namespace AAS.AASX.ADT
 
                 if (content.preferredName != null)
                 {
-                    dsTwinData.Contents.Add("preferredName", LangStringSetIEC61360ToString(
+                    dsTwinData.Contents.Add("preferredName", AASUtils.LangStringSetIEC61360ToString(
                         content.preferredName));
                 }
                 if (content.shortName != null)
                 {
-                    dsTwinData.Contents.Add("shortName", LangStringSetIEC61360ToString(
+                    dsTwinData.Contents.Add("shortName", AASUtils.LangStringSetIEC61360ToString(
                         content.shortName));
                 }
                 if (!string.IsNullOrEmpty(content.unit))
@@ -615,7 +618,7 @@ namespace AAS.AASX.ADT
                 if (!string.IsNullOrEmpty(content.dataType))
                     dsTwinData.Contents.Add("dataType", content.dataType);
                 if (content.definition != null)
-                    dsTwinData.Contents.Add("definition", LangStringSetIEC61360ToString(content.definition));
+                    dsTwinData.Contents.Add("definition", AASUtils.LangStringSetIEC61360ToString(content.definition));
                 if (!string.IsNullOrEmpty(content.valueFormat))
                     dsTwinData.Contents.Add("valueFormat", content.valueFormat);
                 // TODO: valueList
@@ -682,7 +685,7 @@ namespace AAS.AASX.ADT
                     var keyTwinData = CreateTwinForModel(ADTAASOntology.MODEL_KEY);
                     keyTwinData.Contents.Add("key", key.type);
                     keyTwinData.Contents.Add("value", key.value);
-                    keyTwinData.Contents.Add("idType", URITOIRI(key.idType));
+                    keyTwinData.Contents.Add("idType", AASUtils.URITOIRI(key.idType));
 
                     await DoCreateOrReplaceDigitalTwinAsync(keyTwinData, processInfo);
 
@@ -702,7 +705,7 @@ namespace AAS.AASX.ADT
             if (!string.IsNullOrEmpty(referable.category))
                 twinData.Contents.Add("category", referable.category);
             if (referable.description != null)
-                twinData.Contents.Add("description", DescToString(referable.description));
+                twinData.Contents.Add("description", AASUtils.DescToString(referable.description));
         }
 
         private void AddIdentifiableAttributes(BasicDigitalTwin twinData, Identifiable identifiable, string displayname = null)

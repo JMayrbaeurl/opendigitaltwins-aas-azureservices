@@ -1,6 +1,6 @@
-﻿using AAS.AASX.ADT;
-using AAS.AASX.Support;
-using AdminShellNS;
+﻿using AAS.AASX.CmdLine.Import;
+using AAS.AASX.CmdLine.Import.ADT;
+using AAS.AASX.CmdLine.Inspect;
 using Azure.Core.Pipeline;
 using Azure.DigitalTwins.Core;
 using Azure.Identity;
@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
-using System.ComponentModel;
 using System.Net.Http;
 
 namespace AAS.AASX.CmdLine
@@ -112,6 +111,8 @@ namespace AAS.AASX.CmdLine
                 // First use DefaultAzureCredentials and second EnvironmentCredential to enable local docker execution
                 builder.UseCredential(new ChainedTokenCredential(new DefaultAzureCredential(), new EnvironmentCredential()));
             });
+
+            services.AddSingleton<IAASRepo, ADTAASRepo>();
         }
 
         public class DigitalTwinsClientOptions

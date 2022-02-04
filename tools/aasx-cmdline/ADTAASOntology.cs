@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace AAS.AASX.ADT
+namespace AAS.AASX.CmdLine.ADT
 {
     public class ADTAASOntology
     {
@@ -49,6 +47,11 @@ namespace AAS.AASX.ADT
             { $"{MODEL_CAPABILITY}", new Dictionary<string, string>() { { "dtId", "Capability_" } } },
             { $"{MODEL_RELATIONSHIPELEMENT}", new Dictionary<string, string>() { { "dtId", "RelShipElement_" } } },
             { $"{MODEL_ANNOTATEDRELATIONSHIPELEMENT}", new Dictionary<string, string>() { { "dtId", "AnnRelShipElement_" } } }
+        };
+
+        public static Dictionary<string, string> KEYS = new Dictionary<string, string>() 
+        {
+            { "Submodel", MODEL_SUBMODEL }
         };
     }
 }

@@ -1,14 +1,12 @@
-﻿using AdminShellNS;
-using Azure;
+﻿using Azure;
 using Azure.DigitalTwins.Core;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition.Primitives;
 using System.Threading.Tasks;
 using static AdminShellNS.AdminShellV20;
 
-namespace AAS.AASX.ADT
+namespace AAS.AASX.CmdLine.ADT
 {
     public abstract class AbstractADTCommand
     {
@@ -16,10 +14,13 @@ namespace AAS.AASX.ADT
 
         protected readonly ILogger _logger;
 
-        public AbstractADTCommand(DigitalTwinsClient adtClient, ILogger log)
+        protected readonly IAASRepo aasRepo;
+
+        public AbstractADTCommand(DigitalTwinsClient adtClient, ILogger log, IAASRepo repo)
         {
             this.dtClient = adtClient;
             this._logger = log;
+            this.aasRepo = repo;    
         }
 
         public async Task<bool> DeleteShell(AdministrationShell shell)
@@ -117,139 +118,12 @@ namespace AAS.AASX.ADT
 
         public async Task<string> KeyExists(Key key)
         {
-            string result = null;
-
-            string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL('{ADTAASOntology.MODEL_KEY}') " +
-                $"AND key = '{key.type}' " + $"AND idType = '{URITOIRI(key.idType)}' " + $"AND value = '{key.value}'";
-
-            AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
-            await foreach (BasicDigitalTwin twin in queryResult)
-            {
-                result = twin.Id;
-                break;
-            }
-
-            return result;
+            return await this.aasRepo.KeyExists(key);
         }
 
-        public async Task<BasicDigitalTwin> FindTwinForReference(Reference reference)
+        public async Task<string> FindTwinForReference(Reference reference)
         {
-            if (reference == null)
-                throw new ArgumentNullException("Parameter 'reference' must not be null");
-
-            if (reference.Keys.Count > 1)
-            {
-                _logger.LogWarning($"FindTwinForReference called with Reference that contains multiple keys. Only one key supported.");
-            }
-
-            Key key = reference.First;
-
-            _logger.LogDebug($"Trying to find Twin with key '{key}'");
-
-            if (!key.local)
-                return null;
-
-            if (key.IsIdType(Key.IdShort))
-            {
-                string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL('{ADTAASOntology.MODEL_REFERABLE}') " +
-                    $"AND idShort = '{key.value}' ";
-                AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
-                await foreach (BasicDigitalTwin twin in queryResult)
-                {
-                    // TODO: See if there is more than one Referable with the same IdShort
-                    return twin;
-                }
-            } 
-            else if (key.IsIdType(Key.FragmentId))
-            {
-                return null;
-            }
-            else
-            {
-                string keyIdType = URITOIRI(key.idType);
-                string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL('{ADTAASOntology.MODEL_IDENTIFIABLE}') " +
-                    $"AND identification.idType = '{keyIdType}' AND identification.id = '{key.value}'";
-                AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
-                await foreach (BasicDigitalTwin twin in queryResult)
-                {
-                    // TODO: See if there is more than one Referable with the same IdShort
-                    return twin;
-                }
-            }
-
-            return null;
-        }
-
-        public static string DescToString(Description desc)
-        {
-            if (desc == null)
-                return default;
-            else
-            {
-                string result = "";
-                foreach (var entry in desc.langString)
-                {
-                    if (result.Length > 0)
-                        result += "\n";
-                    result += $"{entry.lang},{entry.str}";
-                }
-
-                return result;
-            }
-        }
-
-        public static string LangStringSetIEC61360ToString(LangStringSetIEC61360 langStrs)
-        {
-            if (langStrs == null)
-                return default;
-            else
-            {
-                string result = "";
-                foreach (var entry in langStrs)
-                {
-                    if (result.Length > 0)
-                        result += "\n";
-                    result += $"{entry.lang},{entry.str}";
-                }
-
-                return result;
-            }
-        }
-
-        public static string LangStringSetToString(LangStringSet langStrs)
-        {
-            if (langStrs == null)
-                return default;
-            else
-            {
-                string result = "";
-                foreach (var entry in langStrs.langString)
-                {
-                    if (result.Length > 0)
-                        result += "\n";
-                    result += $"{entry.lang},{entry.str}";
-                }
-
-                return result;
-            }
-        }
-
-        public static string StripInvalidTwinIdCharacters(string dtIdProposal)
-        {
-            string result = dtIdProposal.Trim();
-
-            result = result.Replace(" ", "");
-            result = result.Replace("/", "");
-
-            return result;
-        }
-
-        public static string URITOIRI(string idType)
-        {
-            if ("URI".Equals(idType))
-                return "IRI";
-            else
-                return idType;
+            return await this.aasRepo.FindTwinForReference(reference);
         }
 
         protected async Task FindAndDeleteIncomingRelationshipsAsync(string dtId)

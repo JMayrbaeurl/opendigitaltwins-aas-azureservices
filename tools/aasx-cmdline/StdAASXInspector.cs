@@ -2,10 +2,8 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace AAS.AASX.Support
+namespace AAS.AASX.CmdLine.Inspect
 {
     public class StdAASXInspector : IAASXInspector
     {

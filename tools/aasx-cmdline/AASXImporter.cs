@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using static AdminShellNS.AdminShellV20;
 
-namespace AAS.AASX.Support
+namespace AAS.AASX.CmdLine.Import
 {
     public interface IAASXImporter
     {
         public Task<ImportResult> ImportFromPackageFile(string packageFilePath, ImportContext processInfo);
+
+        public Task<string> ImportRelationshipElement(RelationshipElement relElement, ImportContext processInfo = null);
     }
 
     public class TwinRef<T>

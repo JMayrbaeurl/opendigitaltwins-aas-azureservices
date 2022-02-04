@@ -42,6 +42,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS WebApp Registry", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AASX Package Command line", "tools\aasx-cmdline\AASX Package Command line.csproj", "{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AASX Package Command line Tests", "tools\aasx-cmdline-tests\AASX Package Command line Tests.csproj", "{5BBB7304-26FC-4690-BEF4-59782E720A68}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{D3185476-EC73-4773-BA8D-E19147F729AE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AASX Command line", "AASX Command line", "{803CDCDE-B5BD-4EE7-A873-68B352F0A275}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -108,9 +114,18 @@ Global
 		{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BBB7304-26FC-4690-BEF4-59782E720A68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BBB7304-26FC-4690-BEF4-59782E720A68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BBB7304-26FC-4690-BEF4-59782E720A68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BBB7304-26FC-4690-BEF4-59782E720A68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84} = {803CDCDE-B5BD-4EE7-A873-68B352F0A275}
+		{5BBB7304-26FC-4690-BEF4-59782E720A68} = {803CDCDE-B5BD-4EE7-A873-68B352F0A275}
+		{803CDCDE-B5BD-4EE7-A873-68B352F0A275} = {D3185476-EC73-4773-BA8D-E19147F729AE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3B9D5232-0DAC-44CB-B879-A2E20EC77D59}
