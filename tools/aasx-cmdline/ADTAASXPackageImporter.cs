@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static AdminShellNS.AdminShellV20;
+using File = AdminShellNS.AdminShellV20.File;
 
 namespace AAS.AASX.ADT
 {
@@ -21,6 +22,14 @@ namespace AAS.AASX.ADT
 
         public async Task<ImportResult> ImportFromPackageFile(string packageFilePath, ImportContext processInfo)
         {
+            if (packageFilePath == null)
+                throw new ArgumentNullException(nameof(packageFilePath));
+
+            if (!System.IO.File.Exists(packageFilePath))
+            {
+                throw new ArgumentException($"AASX package file at '{packageFilePath}' doesn't exist");
+            }
+
             using var package = new AdminShellPackageEnv(packageFilePath);
 
             if (package.AasEnv != null)
@@ -360,7 +369,7 @@ namespace AAS.AASX.ADT
                 await DoCreateOrReplaceRelationshipAsync(twinData, "first", firstTwin.Id);
             else
             {
-
+                _logger.LogError($"Creating relationship to first element didn't work.");
             }
 
             // Create relationship to second referable
@@ -369,7 +378,7 @@ namespace AAS.AASX.ADT
                 await DoCreateOrReplaceRelationshipAsync(twinData, "second", secondTwin.Id);
             else
             {
-
+                _logger.LogError($"Creating relationship to second element didn't work.");
             }
 
             return twinData.Id;

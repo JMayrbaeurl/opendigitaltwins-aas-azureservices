@@ -65,7 +65,9 @@ namespace AAS.AASX.ADT
 
         protected bool IsCompositeRelationship(BasicRelationship rel)
         {
-            return rel.Name != "key";
+            // TODO: Currently only well known Relationship names from the AAS Ontology
+            // (Reference->Key, RelationshipElement->Referable) are checked. Should be extended in the future
+            return rel.Name != "key" && rel.Name != "first" && rel.Name != "second";
         }
 
         public async Task<bool> ConceptDescriptionExists(ConceptDescription conceptDescription)
