@@ -29,9 +29,23 @@ namespace AAS.AASX.CmdLine.Test
         {
             var NameplateRef = new Reference(
                 new Key(Key.AAS, true, Identification.IRI, "smart.festo.com/demo/aas/1/1/454576463545648365874"));
-            NameplateRef.Keys.Add(
-                new Key(Key.Submodel, true, Identification.IdShort, "Nameplate"));
-            Assert.IsFalse(String.IsNullOrEmpty(this.aasRepo.FindTwinForReference(NameplateRef).GetAwaiter().GetResult()));
+            NameplateRef.Keys.Add(new Key(Key.Submodel, true, Identification.IdShort, "Nameplate"));
+
+            Assert.AreEqual<string>("Submodel_27f89173-0ef5-486b-98f9-fa388395523a", 
+                this.aasRepo.FindTwinForReference(NameplateRef).GetAwaiter().GetResult());
+        }
+
+        [TestMethod]
+        public void TestFindTwinForPropertyOf01_FestoAAS()
+        {
+            var propRef = new Reference(
+                new Key(Key.AAS, true, Identification.IRI, "smart.festo.com/demo/aas/1/1/454576463545648365874"));
+            propRef.Keys.Add(new Key(Key.Submodel, true, Identification.IdShort, "Nameplate"));
+            propRef.Keys.Add(new Key("SubmodelElementCollection", true, Identification.IdShort, "Marking_RCM"));
+            propRef.Keys.Add(new Key("Property", true, Identification.IdShort, "RCMLabelingPresent"));
+
+            Assert.AreEqual<string>("Property_c31b62cf-5e8c-4917-be7e-467ca9fc6218",
+                this.aasRepo.FindTwinForReference(propRef).GetAwaiter().GetResult());
         }
 
         [TestInitialize]

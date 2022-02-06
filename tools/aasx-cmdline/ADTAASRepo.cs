@@ -3,6 +3,8 @@ using AdminShellNS;
 using Azure;
 using Azure.DigitalTwins.Core;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +28,8 @@ namespace AAS.AASX.CmdLine
 
         public async Task<string> FindTwinForReference(AdminShellV20.Reference reference)
         {
+            _logger.LogDebug($"FindTwinForReference called for reference {reference.ToString()}");
+
             if (reference == null)
                 throw new ArgumentNullException("Parameter 'reference' must not be null");
 
@@ -59,6 +63,9 @@ namespace AAS.AASX.CmdLine
             string keyIdType = AASUtils.URITOIRI(firstKey.idType);
             string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL('{ADTAASOntology.MODEL_IDENTIFIABLE}') " +
                 $"AND identification.idType = '{keyIdType}' AND identification.id = '{firstKey.value}'";
+
+            _logger.LogDebug($"Now querying for identifiable with {queryString}");
+
             AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
             await foreach (BasicDigitalTwin twin in queryResult)
             {
@@ -93,6 +100,8 @@ namespace AAS.AASX.CmdLine
                         }
                     }
 
+                    _logger.LogDebug("Now querying for twins with: " + queryString);
+
                     BasicDigitalTwin referableTwinData = null;
                     queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
                     await foreach (BasicDigitalTwin twin in queryResult)
@@ -102,8 +111,11 @@ namespace AAS.AASX.CmdLine
                     }
                     if (referableTwinData != null)
                     {
-                        //return referableTwinData.Contents[usedProjections[usedProjections.Length - 1]];
-                        return null;
+                        JObject referableTwin = (JObject)JsonConvert.DeserializeObject(referableTwinData.Contents[usedProjections[usedProjections.Length - 1]].ToString());
+
+                        _logger.LogDebug($"Found referred twin with id '{(string)referableTwin["$dtId"]}'");
+
+                        return (string)referableTwin["$dtId"];
                     }
                     else
                         return null;

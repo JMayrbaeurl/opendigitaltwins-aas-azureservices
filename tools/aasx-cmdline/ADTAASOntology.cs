@@ -25,6 +25,13 @@ namespace AAS.AASX.CmdLine.ADT
         public static readonly string MODEL_ANNOTATEDRELATIONSHIPELEMENT = "dtmi:digitaltwins:aas:AnnotatedRelationshipElement;1";
         public static readonly string MODEL_REFERABLE = "dtmi:digitaltwins:aas:Referable;1";
         public static readonly string MODEL_IDENTIFIABLE = "dtmi:digitaltwins:aas:Identifiable;1";
+        public static readonly string MODEL_DATAELEMENT = "dtmi:digitaltwins:aas:DataElement;1";
+        public static readonly string MODEL_OPERATION = "dtmi:digitaltwins:aas:Operation;1";
+        public static readonly string MODEL_OPERATIONVARIABLE = "dtmi:digitaltwins:aas:OperationVariable;1";
+        public static readonly string MODEL_BASICEVENT = "dtmi:digitaltwins:aas:BasicEvent;1";
+        public static readonly string MODEL_ENTITY = "dtmi:digitaltwins:aas:Entity;1";
+        public static readonly string MODEL_SUBMODELELEMENT = "dtmi:digitaltwins:aas:SubmodelElement;1";
+        public static readonly string MODEL_VIEW = "dtmi:digitaltwins:aas:View;1";
 
         public static readonly Dictionary<string, Dictionary<string, string>> DTIDMap = new Dictionary<string, Dictionary<string, string>>()
         {
@@ -46,12 +53,38 @@ namespace AAS.AASX.CmdLine.ADT
             { $"{MODEL_QUALIFIER}", new Dictionary<string, string>() { { "dtId", "Qualifier_" } } },
             { $"{MODEL_CAPABILITY}", new Dictionary<string, string>() { { "dtId", "Capability_" } } },
             { $"{MODEL_RELATIONSHIPELEMENT}", new Dictionary<string, string>() { { "dtId", "RelShipElement_" } } },
-            { $"{MODEL_ANNOTATEDRELATIONSHIPELEMENT}", new Dictionary<string, string>() { { "dtId", "AnnRelShipElement_" } } }
+            { $"{MODEL_ANNOTATEDRELATIONSHIPELEMENT}", new Dictionary<string, string>() { { "dtId", "AnnRelShipElement_" } } },
+            { $"{MODEL_OPERATION}", new Dictionary<string, string>() { { "dtId", "Operation_" } } },
+            { $"{MODEL_OPERATIONVARIABLE}", new Dictionary<string, string>() { { "dtId", "OpVariable_" } } },
+            { $"{MODEL_BASICEVENT}", new Dictionary<string, string>() { { "dtId", "BasicEvent_" } } },
+            { $"{MODEL_ENTITY}", new Dictionary<string, string>() { { "dtId", "Entity_" } } },
+            { $"{MODEL_SUBMODELELEMENT}", new Dictionary<string, string>() { { "dtId", "SmElement_" } } },
+            { $"{MODEL_VIEW}", new Dictionary<string, string>() { { "dtId", "View_" } } }
         };
 
         public static Dictionary<string, string> KEYS = new Dictionary<string, string>() 
         {
-            { "Submodel", MODEL_SUBMODEL }
+            { "Asset", MODEL_ASSET },
+            { "AssetAdministrationShell", MODEL_SHELL },
+            { "ConceptDescription", MODEL_CONCEPTDESCRIPTION },
+            { "Blob", MODEL_BLOB },
+            { "Submodel", MODEL_SUBMODEL },
+            { "DataElement", MODEL_DATAELEMENT },
+            { "File", MODEL_FILE },
+            { "Operation", MODEL_OPERATION },
+            { "OperationVariable", MODEL_OPERATIONVARIABLE },
+            { "BasicEvent", MODEL_BASICEVENT },
+            { "Entity", MODEL_ENTITY },
+            { "Property", MODEL_PROPERTY },
+            { "MultiLanguageProperty", MODEL_MULTILANGUAGEPROPERTY },
+            { "Range", MODEL_RANGE },
+            { "ReferenceElement", MODEL_REFERENCEELEMENT },
+            { "RelationshipElement", MODEL_RELATIONSHIPELEMENT },
+            { "AnnotatedRelationshipElement", MODEL_ANNOTATEDRELATIONSHIPELEMENT },
+            { "Capability", MODEL_CAPABILITY },
+            { "SubmodelElement", MODEL_SUBMODELELEMENT },
+            { "SubmodelElementCollection", MODEL_SUBMODELELEMENTCOLLECTION },
+            { "View", MODEL_VIEW }
         };
     }
 }
