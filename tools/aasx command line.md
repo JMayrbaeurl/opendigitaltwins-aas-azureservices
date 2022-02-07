@@ -1,0 +1,129 @@
+# Asset Administration Shell - AASX Command line tool
+
+A tool to work with Asset Administration Shell package files. E.g. importing contents of the files into an [Azure 
+Digital Twin](https://docs.microsoft.com/en-us/azure/digital-twins/overview) instance using the 
+[AAS DTDLv2 ontology](https://github.com/JMayrbaeurl/opendigitaltwins-assetadminstrationshell).
+
+**Basic usage**
+```
+aasxcli subcommand [options]
+```
+
+Available subcommands are: `import` and `list-all`
+
+| Command line syntax | Description |
+| --- | --- |
+| `aasxcli import` | Imports the contents of an AASX package into an Azure Digital Twin instance |
+| `aasxcli list-all` | Lists the contents of an AASX package file |
+
+**Global Parameters**
+
+`--url -u`
+
+Url of the Azure Digital Twins instance. E.g. `https://[Your ADT instance name].api.weu.digitaltwins.azure.net`
+
+`--file -f`
+
+File path to the [AASX package file](https://github.com/admin-shell-io/aas-specs). 
+Currently Version 1.0 and [Version 2.0](https://github.com/admin-shell-io/aasx-package-explorer/tree/master/src/AasxCsharpLibrary/Resources/schemaV201) 
+of the AASX package file format are supported.
+
+### aasxcli import
+
+Imports the contents of the AASX package file into an Azure Digital Twin instance
+
+```
+aasxcli import --file --url [--ignoreConceptDescriptions] [--DeleteShellsBeforeImport]
+```
+**Examples**
+
+Import the '01 Festo' sample shells into ADT replacing existing nodes
+```
+aasxcli import -f ".\AASX Samples\01_Festo.aasx" --u "https://[Your ADT instance name].api.weu.digitaltwins.azure.net"
+```
+
+Import the '01 Festo' sample shells into ADT and delete the existing shell first
+```
+aasxcli import --DeleteShellsBeforeImport -f ".\AASX Samples\01_Festo.aasx" --u "https://[Your ADT instance name].api.weu.digitaltwins.azure.net"
+```
+**Required Parameters**
+
+None
+
+**Optional Parameters**
+
+`--ignoreConceptDescriptions`
+
+Ignore the Concept Description entries in the AASX package file
+
+`--DeleteShellsBeforeImport`
+
+Delete the existing shell twins in the Azure Digital Twins instance before importing the new one
+
+### aasxcli list-all
+
+Lists the contents of an AASX package file
+
+```
+aasxcli list-all --file --url
+```
+**Examples**
+
+List all contents of the '01 Festo' sample
+```
+aasxcli list-all -f ".\AASX Samples\01_Festo.aasx" --u "https://[Your ADT instance name].api.weu.digitaltwins.azure.net"
+```
+
+```json
+{
+  "Shells": [
+    {
+      "IdType": "IRI",
+      "Id": "smart.festo.com/demo/aas/1/1/454576463545648365874",
+      "IdShort": "Festo_3S7PM0CP4BD"
+    }
+  ],
+  "Submodels": [
+    {
+      "IdType": "IRI",
+      "Id": "www.company.com/ids/sm/4343_5072_7091_3242",
+      "IdShort": "Nameplate"
+    },
+    {
+      "IdType": "IRI",
+      "Id": "www.company.com/ids/sm/2543_5072_7091_2660",
+      "IdShort": "Document"
+    },
+    {
+      "IdType": "IRI",
+      "Id": "www.company.com/ids/sm/6053_5072_7091_5102",
+      "IdShort": "Service"
+    },
+    {
+      "IdType": "IRI",
+      "Id": "www.company.com/ids/sm/6563_5072_7091_4267",
+      "IdShort": "Identification"
+    },
+    {
+      "IdType": "IRI",
+      "Id": "smart.festo.com/demo/sm/instance/1/1/13B7CCD9BF7A3F24",
+      "IdShort": "DeviceDescriptionFiles"
+    }
+  ],
+  "Assets": [
+    {
+      "IdType": "IRI",
+      "Id": "HTTP://PK.FESTO.COM/3S7PM0CP4BD",
+      "IdShort": "FPK_3s7plfdrs35"
+    }
+  ]
+}
+```
+
+**Required Parameters**
+
+--url is currently required but ignored
+
+**Optional Parameters**
+
+None
