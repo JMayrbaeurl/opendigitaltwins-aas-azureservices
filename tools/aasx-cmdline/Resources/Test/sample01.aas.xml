@@ -1,0 +1,397 @@
+<?xml version="1.0"?>
+<aas:aasenv xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:IEC61360="http://www.admin-shell.io/IEC61360/1/0" xsi:schemaLocation="http://www.admin-shell.io/aas/1/0 AAS.xsd http://www.admin-shell.io/IEC61360/1/0 IEC61360.xsd" xmlns:aas="http://www.admin-shell.io/aas/1/0">
+  <aas:assetAdministrationShells>
+    <aas:assetAdministrationShell>
+      <aas:idShort>Festo_3S7PM0CP4BD</aas:idShort>
+      <aas:category>CONSTANT</aas:category>
+      <aas:identification idType="URI">smart.festo.com/demo/aas/1/1/454576463545648365874</aas:identification>
+      <aas:assetRef>
+        <aas:keys>
+          <aas:key type="Asset" local="true" idType="URI">HTTP://PK.FESTO.COM/3S7PM0CP4BD</aas:key>
+        </aas:keys>
+      </aas:assetRef>
+      <aas:submodelRefs>
+        <aas:submodelRef>
+          <aas:keys>
+            <aas:key type="Submodel" local="true" idType="URI">www.company.com/ids/sm/4343_5072_7091_3242</aas:key>
+          </aas:keys>
+        </aas:submodelRef>
+      </aas:submodelRefs>
+      <aas:conceptDictionaries />
+    </aas:assetAdministrationShell>
+  </aas:assetAdministrationShells>
+  <aas:assets>
+    <aas:asset>
+      <aas:idShort>FPK_3s7plfdrs35</aas:idShort>
+      <aas:description>
+        <aas:langString lang="EN">Festo OVEL Vacuum generator</aas:langString>
+        <aas:langString lang="DE">Festo OVEL Vakuumsaugdüse</aas:langString>
+      </aas:description>
+      <aas:identification idType="URI">HTTP://PK.FESTO.COM/3S7PM0CP4BD</aas:identification>
+      <aas:kind>Instance</aas:kind>
+    </aas:asset>
+  </aas:assets>
+  <aas:submodels>
+    <aas:submodel>
+      <aas:idShort>Nameplate</aas:idShort>
+      <aas:identification idType="URI">www.company.com/ids/sm/4343_5072_7091_3242</aas:identification>
+      <aas:semanticId>
+        <aas:keys>
+          <aas:key type="GlobalReference" local="false" idType="URI">https://www.hsu-hh.de/aut/aas/nameplate</aas:key>
+        </aas:keys>
+      </aas:semanticId>
+      <aas:kind>Instance</aas:kind>
+      <aas:qualifier />
+      <aas:submodelElements>
+        <aas:submodelElement>
+          <aas:property>
+            <aas:idShort>ManufacturerName</aas:idShort>
+            <aas:category>PARAMETER</aas:category>
+            <aas:semanticId>
+              <aas:keys>
+                <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAO677#002</aas:key>
+              </aas:keys>
+            </aas:semanticId>
+            <aas:kind>Instance</aas:kind>
+            <aas:qualifier />
+            <aas:valueType>string</aas:valueType>
+            <aas:value>Festo AG &amp; Co. KG</aas:value>
+          </aas:property>
+        </aas:submodelElement>
+        <aas:submodelElement>
+          <aas:property>
+            <aas:idShort>ManufacturerProductDesignation</aas:idShort>
+            <aas:category>PARAMETER</aas:category>
+            <aas:semanticId>
+              <aas:keys>
+                <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAW338#001</aas:key>
+              </aas:keys>
+            </aas:semanticId>
+            <aas:kind>Instance</aas:kind>
+            <aas:qualifier />
+            <aas:valueType>string</aas:valueType>
+            <aas:value>OVEL Vacuum generator</aas:value>
+          </aas:property>
+        </aas:submodelElement>
+        <aas:submodelElement>
+          <aas:submodelElementCollection>
+            <aas:idShort>PhysicalAddress</aas:idShort>
+            <aas:category>PARAMETER</aas:category>
+            <aas:semanticId>
+              <aas:keys>
+                <aas:key type="ConceptDescription" local="true" idType="URI">https://www.hsu-hh.de/aut/aas/physicaladdress</aas:key>
+              </aas:keys>
+            </aas:semanticId>
+            <aas:kind>Instance</aas:kind>
+            <aas:qualifier />
+            <aas:value>
+              <aas:submodelElement>
+                <aas:property>
+                  <aas:idShort>CountryCode</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAO730#001</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:qualifier />
+                  <aas:valueType>string</aas:valueType>
+                  <aas:value>DE</aas:value>
+                </aas:property>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:property>
+                  <aas:idShort>Street</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAO128#001</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:qualifier />
+                  <aas:valueType>string</aas:valueType>
+                  <aas:value>Ruiter Straße 82</aas:value>
+                </aas:property>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:property>
+                  <aas:idShort>Zip</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAO129#002</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:qualifier />
+                  <aas:valueType>string</aas:valueType>
+                  <aas:value>73734</aas:value>
+                </aas:property>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:property>
+                  <aas:idShort>CityTown</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAO132#001</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:qualifier />
+                  <aas:valueType>string</aas:valueType>
+                  <aas:value>Esslingen-Berkheim</aas:value>
+                </aas:property>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:property>
+                  <aas:idShort>StateCounty</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAO133#002</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:qualifier />
+                  <aas:valueType>string</aas:valueType>
+                  <aas:value>Baden-Württemberg</aas:value>
+                </aas:property>
+              </aas:submodelElement>
+            </aas:value>
+            <aas:ordered>false</aas:ordered>
+            <aas:allowDuplicates>false</aas:allowDuplicates>
+          </aas:submodelElementCollection>
+        </aas:submodelElement>
+        <aas:submodelElement>
+          <aas:property>
+            <aas:idShort>ManufacturerProductFamily</aas:idShort>
+            <aas:category>PARAMETER</aas:category>
+            <aas:semanticId>
+              <aas:keys>
+                <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAU731#001</aas:key>
+              </aas:keys>
+            </aas:semanticId>
+            <aas:kind>Instance</aas:kind>
+            <aas:qualifier />
+            <aas:valueType />
+            <aas:value>OVEL-5-H-10-P-VQ4-UA-Z-C-A-V1PNLK-H3</aas:value>
+          </aas:property>
+        </aas:submodelElement>
+        <aas:submodelElement>
+          <aas:property>
+            <aas:idShort>SerialNumber</aas:idShort>
+            <aas:category>PARAMETER</aas:category>
+            <aas:semanticId>
+              <aas:keys>
+                <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAM556#002</aas:key>
+              </aas:keys>
+            </aas:semanticId>
+            <aas:kind>Instance</aas:kind>
+            <aas:qualifier />
+            <aas:valueType>string</aas:valueType>
+            <aas:value>JO43</aas:value>
+          </aas:property>
+        </aas:submodelElement>
+        <aas:submodelElement>
+          <aas:property>
+            <aas:idShort>BatchNumber</aas:idShort>
+            <aas:category>PARAMETER</aas:category>
+            <aas:semanticId>
+              <aas:keys>
+                <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAQ196#001</aas:key>
+              </aas:keys>
+            </aas:semanticId>
+            <aas:kind>Instance</aas:kind>
+            <aas:qualifier />
+            <aas:valueType />
+            <aas:value />
+          </aas:property>
+        </aas:submodelElement>
+        <aas:submodelElement>
+          <aas:property>
+            <aas:idShort>ProductCountryOfOrigin</aas:idShort>
+            <aas:category>PARAMETER</aas:category>
+            <aas:semanticId>
+              <aas:keys>
+                <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAO841#001</aas:key>
+              </aas:keys>
+            </aas:semanticId>
+            <aas:kind>Instance</aas:kind>
+            <aas:qualifier />
+            <aas:valueType>string</aas:valueType>
+            <aas:value>DE</aas:value>
+          </aas:property>
+        </aas:submodelElement>
+        <aas:submodelElement>
+          <aas:property>
+            <aas:idShort>YearOfConstruction</aas:idShort>
+            <aas:category>PARAMETER</aas:category>
+            <aas:semanticId>
+              <aas:keys>
+                <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAP906#001</aas:key>
+              </aas:keys>
+            </aas:semanticId>
+            <aas:kind>Instance</aas:kind>
+            <aas:qualifier />
+            <aas:valueType>integer</aas:valueType>
+            <aas:value>2019</aas:value>
+          </aas:property>
+        </aas:submodelElement>
+        <aas:submodelElement>
+          <aas:submodelElementCollection>
+            <aas:idShort>Marking_CE</aas:idShort>
+            <aas:category>PARAMETER</aas:category>
+            <aas:semanticId>
+              <aas:keys>
+                <aas:key type="ConceptDescription" local="true" idType="URI">https://www.hsu-hh.de/aut/aas/productmarking</aas:key>
+              </aas:keys>
+            </aas:semanticId>
+            <aas:kind>Instance</aas:kind>
+            <aas:qualifier />
+            <aas:value>
+              <aas:submodelElement>
+                <aas:property>
+                  <aas:idShort>CEQualificationPresent</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-BAF053#008</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:qualifier />
+                  <aas:valueType>boolean</aas:valueType>
+                  <aas:value>1</aas:value>
+                  <aas:valueId>
+                    <aas:keys>
+                      <aas:key type="GlobalReference" local="false" idType="IRDI">0173-1#07-CAA016#001</aas:key>
+                    </aas:keys>
+                  </aas:valueId>
+                </aas:property>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:file>
+                  <aas:idShort>File</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAD005#008</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:qualifier />
+                  <aas:mimeType>image/png</aas:mimeType>
+                  <aas:value>/aasx/Nameplate/marking_ce.png</aas:value>
+                </aas:file>
+              </aas:submodelElement>
+            </aas:value>
+            <aas:ordered>false</aas:ordered>
+            <aas:allowDuplicates>false</aas:allowDuplicates>
+          </aas:submodelElementCollection>
+        </aas:submodelElement>
+        <aas:submodelElement>
+          <aas:submodelElementCollection>
+            <aas:idShort>Marking_CRUUS</aas:idShort>
+            <aas:category>PARAMETER</aas:category>
+            <aas:semanticId>
+              <aas:keys>
+                <aas:key type="ConceptDescription" local="true" idType="URI">https://www.hsu-hh.de/aut/aas/productmarking</aas:key>
+              </aas:keys>
+            </aas:semanticId>
+            <aas:kind>Instance</aas:kind>
+            <aas:qualifier />
+            <aas:value>
+              <aas:submodelElement>
+                <aas:property>
+                  <aas:idShort>CRUUSLabelingPresent</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAR528#005</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:qualifier />
+                  <aas:valueType>boolean</aas:valueType>
+                  <aas:value>1</aas:value>
+                  <aas:valueId>
+                    <aas:keys>
+                      <aas:key type="GlobalReference" local="false" idType="IRDI">0173-1#07-CAA016#001</aas:key>
+                    </aas:keys>
+                  </aas:valueId>
+                </aas:property>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:file>
+                  <aas:idShort>File</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAD005#008</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:qualifier />
+                  <aas:mimeType>image/png</aas:mimeType>
+                  <aas:value>/aasx/Nameplate/marking_cruus.jpg</aas:value>
+                </aas:file>
+              </aas:submodelElement>
+            </aas:value>
+            <aas:ordered>false</aas:ordered>
+            <aas:allowDuplicates>false</aas:allowDuplicates>
+          </aas:submodelElementCollection>
+        </aas:submodelElement>
+        <aas:submodelElement>
+          <aas:submodelElementCollection>
+            <aas:idShort>Marking_RCM</aas:idShort>
+            <aas:category>PARAMETER</aas:category>
+            <aas:semanticId>
+              <aas:keys>
+                <aas:key type="ConceptDescription" local="true" idType="URI">https://www.hsu-hh.de/aut/aas/productmarking</aas:key>
+              </aas:keys>
+            </aas:semanticId>
+            <aas:kind>Instance</aas:kind>
+            <aas:qualifier />
+            <aas:value>
+              <aas:submodelElement>
+                <aas:property>
+                  <aas:idShort>RCMLabelingPresent</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAR528#005</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:qualifier />
+                  <aas:valueType>boolean</aas:valueType>
+                  <aas:value>1</aas:value>
+                </aas:property>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:file>
+                  <aas:idShort>File</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key type="ConceptDescription" local="true" idType="IRDI">0173-1#02-AAD005#008</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:qualifier />
+                  <aas:mimeType>image/png</aas:mimeType>
+                  <aas:value>/aasx/Nameplate/marking_rcm.jpg</aas:value>
+                </aas:file>
+              </aas:submodelElement>
+            </aas:value>
+            <aas:ordered>false</aas:ordered>
+            <aas:allowDuplicates>false</aas:allowDuplicates>
+          </aas:submodelElementCollection>
+        </aas:submodelElement>
+      </aas:submodelElements>
+    </aas:submodel>
+  </aas:submodels>
+</aas:aasenv>
