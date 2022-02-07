@@ -1,21 +1,16 @@
 using AAS.AASX.CmdLine.Import;
 using AAS.AASX.CmdLine.Import.ADT;
-using Azure.Core.Pipeline;
-using Azure.DigitalTwins.Core;
-using Azure.Identity;
-using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Net.Http;
 using static AdminShellNS.AdminShellV20;
 
 namespace AAS.AASX.CmdLine.Test.Import
 {
     [TestClass]
-    public class SimpleAASXImportTests
+    public class SimpleAASXImportTests : AbstractTestSupport
     {
         private IAASXImporter importer;
 
@@ -23,11 +18,14 @@ namespace AAS.AASX.CmdLine.Test.Import
         public void Setup()
         {
             using IHost host = Host.CreateDefaultBuilder()
-                .ConfigureServices((_, services) =>
+                .ConfigureAppConfiguration((hostContext, configBuilder) => { configBuilder.AddJsonFile("appsettings.tests.json"); })
+                .ConfigureServices((hostContext, services) =>
                 {
-                    ConfigureBasicServices(services, "https://aasadtdevjm.api.weu.digitaltwins.azure.net");
+                    ConfigureBasicServices(services, hostContext.Configuration["ADT_SERVICE_URL"]);
 
+                    services.AddSingleton<IAASRepo, ADTAASRepo>();
                     services.AddSingleton<IAASXImporter, ADTAASXPackageImporter>();
+                    configuration = hostContext.Configuration;
                 })
                 .Build();
 
@@ -35,27 +33,6 @@ namespace AAS.AASX.CmdLine.Test.Import
             IServiceProvider provider = serviceScope.ServiceProvider;
 
             importer = provider.GetRequiredService<IAASXImporter>();
-        }
-
-        private static void ConfigureBasicServices(IServiceCollection services, string adtInstanceUrl)
-        {
-            services.Configure<DigitalTwinsClientOptions>(options => options.ADTEndpoint = new Uri(adtInstanceUrl));
-
-            services.AddAzureClients(builder =>
-            {
-                builder.AddClient<DigitalTwinsClient, DigitalTwinsClientOptions>((options, provider) =>
-                {
-                    var appOptions = provider.GetService<IOptions<DigitalTwinsClientOptions>>();
-
-                    var credentials = new DefaultAzureCredential();
-                    DigitalTwinsClient client = new DigitalTwinsClient(appOptions.Value.ADTEndpoint,
-                                credentials, new Azure.DigitalTwins.Core.DigitalTwinsClientOptions { Transport = new HttpClientTransport(new HttpClient()) });
-                    return client;
-                });
-
-                // First use DefaultAzureCredentials and second EnvironmentCredential to enable local docker execution
-                builder.UseCredential(new ChainedTokenCredential(new DefaultAzureCredential(), new EnvironmentCredential()));
-            });
         }
 
         [TestMethod]
@@ -70,10 +47,5 @@ namespace AAS.AASX.CmdLine.Test.Import
             string dtId = importer.ImportRelationshipElement(relElement).GetAwaiter().GetResult();
             Assert.IsFalse(String.IsNullOrEmpty(dtId));
         }
-    }
-
-    public class DigitalTwinsClientOptions
-    {
-        public Uri ADTEndpoint { get; set; }
     }
 }
