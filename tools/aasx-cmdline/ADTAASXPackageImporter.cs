@@ -5,6 +5,7 @@ using Azure.DigitalTwins.Core;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using static AdminShellNS.AdminShellV20;
@@ -339,11 +340,25 @@ namespace AAS.AASX.CmdLine.Import.ADT
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_REFERENCEELEMENT);
 
             AddDataElementAttributes(twinData, refElement);
+
+            // Reference keys
+            for(int i = 1; i <= 8; i++)
+            {
+                var keyEntry = new BasicDigitalTwinComponent();
+                twinData.Contents.Add($"key{i}", keyEntry);
+                if (refElement != null && refElement.value != null 
+                    && refElement.value.Keys != null && refElement.value.Keys.Count >= i)
+                {
+                    var key = refElement.value.Keys[i - 1];
+                    keyEntry.Contents.Add("key", key.type);
+                    keyEntry.Contents.Add("value", key.value);
+                    keyEntry.Contents.Add("idType", AASUtils.URITOIRI(key.idType));
+                }
+            }
+
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             await AddDataElementRelationships(twinData, refElement, processInfo);
-
-            await AddReference(twinData, refElement.value, "value", processInfo);
 
             return twinData.Id;
         }
@@ -501,7 +516,19 @@ namespace AAS.AASX.CmdLine.Import.ADT
             AddDataElementAttributes(twinData, property);
 
             if (property.value != null)
-                twinData.Contents.Add("value", AASUtils.LangStringSetToString(property.value));
+            {
+                Dictionary<string,string> entries = new Dictionary<string,string>();
+                foreach (var item in property.value.langString)
+                {
+                    entries.Add(item.lang, item.str);
+                }
+
+                if (entries.Count > 0) {
+                    var langStringSet = new BasicDigitalTwinComponent();
+                    langStringSet.Contents.Add("langString", entries);
+                    twinData.Contents.Add("value", langStringSet);
+                }
+            }
 
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
@@ -718,9 +745,22 @@ namespace AAS.AASX.CmdLine.Import.ADT
 
             // Start by creating a twin for the Concept description
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_CONCEPTDESCRIPTION);
-            AddIdentifiableAttributes(twinData, conceptDescription,
-                (conceptDescription.IEC61360Content != null && conceptDescription.IEC61360Content.shortName != null) ?
-                conceptDescription.IEC61360Content.shortName.GetDefaultStr() : null);
+            AddIdentifiableAttributes(twinData, conceptDescription);
+
+            if ( conceptDescription.IEC61360Content != null && conceptDescription.IEC61360Content.shortName != null )
+            {
+                var displayNameComp = twinData.Contents["displayName"] as BasicDigitalTwinComponent;
+                if (displayNameComp != null)
+                {
+                    var entries = displayNameComp.Contents.ContainsKey("langString") ? displayNameComp.Contents["langString"] as Dictionary<string, string> : null;
+                    if (entries == null)
+                    {
+                        entries = new Dictionary<string, string>();
+                        displayNameComp.Contents.Add("langString", entries);
+                    }
+                    entries.Add(LangStr.LANG_DEFAULT.ToUpper(), conceptDescription.IEC61360Content.shortName.GetDefaultStr());
+                }
+            }
 
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
@@ -748,13 +788,11 @@ namespace AAS.AASX.CmdLine.Import.ADT
 
                 if (content.preferredName != null)
                 {
-                    dsTwinData.Contents.Add("preferredName", AASUtils.LangStringSetIEC61360ToString(
-                        content.preferredName));
+                    dsTwinData.Contents.Add("preferredName", CreateLangStringSetComponent(content.preferredName));
                 }
                 if (content.shortName != null)
                 {
-                    dsTwinData.Contents.Add("shortName", AASUtils.LangStringSetIEC61360ToString(
-                        content.shortName));
+                    dsTwinData.Contents.Add("shortName", CreateLangStringSetComponent(content.shortName));
                 }
                 if (!string.IsNullOrEmpty(content.unit))
                     dsTwinData.Contents.Add("unit", content.unit);
@@ -765,7 +803,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
                 if (!string.IsNullOrEmpty(content.dataType))
                     dsTwinData.Contents.Add("dataType", content.dataType);
                 if (content.definition != null)
-                    dsTwinData.Contents.Add("definition", AASUtils.LangStringSetIEC61360ToString(content.definition));
+                    dsTwinData.Contents.Add("definition", CreateLangStringSetComponent(content.definition));
                 if (!string.IsNullOrEmpty(content.valueFormat))
                     dsTwinData.Contents.Add("valueFormat", content.valueFormat);
                 // TODO: valueList
@@ -783,6 +821,25 @@ namespace AAS.AASX.CmdLine.Import.ADT
             }
         }
 
+        private static BasicDigitalTwinComponent CreateLangStringSetComponent(LangStringSetIEC61360 langStrs)
+        {
+            Dictionary<string, string> entries = new Dictionary<string, string>();
+            foreach (var item in langStrs)
+            {
+                entries.Add(item.lang, item.str);
+            }
+
+            if (entries.Count > 0)
+            {
+                var langStringSet = new BasicDigitalTwinComponent();
+                langStringSet.Contents.Add("langString", entries);
+                
+                return langStringSet;
+            }
+            else
+                return null;
+        }
+
         private async Task AddReferences(BasicDigitalTwin twinData, List<Reference> references, string relationshipName, ImportContext processInfo)
         {
             foreach(var reference in references)
@@ -793,20 +850,53 @@ namespace AAS.AASX.CmdLine.Import.ADT
 
         private async Task AddReference(BasicDigitalTwin twinData, Reference reference, string relationshipName, ImportContext processInfo)
         {
-            var refTwinData = await CreateReferenceTwin(twinData, relationshipName, processInfo);
-            await AddKeysOfReference(refTwinData, reference, processInfo);
+            if (reference != null && reference.Keys != null && reference.Keys.Count > 0)
+                await AddReference(twinData, reference.Keys, relationshipName, processInfo);
         }
 
         private async Task AddReference(BasicDigitalTwin twinData, List<Key> forKeys, string relationshipName, ImportContext processInfo)
         {
-            var refTwinData = await CreateReferenceTwin(twinData, relationshipName, processInfo);
-            await AddKeys(refTwinData, forKeys, processInfo);
+            if (forKeys != null && forKeys.Count > 0)
+                await CreateReferenceTwin(twinData, forKeys, relationshipName, processInfo);
         }
 
-        private async Task<BasicDigitalTwin> CreateReferenceTwin(BasicDigitalTwin twinData, string relationshipName, ImportContext processInfo)
+        private async Task<BasicDigitalTwin> CreateReferenceTwin(BasicDigitalTwin twinData, List<Key> forKeys, string relationshipName, ImportContext processInfo)
         {
             // Create Reference twin
             var refTwinData = CreateTwinForModel(ADTAASOntology.MODEL_REFERENCE);
+
+            if (forKeys != null && forKeys.Count > 0)
+            {
+                int count = 0;
+                foreach (var key in forKeys)
+                {
+                    count++;
+                    if (count <= 8) { 
+                        string keyPropName = $"key{count}";
+                        var keyTwinData = new BasicDigitalTwinComponent();
+                        keyTwinData.Contents.Add("key", key.type);
+                        keyTwinData.Contents.Add("value", key.value);
+                        keyTwinData.Contents.Add("idType", AASUtils.URITOIRI(key.idType));
+                        refTwinData.Contents.Add(keyPropName, keyTwinData);
+                    }
+                    else
+                    {
+                        _logger.LogError($"Reference contains more than the maximum 8 keys supported. {forKeys}");
+                    }
+                }
+                for(int i = count+1; i < 9; i++)
+                {
+                    refTwinData.Contents.Add($"key{i}", new BasicDigitalTwinComponent());
+                }
+            } 
+            else
+            {
+                for(int i = 1; i <= 8; i++)
+                {
+                    refTwinData.Contents.Add($"key{i}", new BasicDigitalTwinComponent());
+                }
+            }
+
             await DoCreateOrReplaceDigitalTwinAsync(refTwinData, processInfo);
 
             // Create relationship between source twin and Reference twin
@@ -815,50 +905,40 @@ namespace AAS.AASX.CmdLine.Import.ADT
             return refTwinData;
         }
 
-        private async Task AddKeysOfReference(BasicDigitalTwin refTwinData, Reference reference, ImportContext processInfo)
-        {
-            if (reference.Keys != null && reference.Keys.Count > 0)
-                await AddKeys(refTwinData, reference.Keys, processInfo);
-        }
-
-        private async Task AddKeys(BasicDigitalTwin refTwinData, List<Key> keys, ImportContext processInfo)
-        {
-            foreach (var key in keys)
-            {
-                string keyDtId = await KeyExists(key);
-                if (keyDtId == null)
-                {
-                    // Create key
-                    var keyTwinData = CreateTwinForModel(ADTAASOntology.MODEL_KEY);
-                    keyTwinData.Contents.Add("key", key.type);
-                    keyTwinData.Contents.Add("value", key.value);
-                    keyTwinData.Contents.Add("idType", AASUtils.URITOIRI(key.idType));
-
-                    await DoCreateOrReplaceDigitalTwinAsync(keyTwinData, processInfo);
-
-                    keyDtId = keyTwinData.Id;
-                }
-
-                await DoCreateOrReplaceRelationshipAsync(refTwinData, "key", keyDtId);
-            }
-        }
-
-        private void AddReferableAttributes(BasicDigitalTwin twinData, Referable referable, string displayname = null)
+        private void AddReferableAttributes(BasicDigitalTwin twinData, Referable referable)
         {
             if (!string.IsNullOrEmpty(referable.idShort))
                 twinData.Contents.Add("idShort", referable.idShort);
-            if (!string.IsNullOrEmpty(displayname))
-                twinData.Contents.Add("displayName", displayname);
+
+            twinData.Contents.Add("displayName", new BasicDigitalTwinComponent());
+
             if (!string.IsNullOrEmpty(referable.category))
                 twinData.Contents.Add("category", referable.category);
+
             if (referable.description != null)
-                twinData.Contents.Add("description", AASUtils.DescToString(referable.description));
+            {
+                Dictionary<string, string> descEntries = new Dictionary<string, string>();
+                foreach (var desc in referable.description.langString)
+                    descEntries.Add(desc.lang, desc.str);
+
+                if (descEntries.Count > 0)
+                {
+                    var descTwinData = new BasicDigitalTwinComponent();
+                    descTwinData.Contents.Add("langString", descEntries);
+                    twinData.Contents.Add("description", descTwinData);
+                }
+                else
+                    twinData.Contents.Add("description", new BasicDigitalTwinComponent());
+            } else
+                twinData.Contents.Add("description", new BasicDigitalTwinComponent());
+
+            twinData.Contents.Add("tags", CreateStandardTagsForImport());
         }
 
-        private void AddIdentifiableAttributes(BasicDigitalTwin twinData, Identifiable identifiable, string displayname = null)
+        private void AddIdentifiableAttributes(BasicDigitalTwin twinData, Identifiable identifiable)
         {
             // Referable attributes
-            AddReferableAttributes(twinData, identifiable, displayname);
+            AddReferableAttributes(twinData, identifiable);
 
             // Identifiable attributes
             BasicDigitalTwinComponent identifier = new BasicDigitalTwinComponent();
@@ -969,6 +1049,15 @@ namespace AAS.AASX.CmdLine.Import.ADT
             }
 
             return result;
+        }
+
+        private BasicDigitalTwinComponent CreateStandardTagsForImport()
+        {
+            var tagsComponent = new BasicDigitalTwinComponent();
+
+            tagsComponent.Contents.Add("markers", new Dictionary<string, bool>() { { "import", true} });
+
+            return tagsComponent;
         }
     }
 }

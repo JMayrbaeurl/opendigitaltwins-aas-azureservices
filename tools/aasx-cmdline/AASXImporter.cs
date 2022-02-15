@@ -11,6 +11,7 @@ namespace AAS.AASX.CmdLine.Import
 
         public Task<string> ImportRelationshipElement(RelationshipElement relElement, ImportContext processInfo = null);
         public Task<string> ImportAnnotatedRelationshipElement(AnnotatedRelationshipElement relElement, ImportContext processInfo = null);
+        public Task ImportConceptDescription(ConceptDescription conceptDescription, ImportContext processInfo = null);
     }
 
     public class TwinRef<T>

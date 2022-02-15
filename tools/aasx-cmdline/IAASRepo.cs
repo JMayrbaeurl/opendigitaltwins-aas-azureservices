@@ -8,7 +8,6 @@ namespace AAS.AASX.CmdLine
 {
     public interface IAASRepo
     {
-        public Task<string> KeyExists(Key key);
         public Task<string> FindTwinForReference(Reference reference);
     }
 }

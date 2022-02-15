@@ -124,22 +124,5 @@ namespace AAS.AASX.CmdLine
             else
                 return null;
         }
-
-        public async Task<string> KeyExists(AdminShellV20.Key key)
-        {
-            string result = null;
-
-            string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL('{ADTAASOntology.MODEL_KEY}') " +
-                $"AND key = '{key.type}' " + $"AND idType = '{AASUtils.URITOIRI(key.idType)}' " + $"AND value = '{key.value}'";
-
-            AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
-            await foreach (BasicDigitalTwin twin in queryResult)
-            {
-                result = twin.Id;
-                break;
-            }
-
-            return result;
-        }
     }
 }

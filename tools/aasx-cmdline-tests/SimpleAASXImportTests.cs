@@ -1,10 +1,13 @@
 using AAS.AASX.CmdLine.Import;
 using AAS.AASX.CmdLine.Import.ADT;
+using AdminShellNS;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
+using System.Net.Http;
 using static AdminShellNS.AdminShellV20;
 
 namespace AAS.AASX.CmdLine.Test.Import
@@ -13,6 +16,8 @@ namespace AAS.AASX.CmdLine.Test.Import
     public class SimpleAASXImportTests : AbstractTestSupport
     {
         private IAASXImporter importer;
+
+        private HttpClient httpClient;
 
         [TestInitialize]
         public void Setup()
@@ -25,6 +30,7 @@ namespace AAS.AASX.CmdLine.Test.Import
 
                     services.AddSingleton<IAASRepo, ADTAASRepo>();
                     services.AddSingleton<IAASXImporter, ADTAASXPackageImporter>();
+                    services.AddHttpClient();
                     configuration = hostContext.Configuration;
                 })
                 .Build();
@@ -33,6 +39,7 @@ namespace AAS.AASX.CmdLine.Test.Import
             IServiceProvider provider = serviceScope.ServiceProvider;
 
             importer = provider.GetRequiredService<IAASXImporter>();
+            this.httpClient = provider.GetRequiredService<IHttpClientFactory>().CreateClient();
         }
 
         [TestMethod]
@@ -46,6 +53,25 @@ namespace AAS.AASX.CmdLine.Test.Import
             };
             string dtId = importer.ImportRelationshipElement(relElement).GetAwaiter().GetResult();
             Assert.IsFalse(String.IsNullOrEmpty(dtId));
+        }
+
+        [TestMethod]
+        public void TestImportConceptDescription()
+        {
+            string outputPath = Path.GetTempPath() + "01_Festo.aasx";
+            byte[] fileBytes = this.httpClient.GetByteArrayAsync(new Uri("https://admin-shell-io.com/samples/aasx/01_Festo.aasx")).GetAwaiter().GetResult();
+            System.IO.File.WriteAllBytes(outputPath, fileBytes);
+
+            try
+            {
+                using var package = new AdminShellPackageEnv(outputPath);
+
+                this.importer.ImportConceptDescription(package.AasEnv.ConceptDescriptions[0]).GetAwaiter().GetResult();
+            }
+            finally
+            {
+                System.IO.File.Delete(outputPath);
+            }
         }
     }
 }

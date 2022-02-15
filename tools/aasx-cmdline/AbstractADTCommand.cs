@@ -116,11 +116,6 @@ namespace AAS.AASX.CmdLine.ADT
             return await queryResult.GetAsyncEnumerator().MoveNextAsync();
         }
 
-        public async Task<string> KeyExists(Key key)
-        {
-            return await this.aasRepo.KeyExists(key);
-        }
-
         public async Task<string> FindTwinForReference(Reference reference)
         {
             return await this.aasRepo.FindTwinForReference(reference);
