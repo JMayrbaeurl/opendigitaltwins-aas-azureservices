@@ -73,5 +73,11 @@ namespace AAS.AASX.CmdLine.Test.Import
                 System.IO.File.Delete(outputPath);
             }
         }
+
+        [TestMethod]
+        public void TestCreateLinkedReferences()
+        {
+            this.importer.CreateLinkedReferences(null).GetAwaiter().GetResult();
+        }
     }
 }

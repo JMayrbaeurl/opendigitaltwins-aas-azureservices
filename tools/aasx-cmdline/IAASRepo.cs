@@ -9,5 +9,7 @@ namespace AAS.AASX.CmdLine
     public interface IAASRepo
     {
         public Task<string> FindTwinForReference(Reference reference);
+
+        public Task<List<string>> FindLinkedReferences();
     }
 }

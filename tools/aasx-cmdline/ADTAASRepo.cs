@@ -26,6 +26,39 @@ namespace AAS.AASX.CmdLine
             _logger = logger;
         }
 
+        public async Task<List<string>> FindLinkedReferences()
+        {
+            _logger.LogDebug("FindLinkedReferences() called");
+
+            List<string> result = new List<string>();
+
+            // Query for all Reference instances that are not global or a package fragment
+            string queryString = $"SELECT * FROM digitaltwins where is_of_model('{ADTAASOntology.MODEL_REFERENCE}')" +
+                $" and key1.key != '{Key.GlobalReference}' and key1.key != '{Key.FragmentReference}'";
+
+            _logger.LogDebug($"Now querying for identifiable with {queryString}");
+
+            AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+            await foreach (BasicDigitalTwin twin in queryResult)
+            {
+                /*
+                string relId = null;
+                AsyncPageable<BasicRelationship> relations = dtClient.GetRelationshipsAsync<BasicRelationship>(twin.Id, "referredElement");
+                if (relations != null)
+                {
+                    var enumerator = relations.GetAsyncEnumerator();
+                    if (await enumerator.MoveNextAsync())
+                    {
+                        relId = enumerator.Current.Id;
+                    }
+                }
+                */
+                result.Add(twin.Id);
+            }
+
+            return result;
+        }
+
         public async Task<string> FindTwinForReference(AdminShellV20.Reference reference)
         {
             _logger.LogDebug($"FindTwinForReference called for reference {reference.ToString()}");
@@ -124,5 +157,7 @@ namespace AAS.AASX.CmdLine
             else
                 return null;
         }
+    
+        
     }
 }

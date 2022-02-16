@@ -48,6 +48,13 @@ namespace AAS.AASX.CmdLine.Test
                 this.aasRepo.FindTwinForReference(propRef).GetAwaiter().GetResult());
         }
 
+        [TestMethod]
+        public void TestFindLinkedReferences()
+        {
+            var result = this.aasRepo.FindLinkedReferences().GetAwaiter().GetResult();
+            Assert.IsNotNull(result);
+        }
+
         [TestInitialize]
         public void Setup()
         {

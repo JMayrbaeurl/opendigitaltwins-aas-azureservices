@@ -3,6 +3,8 @@ using AdminShellNS;
 using Azure;
 using Azure.DigitalTwins.Core;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1058,6 +1060,76 @@ namespace AAS.AASX.CmdLine.Import.ADT
             tagsComponent.Contents.Add("markers", new Dictionary<string, bool>() { { "import", true} });
 
             return tagsComponent;
+        }
+
+        public async Task<List<string>> CreateLinkedReferences(ImportContext processInfo)
+        {
+            _logger.LogInformation($"Now creating relationships for Reference instances without referredElement");
+
+            List<string> result = new List<string>();
+
+            var refList = await this.aasRepo.FindLinkedReferences();
+            if(refList != null && refList.Count > 0)
+            {
+                _logger.LogInformation($"Found {refList.Count} Reference instances that will be processed now");
+
+                ISet<string> filteredTwins = null;
+                if (processInfo != null && processInfo.Result != null && processInfo.Result.DTInstances != null)
+                    filteredTwins = new HashSet<string>(processInfo.Result.DTInstances.Select(item => item.Item1));
+
+                if (filteredTwins != null)
+                    _logger.LogInformation($"Restricting to the following Twins with ids: {filteredTwins}");
+
+                foreach (var refEntry in refList)
+                {
+                    if (filteredTwins != null && !filteredTwins.Contains(refEntry))
+                        continue;
+
+                    try
+                    {
+                        BasicDigitalTwin twinData = await this.dtClient.GetDigitalTwinAsync<BasicDigitalTwin>(refEntry);
+                        if (twinData != null)
+                        {
+                            _logger.LogDebug($"Reference with model '{twinData.Metadata.ModelId}' and id '{twinData.Id}' will be processed now");
+
+                            Reference refTwin = ReferenceFromTwinData(twinData);
+                            if (refTwin != null)
+                            {
+                                string referredTwinId = await this.aasRepo.FindTwinForReference(refTwin);
+                                if (referredTwinId != null)
+                                {
+                                    var response = await DoCreateOrReplaceRelationshipAsync(twinData, "referredElement", referredTwinId);
+                                    string relId = response.Value.Id;
+                                    _logger.LogInformation($"Created relationship '{relId}' for reference");
+                                    result.Add(relId);
+                                }
+                            }
+                        }
+                    } 
+                    catch (RequestFailedException ex)
+                    {
+                        _logger.LogError($"Exception on processing Reference twin instance with id '{refEntry}'. " + ex.Message);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private Reference ReferenceFromTwinData(BasicDigitalTwin refTwinData)
+        {
+            List<Key> keys = new List<Key>();
+
+            for(int i = 1; i <= 8; i++)
+            {
+                var aKey = (JObject)JsonConvert.DeserializeObject(refTwinData.Contents[$"key{i}"].ToString());
+                if (aKey.Count > 1) // Empty components just contain an entry for metadata
+                    keys.Add(new Key(aKey["key"].ToString(), true, aKey["idType"].ToString(), aKey["value"].ToString()));
+                else
+                    break;
+            }
+
+            return Reference.CreateNew(keys);
         }
     }
 }
