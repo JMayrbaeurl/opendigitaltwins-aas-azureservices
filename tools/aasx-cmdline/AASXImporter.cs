@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using static AdminShellNS.AdminShellV20;
 
@@ -13,7 +14,9 @@ namespace AAS.AASX.CmdLine.Import
         public Task<string> ImportAnnotatedRelationshipElement(AnnotatedRelationshipElement relElement, ImportContext processInfo = null);
         public Task ImportConceptDescription(ConceptDescription conceptDescription, ImportContext processInfo = null);
 
-        public Task<List<string>> CreateLinkedReferences(ImportContext processInfo = null);
+        public Task<List<string>> CreateLinkedReferences(ISet<string> referenceTwinIds, ImportContext processInfo = null);
+
+        public Task<List<string>> CreateLinkedReferenceElements(ISet<string> referenceTwinIds, ImportContext processInfo = null);
     }
 
     public class TwinRef<T>
@@ -45,6 +48,11 @@ namespace AAS.AASX.CmdLine.Import
             get { return assets; }
             set { assets = value; }
         }
+
+        public ISet<string> DTInstancesOfModel(string modelId)
+        {
+            return new HashSet<string>(DTInstances.Where(item => item.Item2 == modelId).Select(item => item.Item1));
+        }
     }
 
     public class ImportConfiguration
@@ -53,6 +61,7 @@ namespace AAS.AASX.CmdLine.Import
         public bool DeleteShellBeforeImport { get; set; }
         public bool IgnoreConceptDescriptions { get; set; }
         public bool IgnoreShells { get; set; }
+        public bool AutomaticRelationshipCreationForReferences { get; set; }
 
         public ImportConfiguration()
         {
@@ -60,6 +69,7 @@ namespace AAS.AASX.CmdLine.Import
             IgnoreShells = false;
             DryRun = false;
             DeleteShellBeforeImport = false;
+            AutomaticRelationshipCreationForReferences = true;
         }
     }
 

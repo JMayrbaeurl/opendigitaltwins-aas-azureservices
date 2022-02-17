@@ -23,8 +23,10 @@ namespace AAS.AASX.CmdLine
         public string Url { get; set; }
         [Option("ignoreConceptDescriptions", Default = false)]
         public bool IgnoreConceptDescriptions { get; set; }
-        [Option("DeleteShellsBeforeImport", Default = false)]
+        [Option("deleteShellsBeforeImport", Default = false)]
         public bool DeleteShellsBeforeImport { get; set; }
+        [Option("automaticRelationships", Default = true, HelpText = "Automatically creates relationships for Reference and ReferencElement twin instances")]
+        public bool DoAutomaticRelationshipCreationForReferences { get; set; }
     }
     [Verb("list-all", HelpText = "List models from an AASX packages")]
     class ListAllOptions
@@ -61,7 +63,8 @@ namespace AAS.AASX.CmdLine
                 new ImportContext() { 
                     Configuration = new ImportConfiguration() { 
                         IgnoreConceptDescriptions = importOpts.IgnoreConceptDescriptions,
-                        DeleteShellBeforeImport = importOpts.DeleteShellsBeforeImport
+                        DeleteShellBeforeImport = importOpts.DeleteShellsBeforeImport,
+                        AutomaticRelationshipCreationForReferences = importOpts.DoAutomaticRelationshipCreationForReferences
                     } }
                 ).GetAwaiter().GetResult();
 

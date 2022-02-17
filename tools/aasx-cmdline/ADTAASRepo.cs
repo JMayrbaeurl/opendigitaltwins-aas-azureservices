@@ -41,18 +41,27 @@ namespace AAS.AASX.CmdLine
             AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
             await foreach (BasicDigitalTwin twin in queryResult)
             {
-                /*
-                string relId = null;
-                AsyncPageable<BasicRelationship> relations = dtClient.GetRelationshipsAsync<BasicRelationship>(twin.Id, "referredElement");
-                if (relations != null)
-                {
-                    var enumerator = relations.GetAsyncEnumerator();
-                    if (await enumerator.MoveNextAsync())
-                    {
-                        relId = enumerator.Current.Id;
-                    }
-                }
-                */
+                result.Add(twin.Id);
+            }
+
+            return result;
+        }
+
+        public async Task<List<string>> FindReferenceElements()
+        {
+            _logger.LogDebug("FindReferenceElements() called");
+
+            List<string> result = new List<string>();
+
+            // Query for all ReferenceElement instances that are not global or a package fragment
+            string queryString = $"SELECT * FROM digitaltwins where is_of_model('{ADTAASOntology.MODEL_REFERENCEELEMENT}')" +
+                $" and key1.key != '{Key.GlobalReference}' and key1.key != '{Key.FragmentReference}'";
+
+            _logger.LogDebug($"Now querying for Reference elements with {queryString}");
+
+            AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
+            await foreach (BasicDigitalTwin twin in queryResult)
+            {
                 result.Add(twin.Id);
             }
 
@@ -73,7 +82,7 @@ namespace AAS.AASX.CmdLine
             if (!(Key.IdentifiableElements.Contains(firstKey.type)))
                 throw new ArgumentException($"First key of reference '{firstKey.ToString()}' must refer to an Identifiable element");
 
-            _logger.LogDebug($"Trying to find Twin with keys '{reference.Keys}'");
+            _logger.LogDebug($"Trying to find Twin with keys '{reference.Keys.ToString()}'");
 
             if (!firstKey.local)
                 return null;

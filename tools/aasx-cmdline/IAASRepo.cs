@@ -11,5 +11,7 @@ namespace AAS.AASX.CmdLine
         public Task<string> FindTwinForReference(Reference reference);
 
         public Task<List<string>> FindLinkedReferences();
+
+        public Task<List<string>> FindReferenceElements();
     }
 }

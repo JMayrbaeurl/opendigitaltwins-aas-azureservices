@@ -33,7 +33,7 @@ of the AASX package file format are supported.
 Imports the contents of the AASX package file into an Azure Digital Twin instance
 
 ```
-aasxcli import --file --url [--ignoreConceptDescriptions] [--DeleteShellsBeforeImport]
+aasxcli import --file --url [--ignoreConceptDescriptions] [--deleteShellsBeforeImport] [--automaticRelationships]
 ```
 **Examples**
 
@@ -44,7 +44,7 @@ aasxcli import -f ".\AASX Samples\01_Festo.aasx" --u "https://[Your ADT instance
 
 Import the '01 Festo' sample shells into ADT and delete the existing shell first
 ```
-aasxcli import --DeleteShellsBeforeImport -f ".\AASX Samples\01_Festo.aasx" --u "https://[Your ADT instance name].api.weu.digitaltwins.azure.net"
+aasxcli import --deleteShellsBeforeImport -f ".\AASX Samples\01_Festo.aasx" --u "https://[Your ADT instance name].api.weu.digitaltwins.azure.net"
 ```
 **Required Parameters**
 
@@ -56,9 +56,13 @@ None
 
 Ignore the Concept Description entries in the AASX package file
 
-`--DeleteShellsBeforeImport`
+`--deleteShellsBeforeImport`
 
 Delete the existing shell twins in the Azure Digital Twins instance before importing the new one
+
+`--automaticRelationships`
+
+If true (default), Azure Digital Twins relationships will be automatically created for AAS Reference and ReferenceElements instances
 
 ### aasxcli list-all
 

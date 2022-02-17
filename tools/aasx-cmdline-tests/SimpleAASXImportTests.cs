@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using static AdminShellNS.AdminShellV20;
@@ -78,6 +79,13 @@ namespace AAS.AASX.CmdLine.Test.Import
         public void TestCreateLinkedReferences()
         {
             this.importer.CreateLinkedReferences(null).GetAwaiter().GetResult();
+        }
+
+        [TestMethod]
+        public void TestCreateLinkedReferencesFiltered()
+        {
+            ISet<string> filter = new HashSet<string>(new string[] {""});
+            this.importer.CreateLinkedReferences(filter).GetAwaiter().GetResult();
         }
     }
 }

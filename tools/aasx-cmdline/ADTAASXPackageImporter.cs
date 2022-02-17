@@ -102,7 +102,24 @@ namespace AAS.AASX.CmdLine.Import.ADT
                         _logger.LogInformation($"Finished importing Concept descriptions.");
                     }
                 }
+
+                if (processInfo.Configuration.AutomaticRelationshipCreationForReferences)
+                {
+                    {
+                        ISet<string> filteredTwins = processInfo.Result.DTInstancesOfModel(ADTAASOntology.MODEL_REFERENCE);
+                        await CreateLinkedReferences(filteredTwins, processInfo);
+                    }
+
+                    {
+                        ISet<string> filteredTwins = processInfo.Result.DTInstancesOfModel(ADTAASOntology.MODEL_REFERENCEELEMENT);
+                        await CreateLinkedReferenceElements(filteredTwins, processInfo);
+                    }
+
+                    _logger.LogInformation($"Finished creating relationships for Reference instances");
+                }
             }
+
+            _logger.LogInformation($"Finished importing from AAS package");
 
             return processInfo.Result;
         }
@@ -1062,28 +1079,52 @@ namespace AAS.AASX.CmdLine.Import.ADT
             return tagsComponent;
         }
 
-        public async Task<List<string>> CreateLinkedReferences(ImportContext processInfo)
+        public async Task<List<string>> CreateLinkedReferences(ISet<string> referenceTwinIds, ImportContext processInfo)
         {
             _logger.LogInformation($"Now creating relationships for Reference instances without referredElement");
 
             List<string> result = new List<string>();
 
-            var refList = await this.aasRepo.FindLinkedReferences();
-            if(refList != null && refList.Count > 0)
+            // Attention: When this method is directly called after creating the Reference twins, than using an ADT query 
+            // will probably not return all twins correctly
+            await DoCreateReferrableReferenceRelationships(
+                referenceTwinIds != null ? new List<string>(referenceTwinIds) : await this.aasRepo.FindLinkedReferences(), 
+                referenceTwinIds, result, processInfo);
+
+            return result;
+        }
+
+        public async Task<List<string>> CreateLinkedReferenceElements(ISet<string> referenceTwinIds, ImportContext processInfo)
+        {
+            _logger.LogInformation($"Now creating relationships for Reference Element instances without referredElement");
+
+            List<string> result = new List<string>();
+
+            // Attention: When this method is directly called after creating the Reference twins, than using an ADT query 
+            // will probably not return all twins correctly
+            await DoCreateReferrableReferenceRelationships(
+                referenceTwinIds != null ? new List<string>(referenceTwinIds) : await this.aasRepo.FindReferenceElements(), 
+                referenceTwinIds, result, processInfo);
+
+            return result;
+        }
+
+        private async Task DoCreateReferrableReferenceRelationships(List<string> refList, ISet<string> filteredTwins, List<string> result, ImportContext processInfo)
+        {
+            if (refList != null && refList.Count > 0)
             {
                 _logger.LogInformation($"Found {refList.Count} Reference instances that will be processed now");
 
-                ISet<string> filteredTwins = null;
-                if (processInfo != null && processInfo.Result != null && processInfo.Result.DTInstances != null)
-                    filteredTwins = new HashSet<string>(processInfo.Result.DTInstances.Select(item => item.Item1));
-
                 if (filteredTwins != null)
-                    _logger.LogInformation($"Restricting to the following Twins with ids: {filteredTwins}");
+                    _logger.LogInformation($"Restricting to the following Twins with ids: {String.Join(",",filteredTwins.ToArray())}");
 
                 foreach (var refEntry in refList)
                 {
                     if (filteredTwins != null && !filteredTwins.Contains(refEntry))
+                    {
+                        _logger.LogDebug($"Skipping Twin with id '{refEntry}'");
                         continue;
+                    }
 
                     try
                     {
@@ -1095,6 +1136,12 @@ namespace AAS.AASX.CmdLine.Import.ADT
                             Reference refTwin = ReferenceFromTwinData(twinData);
                             if (refTwin != null)
                             {
+                                if (refTwin.First.IsType(Key.GlobalReference) || refTwin.First.IsType(Key.FragmentReference))
+                                {
+                                    _logger.LogDebug($"Skipping Twin with id '{refEntry}', because it's of type Global or Fragment");
+                                    continue;
+                                }
+
                                 string referredTwinId = await this.aasRepo.FindTwinForReference(refTwin);
                                 if (referredTwinId != null)
                                 {
@@ -1103,17 +1150,19 @@ namespace AAS.AASX.CmdLine.Import.ADT
                                     _logger.LogInformation($"Created relationship '{relId}' for reference");
                                     result.Add(relId);
                                 }
+                                else
+                                {
+                                    _logger.LogDebug($"Cant find twin for Reference with model '{twinData.Metadata.ModelId}' and id '{twinData.Id}'");
+                                }
                             }
                         }
-                    } 
+                    }
                     catch (RequestFailedException ex)
                     {
                         _logger.LogError($"Exception on processing Reference twin instance with id '{refEntry}'. " + ex.Message);
                     }
                 }
             }
-
-            return result;
         }
 
         private Reference ReferenceFromTwinData(BasicDigitalTwin refTwinData)
