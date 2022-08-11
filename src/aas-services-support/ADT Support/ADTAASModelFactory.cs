@@ -12,6 +12,15 @@ namespace AAS.API.Services.ADT
         public AssetAdministrationShell CreateAASFromBasicDigitalTwin(BasicDigitalTwin twin)
         {
             AssetAdministrationShell aShell = new AssetAdministrationShell();
+
+            if(twin.Contents.ContainsKey("identification"))
+            {
+                string component1RawText = ((JsonElement)twin.Contents["identification"]).GetRawText();
+                var component1 = JsonSerializer.Deserialize<BasicDigitalTwinComponent>(component1RawText);
+                if (component1.Contents.ContainsKey("id"))
+                    aShell.Identification = component1.Contents["id"].ToString();
+            }
+
             if (twin.Contents.ContainsKey("idShort"))
             {
                 aShell.IdShort = twin.Contents["idShort"].ToString();
