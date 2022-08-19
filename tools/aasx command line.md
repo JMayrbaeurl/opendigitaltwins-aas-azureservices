@@ -4,6 +4,10 @@ A tool to work with Asset Administration Shell package files. E.g. importing con
 Digital Twin](https://docs.microsoft.com/en-us/azure/digital-twins/overview) instance using the 
 [AAS DTDLv2 ontology](https://github.com/JMayrbaeurl/opendigitaltwins-assetadminstrationshell).
 
+**Security**
+The tool is using Default Azure credentials to connect to your Azure Digital Twins instance. Therefore make sure, that 
+you do a `az login` with Azure CLI before starting it the first time.
+
 **Basic usage**
 ```
 aasxcli subcommand [options]
