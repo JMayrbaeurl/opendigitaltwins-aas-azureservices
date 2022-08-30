@@ -47,7 +47,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
                         {
                             try
                             {
-                                await ImportAsset(asset, processInfo);
+                                RegisterAsset(asset, processInfo);
                             }
                             catch (RequestFailedException ex)
                             {
@@ -149,21 +149,18 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Create asset information
             if (shell.assetRef != null)
             {
-                TwinRef<Asset> assetRef = processInfo.Result.AASAssets[shell.assetRef.First.idType+ shell.assetRef.First.value];
+                Asset assetRef = processInfo.Result.AASAssets[shell.assetRef.First.idType+ shell.assetRef.First.value];
 
                 var assetInfoTwinData = CreateTwinForModel(ADTAASOntology.MODEL_ASSETINFORMATION);
                
                 BasicDigitalTwinComponent assetKind = new BasicDigitalTwinComponent();
-                assetKind.Contents.Add("assetKind", assetRef.AASOject.kind.kind);
+                assetKind.Contents.Add("assetKind", assetRef.kind.kind);
                 assetInfoTwinData.Contents.Add("assetKind", assetKind);
 
                 await DoCreateOrReplaceDigitalTwinAsync(assetInfoTwinData, processInfo);
 
                 // Create relationship from Shell to AssetInfo
                 await DoCreateOrReplaceRelationshipAsync(twinData, "assetInformation", assetInfoTwinData.Id);
-
-                // Create relationship from AssetInfo to Asset
-                await DoCreateOrReplaceRelationshipAsync(assetInfoTwinData, "globalAssetRef", assetRef.DtId);
             }
 
             // Create Derived from reference
@@ -306,8 +303,6 @@ namespace AAS.AASX.CmdLine.Import.ADT
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_SUBMODELELEMENTCOLLECTION);
 
             AddSubmodelElementAttributes(twinData, submodelElementCollection);
-            twinData.Contents.Add("ordered", submodelElementCollection.ordered);
-            twinData.Contents.Add("allowDuplicates", submodelElementCollection.allowDuplicates);
 
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
@@ -369,9 +364,8 @@ namespace AAS.AASX.CmdLine.Import.ADT
                     && refElement.value.Keys != null && refElement.value.Keys.Count >= i)
                 {
                     var key = refElement.value.Keys[i - 1];
-                    keyEntry.Contents.Add("key", key.type);
+                    keyEntry.Contents.Add("type", key.type);
                     keyEntry.Contents.Add("value", key.value);
-                    keyEntry.Contents.Add("idType", AASUtils.URITOIRI(key.idType));
                 }
             }
 
@@ -686,7 +680,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             AddDataElementAttributes(twinData, fileSpec);
 
             if (fileSpec.mimeType != null)
-                twinData.Contents.Add("mimeType", fileSpec.mimeType);
+                twinData.Contents.Add("contentType", fileSpec.mimeType);
             if (fileSpec.value != null)
                 twinData.Contents.Add("value", fileSpec.value);
 
@@ -727,29 +721,9 @@ namespace AAS.AASX.CmdLine.Import.ADT
             return result;
         }
 
-        public async Task ImportAsset(Asset asset, ImportContext processInfo)
+        public void RegisterAsset(Asset asset, ImportContext processInfo)
         {
-            _logger.LogInformation($"Now importing Asset '{asset.idShort}' into ADT instance");
-
-            if (await AssetExists(asset))
-            {
-                _logger.LogInformation($"Skipping creation of twin for Asset '{asset.idShort}' because it already exists");
-                return;
-            }
-
-            // Start by creating a twin for the Asset
-            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_ASSET);
-            AddIdentifiableAttributes(twinData, asset);
-
-            await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
-            processInfo.Result.AASAssets.Add(asset.identification.idType + asset.identification.id, 
-                new TwinRef<Asset>() { DtId = twinData.Id, AASOject = asset});
-
-            // Create twins and relationships for embedded data specifications
-            if (asset.hasDataSpecification != null)
-            {
-                await AddHasDataSpecification(twinData, asset.hasDataSpecification, processInfo);
-            }
+            processInfo.Result.AASAssets.Add(asset.identification.idType + asset.identification.id, asset);
         }
 
         public async Task ImportConceptDescription(ConceptDescription conceptDescription, ImportContext processInfo)
@@ -893,9 +867,8 @@ namespace AAS.AASX.CmdLine.Import.ADT
                     if (count <= 8) { 
                         string keyPropName = $"key{count}";
                         var keyTwinData = new BasicDigitalTwinComponent();
-                        keyTwinData.Contents.Add("key", key.type);
+                        keyTwinData.Contents.Add("type", key.type);
                         keyTwinData.Contents.Add("value", key.value);
-                        keyTwinData.Contents.Add("idType", AASUtils.URITOIRI(key.idType));
                         refTwinData.Contents.Add(keyPropName, keyTwinData);
                     }
                     else
@@ -960,13 +933,10 @@ namespace AAS.AASX.CmdLine.Import.ADT
             AddReferableAttributes(twinData, identifiable);
 
             // Identifiable attributes
-            BasicDigitalTwinComponent identifier = new BasicDigitalTwinComponent();
             if (identifiable.identification != null)
             {
-                identifier.Contents.Add("id", identifiable.identification.id);
-                identifier.Contents.Add("idType", identifiable.identification.idType);
+                twinData.Contents.Add("id", identifiable.identification.id);
             }
-            twinData.Contents.Add("identification", identifier);
 
             BasicDigitalTwinComponent admin = new BasicDigitalTwinComponent();
             if (identifiable.administration != null &&
@@ -1173,7 +1143,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             {
                 var aKey = (JObject)JsonConvert.DeserializeObject(refTwinData.Contents[$"key{i}"].ToString());
                 if (aKey.Count > 1) // Empty components just contain an entry for metadata
-                    keys.Add(new Key(aKey["key"].ToString(), true, aKey["idType"].ToString(), aKey["value"].ToString()));
+                    keys.Add(new Key(aKey["type"].ToString(), true, null, aKey["value"].ToString()));
                 else
                     break;
             }

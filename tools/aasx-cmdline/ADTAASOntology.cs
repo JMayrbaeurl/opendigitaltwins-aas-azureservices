@@ -8,7 +8,6 @@ namespace AAS.AASX.CmdLine.ADT
         public static readonly string MODEL_DATASPECIEC61360 = "dtmi:digitaltwins:aas:DataSpecificationIEC61360;1";
         public static readonly string MODEL_REFERENCE = "dtmi:digitaltwins:aas:Reference;1";
         public static readonly string MODEL_KEY = "dtmi:digitaltwins:aas:Key;1";
-        public static readonly string MODEL_ASSET = "dtmi:digitaltwins:aas:Asset;1";
         public static readonly string MODEL_SHELL = "dtmi:digitaltwins:aas:AssetAdministrationShell;1";
         public static readonly string MODEL_ASSETINFORMATION = "dtmi:digitaltwins:aas:AssetInformation;1";
         public static readonly string MODEL_SUBMODEL = "dtmi:digitaltwins:aas:Submodel;1";
@@ -39,7 +38,6 @@ namespace AAS.AASX.CmdLine.ADT
             { $"{MODEL_DATASPECIEC61360}", new Dictionary<string, string>() { { "dtId", "DataSpecIEC61360_" } } },
             { $"{MODEL_REFERENCE}", new Dictionary<string, string>() { { "dtId", "Reference_" } } },
             { $"{MODEL_KEY}", new Dictionary<string, string>() { { "dtId", "Key_" } } },
-            { $"{MODEL_ASSET}", new Dictionary<string, string>() { { "dtId", "Asset_" } } },
             { $"{MODEL_SHELL}", new Dictionary<string, string>() { { "dtId", "Shell_" } } },
             { $"{MODEL_ASSETINFORMATION}", new Dictionary<string, string>() { { "dtId", "AssetInfo_" } } },
             { $"{MODEL_SUBMODEL}", new Dictionary<string, string>() { { "dtId", "Submodel_" } } },
@@ -64,7 +62,6 @@ namespace AAS.AASX.CmdLine.ADT
 
         public static Dictionary<string, string> KEYS = new Dictionary<string, string>() 
         {
-            { "Asset", MODEL_ASSET },
             { "AssetAdministrationShell", MODEL_SHELL },
             { "ConceptDescription", MODEL_CONCEPTDESCRIPTION },
             { "Blob", MODEL_BLOB },

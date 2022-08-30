@@ -106,16 +106,6 @@ namespace AAS.AASX.CmdLine.ADT
             return result;
         }
 
-        public async Task<bool> AssetExists(Asset asset)
-        {
-            string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL(dt, '{ADTAASOntology.MODEL_ASSET}') " +
-                $"AND dt.identification.id = '{asset.identification.id}' " +
-                $"AND dt.identification.idType = '{asset.identification.idType}'";
-
-            AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
-            return await queryResult.GetAsyncEnumerator().MoveNextAsync();
-        }
-
         public async Task<string> FindTwinForReference(Reference reference)
         {
             return await this.aasRepo.FindTwinForReference(reference);
