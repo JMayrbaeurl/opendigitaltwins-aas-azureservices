@@ -34,7 +34,7 @@ namespace AAS.AASX.CmdLine
 
             // Query for all Reference instances that are not global or a package fragment
             string queryString = $"SELECT * FROM digitaltwins where is_of_model('{ADTAASOntology.MODEL_REFERENCE}')" +
-                $" and key1.key != '{Key.GlobalReference}' and key1.key != '{Key.FragmentReference}'";
+                $" and key1.type != '{Key.GlobalReference}' and key1.type != '{Key.FragmentReference}'";
 
             _logger.LogDebug($"Now querying for identifiable with {queryString}");
 
@@ -55,7 +55,7 @@ namespace AAS.AASX.CmdLine
 
             // Query for all ReferenceElement instances that are not global or a package fragment
             string queryString = $"SELECT * FROM digitaltwins where is_of_model('{ADTAASOntology.MODEL_REFERENCEELEMENT}')" +
-                $" and key1.key != '{Key.GlobalReference}' and key1.key != '{Key.FragmentReference}'";
+                $" and key1.type != '{Key.GlobalReference}' and key1.type != '{Key.FragmentReference}'";
 
             _logger.LogDebug($"Now querying for Reference elements with {queryString}");
 
@@ -102,9 +102,8 @@ namespace AAS.AASX.CmdLine
 
             // Find the Identifiable first
             BasicDigitalTwin identifiableTwinData = null;
-            string keyIdType = AASUtils.URITOIRI(firstKey.idType);
             string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL('{ADTAASOntology.MODEL_IDENTIFIABLE}') " +
-                $"AND identification.idType = '{keyIdType}' AND identification.id = '{firstKey.value}'";
+                $"AND id = '{firstKey.value}'";
 
             _logger.LogDebug($"Now querying for identifiable with {queryString}");
 

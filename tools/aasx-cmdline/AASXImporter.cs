@@ -29,12 +29,12 @@ namespace AAS.AASX.CmdLine.Import
     {
         private List<Tuple<string,string>> instances;
 
-        private Dictionary<string, TwinRef<Asset>> assets;
+        private Dictionary<string, Asset> assets;
 
         public ImportResult()
         {
             instances = new List<Tuple<string, string>>();
-            assets = new Dictionary<string,TwinRef<Asset>>();
+            assets = new Dictionary<string,Asset>();
         }
 
         public List<Tuple<string,string>> DTInstances
@@ -43,7 +43,7 @@ namespace AAS.AASX.CmdLine.Import
             set { instances = value; }
         }
 
-        public Dictionary<string,TwinRef<Asset>> AASAssets
+        public Dictionary<string,Asset> AASAssets
         {
             get { return assets; }
             set { assets = value; }

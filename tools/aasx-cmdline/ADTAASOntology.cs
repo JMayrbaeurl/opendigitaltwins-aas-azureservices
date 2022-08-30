@@ -8,7 +8,6 @@ namespace AAS.AASX.CmdLine.ADT
         public static readonly string MODEL_DATASPECIEC61360 = "dtmi:digitaltwins:aas:DataSpecificationIEC61360;1";
         public static readonly string MODEL_REFERENCE = "dtmi:digitaltwins:aas:Reference;1";
         public static readonly string MODEL_KEY = "dtmi:digitaltwins:aas:Key;1";
-        public static readonly string MODEL_ASSET = "dtmi:digitaltwins:aas:Asset;1";
         public static readonly string MODEL_SHELL = "dtmi:digitaltwins:aas:AssetAdministrationShell;1";
         public static readonly string MODEL_ASSETINFORMATION = "dtmi:digitaltwins:aas:AssetInformation;1";
         public static readonly string MODEL_SUBMODEL = "dtmi:digitaltwins:aas:Submodel;1";
@@ -28,18 +27,17 @@ namespace AAS.AASX.CmdLine.ADT
         public static readonly string MODEL_DATAELEMENT = "dtmi:digitaltwins:aas:DataElement;1";
         public static readonly string MODEL_OPERATION = "dtmi:digitaltwins:aas:Operation;1";
         public static readonly string MODEL_OPERATIONVARIABLE = "dtmi:digitaltwins:aas:OperationVariable;1";
-        public static readonly string MODEL_BASICEVENT = "dtmi:digitaltwins:aas:BasicEvent;1";
+        public static readonly string MODEL_BASICEVENTELEMENT = "dtmi:digitaltwins:aas:BasicEventElement;1";
         public static readonly string MODEL_ENTITY = "dtmi:digitaltwins:aas:Entity;1";
         public static readonly string MODEL_SUBMODELELEMENT = "dtmi:digitaltwins:aas:SubmodelElement;1";
         public static readonly string MODEL_VIEW = "dtmi:digitaltwins:aas:View;1";
 
-        public static readonly Dictionary<string, Dictionary<string, string>> DTIDMap = new Dictionary<string, Dictionary<string, string>>()
+        public static readonly Dictionary<string, Dictionary<string, string>> DTIDMap = new()
         {
             { $"{MODEL_CONCEPTDESCRIPTION}", new Dictionary<string, string>() { { "dtId", "ConceptDescription_" } } },
             { $"{MODEL_DATASPECIEC61360}", new Dictionary<string, string>() { { "dtId", "DataSpecIEC61360_" } } },
             { $"{MODEL_REFERENCE}", new Dictionary<string, string>() { { "dtId", "Reference_" } } },
             { $"{MODEL_KEY}", new Dictionary<string, string>() { { "dtId", "Key_" } } },
-            { $"{MODEL_ASSET}", new Dictionary<string, string>() { { "dtId", "Asset_" } } },
             { $"{MODEL_SHELL}", new Dictionary<string, string>() { { "dtId", "Shell_" } } },
             { $"{MODEL_ASSETINFORMATION}", new Dictionary<string, string>() { { "dtId", "AssetInfo_" } } },
             { $"{MODEL_SUBMODEL}", new Dictionary<string, string>() { { "dtId", "Submodel_" } } },
@@ -56,15 +54,14 @@ namespace AAS.AASX.CmdLine.ADT
             { $"{MODEL_ANNOTATEDRELATIONSHIPELEMENT}", new Dictionary<string, string>() { { "dtId", "AnnRelShipElement_" } } },
             { $"{MODEL_OPERATION}", new Dictionary<string, string>() { { "dtId", "Operation_" } } },
             { $"{MODEL_OPERATIONVARIABLE}", new Dictionary<string, string>() { { "dtId", "OpVariable_" } } },
-            { $"{MODEL_BASICEVENT}", new Dictionary<string, string>() { { "dtId", "BasicEvent_" } } },
+            { $"{MODEL_BASICEVENTELEMENT}", new Dictionary<string, string>() { { "dtId", "BasicEventElement_" } } },
             { $"{MODEL_ENTITY}", new Dictionary<string, string>() { { "dtId", "Entity_" } } },
             { $"{MODEL_SUBMODELELEMENT}", new Dictionary<string, string>() { { "dtId", "SmElement_" } } },
             { $"{MODEL_VIEW}", new Dictionary<string, string>() { { "dtId", "View_" } } }
         };
 
-        public static Dictionary<string, string> KEYS = new Dictionary<string, string>() 
+        public static Dictionary<string, string> KEYS = new() 
         {
-            { "Asset", MODEL_ASSET },
             { "AssetAdministrationShell", MODEL_SHELL },
             { "ConceptDescription", MODEL_CONCEPTDESCRIPTION },
             { "Blob", MODEL_BLOB },
@@ -73,7 +70,7 @@ namespace AAS.AASX.CmdLine.ADT
             { "File", MODEL_FILE },
             { "Operation", MODEL_OPERATION },
             { "OperationVariable", MODEL_OPERATIONVARIABLE },
-            { "BasicEvent", MODEL_BASICEVENT },
+            { "BasicEvent", MODEL_BASICEVENTELEMENT },
             { "Entity", MODEL_ENTITY },
             { "Property", MODEL_PROPERTY },
             { "MultiLanguageProperty", MODEL_MULTILANGUAGEPROPERTY },
