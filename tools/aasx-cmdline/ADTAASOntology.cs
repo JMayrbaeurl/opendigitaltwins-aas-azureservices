@@ -27,12 +27,12 @@ namespace AAS.AASX.CmdLine.ADT
         public static readonly string MODEL_DATAELEMENT = "dtmi:digitaltwins:aas:DataElement;1";
         public static readonly string MODEL_OPERATION = "dtmi:digitaltwins:aas:Operation;1";
         public static readonly string MODEL_OPERATIONVARIABLE = "dtmi:digitaltwins:aas:OperationVariable;1";
-        public static readonly string MODEL_BASICEVENT = "dtmi:digitaltwins:aas:BasicEvent;1";
+        public static readonly string MODEL_BASICEVENTELEMENT = "dtmi:digitaltwins:aas:BasicEventElement;1";
         public static readonly string MODEL_ENTITY = "dtmi:digitaltwins:aas:Entity;1";
         public static readonly string MODEL_SUBMODELELEMENT = "dtmi:digitaltwins:aas:SubmodelElement;1";
         public static readonly string MODEL_VIEW = "dtmi:digitaltwins:aas:View;1";
 
-        public static readonly Dictionary<string, Dictionary<string, string>> DTIDMap = new Dictionary<string, Dictionary<string, string>>()
+        public static readonly Dictionary<string, Dictionary<string, string>> DTIDMap = new()
         {
             { $"{MODEL_CONCEPTDESCRIPTION}", new Dictionary<string, string>() { { "dtId", "ConceptDescription_" } } },
             { $"{MODEL_DATASPECIEC61360}", new Dictionary<string, string>() { { "dtId", "DataSpecIEC61360_" } } },
@@ -54,13 +54,13 @@ namespace AAS.AASX.CmdLine.ADT
             { $"{MODEL_ANNOTATEDRELATIONSHIPELEMENT}", new Dictionary<string, string>() { { "dtId", "AnnRelShipElement_" } } },
             { $"{MODEL_OPERATION}", new Dictionary<string, string>() { { "dtId", "Operation_" } } },
             { $"{MODEL_OPERATIONVARIABLE}", new Dictionary<string, string>() { { "dtId", "OpVariable_" } } },
-            { $"{MODEL_BASICEVENT}", new Dictionary<string, string>() { { "dtId", "BasicEvent_" } } },
+            { $"{MODEL_BASICEVENTELEMENT}", new Dictionary<string, string>() { { "dtId", "BasicEventElement_" } } },
             { $"{MODEL_ENTITY}", new Dictionary<string, string>() { { "dtId", "Entity_" } } },
             { $"{MODEL_SUBMODELELEMENT}", new Dictionary<string, string>() { { "dtId", "SmElement_" } } },
             { $"{MODEL_VIEW}", new Dictionary<string, string>() { { "dtId", "View_" } } }
         };
 
-        public static Dictionary<string, string> KEYS = new Dictionary<string, string>() 
+        public static Dictionary<string, string> KEYS = new() 
         {
             { "AssetAdministrationShell", MODEL_SHELL },
             { "ConceptDescription", MODEL_CONCEPTDESCRIPTION },
@@ -70,7 +70,7 @@ namespace AAS.AASX.CmdLine.ADT
             { "File", MODEL_FILE },
             { "Operation", MODEL_OPERATION },
             { "OperationVariable", MODEL_OPERATIONVARIABLE },
-            { "BasicEvent", MODEL_BASICEVENT },
+            { "BasicEvent", MODEL_BASICEVENTELEMENT },
             { "Entity", MODEL_ENTITY },
             { "Property", MODEL_PROPERTY },
             { "MultiLanguageProperty", MODEL_MULTILANGUAGEPROPERTY },

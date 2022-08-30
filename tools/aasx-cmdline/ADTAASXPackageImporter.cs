@@ -396,7 +396,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             _logger.LogInformation($"Now importing basic event '{basicEvent.idShort}'");
 
             // Start by creating a twin for the Property
-            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_BASICEVENT);
+            var twinData = CreateTwinForModel(ADTAASOntology.MODEL_BASICEVENTELEMENT);
 
             AddSubmodelElementAttributes(twinData, basicEvent);
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
