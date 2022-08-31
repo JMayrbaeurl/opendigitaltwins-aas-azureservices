@@ -60,6 +60,7 @@ namespace AAS.API.Services.ADT
         {
             string result = "";
 
+            // TODO: Change for V30RC02 - identification.id to id
             string queryString = $"SELECT * FROM digitaltwins WHERE IS_OF_MODEL('{ADTConstants.AAS_MODEL_NAME}') AND identification.id = '{aasIdentifier}'";
 
             _logger.LogDebug($"ADT query for dtId of Asset identification with: {queryString}");

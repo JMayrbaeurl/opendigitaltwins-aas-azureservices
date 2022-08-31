@@ -74,8 +74,7 @@ namespace AAS.AASX.CmdLine.ADT
         public async Task<bool> ConceptDescriptionExists(ConceptDescription conceptDescription)
         {
             string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL(dt, '{ADTAASOntology.MODEL_CONCEPTDESCRIPTION}') " +
-                $"AND dt.identification.id = '{conceptDescription.identification.id}' " +
-                $"AND dt.identification.idType = '{conceptDescription.identification.idType}'";
+                $"AND dt.id = '{conceptDescription.identification.id}'";
 
             AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
             bool result = await queryResult.GetAsyncEnumerator().MoveNextAsync();
@@ -95,8 +94,7 @@ namespace AAS.AASX.CmdLine.ADT
             string result = null;
 
             string queryString = $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL(dt, '{ADTAASOntology.MODEL_SHELL}') " +
-                $"AND dt.identification.id = '{shell.identification.id}' " +
-                $"AND dt.identification.idType = '{shell.identification.idType}'";
+                $"AND dt.id = '{shell.identification.id}'";
 
             AsyncPageable<BasicDigitalTwin> queryResult = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
             var enumerator = queryResult.GetAsyncEnumerator();
