@@ -106,6 +106,94 @@ namespace AAS.AASX.CmdLine.Test.Import
         }
 
         [TestMethod]
+        public void TestImport_Sample_03_Bosch()
+        {
+            string outputPath = Path.GetTempPath() + "03_Bosch.aasx";
+            byte[] fileBytes = this.httpClient.GetByteArrayAsync(this.samplesUrls["03 Bosch"]).GetAwaiter().GetResult();
+            File.WriteAllBytes(outputPath, fileBytes);
+
+            ImportResult importResult;
+            try
+            {
+                ImportContext processInfo = new ImportContext();
+                importResult = this.importer.ImportFromPackageFile(outputPath, processInfo).GetAwaiter().GetResult();
+            }
+            finally
+            {
+                File.Delete(outputPath);
+            }
+
+            Assert.IsNotNull(importResult);
+            Assert.IsTrue(importResult.DTInstances.Any());
+        }
+
+        [TestMethod]
+        public void TestImport_Sample_04_Bosch()
+        {
+            string outputPath = Path.GetTempPath() + "04_Bosch.aasx";
+            byte[] fileBytes = this.httpClient.GetByteArrayAsync(this.samplesUrls["04 Bosch"]).GetAwaiter().GetResult();
+            File.WriteAllBytes(outputPath, fileBytes);
+
+            ImportResult importResult;
+            try
+            {
+                ImportContext processInfo = new ImportContext();
+                importResult = this.importer.ImportFromPackageFile(outputPath, processInfo).GetAwaiter().GetResult();
+            }
+            finally
+            {
+                File.Delete(outputPath);
+            }
+
+            Assert.IsNotNull(importResult);
+            Assert.IsTrue(importResult.DTInstances.Any());
+        }
+
+        [TestMethod]
+        public void TestImport_Sample_05_Bosch()
+        {
+            string outputPath = Path.GetTempPath() + "05_Bosch.aasx";
+            byte[] fileBytes = this.httpClient.GetByteArrayAsync(this.samplesUrls["05 Bosch"]).GetAwaiter().GetResult();
+            File.WriteAllBytes(outputPath, fileBytes);
+
+            ImportResult importResult;
+            try
+            {
+                ImportContext processInfo = new ImportContext();
+                importResult = this.importer.ImportFromPackageFile(outputPath, processInfo).GetAwaiter().GetResult();
+            }
+            finally
+            {
+                File.Delete(outputPath);
+            }
+
+            Assert.IsNotNull(importResult);
+            Assert.IsTrue(importResult.DTInstances.Any());
+        }
+
+        [TestMethod]
+        public void TestImport_Sample_06_Bosch()
+        {
+            string outputPath = Path.GetTempPath() + "06_Bosch.aasx";
+            byte[] fileBytes = this.httpClient.GetByteArrayAsync(this.samplesUrls["06 Bosch"]).GetAwaiter().GetResult();
+            File.WriteAllBytes(outputPath, fileBytes);
+
+            ImportResult importResult;
+            try
+            {
+                ImportContext processInfo = new ImportContext();
+                importResult = this.importer.ImportFromPackageFile(outputPath, processInfo).GetAwaiter().GetResult();
+            }
+            finally
+            {
+                File.Delete(outputPath);
+            }
+
+            Assert.IsNotNull(importResult);
+            Assert.IsTrue(importResult.DTInstances.Any());
+        }
+
+        [TestMethod]
         public void TestImport_Sample_07_PhoenixContact()
         {
             string outputPath = Path.GetTempPath() + "07_PhoenixContact.aasx";

@@ -78,6 +78,9 @@ namespace AAS.AASX.CmdLine.Import
         public ImportConfiguration Configuration { get; set; }
         public ImportResult Result { get; set; }
 
+        public string CurrentShellDtId { get; set; }
+        public string CurrentSubmodelDtId { get; set; }
+
         public ImportContext()
         {
             Configuration = new ImportConfiguration();

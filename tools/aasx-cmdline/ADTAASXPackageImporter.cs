@@ -41,8 +41,6 @@ namespace AAS.AASX.CmdLine.Import.ADT
                 {
                     if (package.AasEnv.Assets != null && package.AasEnv.Assets.Count > 0)
                     {
-                        _logger.LogInformation($"Now importing Assets.");
-
                         foreach (var asset in package.AasEnv.Assets)
                         {
                             try
@@ -70,6 +68,10 @@ namespace AAS.AASX.CmdLine.Import.ADT
                                     await DeleteShell(shell);
 
                                 await ImportShell(shell, package, processInfo);
+
+                                // Reset the current Shell and Submodel DtId
+                                processInfo.CurrentShellDtId = null;
+                                processInfo.CurrentSubmodelDtId = null;
                             }
                             catch (RequestFailedException ex)
                             {
@@ -136,7 +138,8 @@ namespace AAS.AASX.CmdLine.Import.ADT
 
             // Start by creating a twin for the Shell
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_SHELL);
-            AddIdentifiableAttributes(twinData, shell);
+            processInfo.CurrentShellDtId = twinData.Id;
+            AddIdentifiableAttributes(twinData, shell, processInfo);
 
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
@@ -193,8 +196,9 @@ namespace AAS.AASX.CmdLine.Import.ADT
 
             // Start by creating a twin for the Submodel
             BasicDigitalTwin subModelTwinData = CreateTwinForModel(ADTAASOntology.MODEL_SUBMODEL);
+            processInfo.CurrentSubmodelDtId = subModelTwinData.Id;
             
-            AddIdentifiableAttributes(subModelTwinData, submodel);
+            AddIdentifiableAttributes(subModelTwinData, submodel, processInfo);
 
             BasicDigitalTwinComponent assetKind = new BasicDigitalTwinComponent();
             assetKind.Contents.Add("kind", submodel.kind.kind);
@@ -302,7 +306,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Submodel Element collection
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_SUBMODELELEMENTCOLLECTION);
 
-            AddSubmodelElementAttributes(twinData, submodelElementCollection);
+            AddSubmodelElementAttributes(twinData, submodelElementCollection, processInfo);
 
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
@@ -329,7 +333,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Property
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_PROPERTY);
 
-            AddDataElementAttributes(twinData, property);
+            AddDataElementAttributes(twinData, property, processInfo);
 
             if (property.valueType != null)
                 twinData.Contents.Add("valueType", property.valueType);
@@ -353,7 +357,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Property
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_REFERENCEELEMENT);
 
-            AddDataElementAttributes(twinData, refElement);
+            AddDataElementAttributes(twinData, refElement, processInfo);
 
             // Reference keys
             for(int i = 1; i <= 8; i++)
@@ -383,7 +387,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Property
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_CAPABILITY);
 
-            AddSubmodelElementAttributes(twinData, capability);
+            AddSubmodelElementAttributes(twinData, capability, processInfo);
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             await AddSubmodelElementRelationships(twinData, capability, processInfo);
@@ -398,7 +402,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Property
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_BASICEVENTELEMENT);
 
-            AddSubmodelElementAttributes(twinData, basicEvent);
+            AddSubmodelElementAttributes(twinData, basicEvent, processInfo);
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             await AddSubmodelElementRelationships(twinData, basicEvent, processInfo);
@@ -419,7 +423,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Property
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_ENTITY);
 
-            AddSubmodelElementAttributes(twinData, entity);
+            AddSubmodelElementAttributes(twinData, entity, processInfo);
             twinData.Contents.Add("entityType", entity.entityType);
 
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
@@ -454,7 +458,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Property
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_RELATIONSHIPELEMENT);
 
-            AddRelationshipElementAttributes(twinData, relElement);
+            AddRelationshipElementAttributes(twinData, relElement, processInfo);
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             await AddRelationshipElementRelationships(twinData, relElement, processInfo);
@@ -462,9 +466,9 @@ namespace AAS.AASX.CmdLine.Import.ADT
             return twinData.Id;
         }
 
-        private void AddRelationshipElementAttributes(BasicDigitalTwin twinData, RelationshipElement relElement)
+        private void AddRelationshipElementAttributes(BasicDigitalTwin twinData, RelationshipElement relElement, ImportContext processInfo)
         {
-            AddSubmodelElementAttributes(twinData, relElement);
+            AddSubmodelElementAttributes(twinData, relElement, processInfo);
         }
 
         private async Task AddRelationshipElementRelationships(BasicDigitalTwin twinData, RelationshipElement relElement, ImportContext processInfo = null)
@@ -497,7 +501,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Property
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_ANNOTATEDRELATIONSHIPELEMENT);
 
-            AddRelationshipElementAttributes(twinData, relElement);
+            AddRelationshipElementAttributes(twinData, relElement, processInfo);
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             await AddRelationshipElementRelationships(twinData, relElement, processInfo);
@@ -526,7 +530,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Property
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_MULTILANGUAGEPROPERTY);
 
-            AddDataElementAttributes(twinData, property);
+            AddDataElementAttributes(twinData, property, processInfo);
 
             if (property.value != null)
             {
@@ -560,7 +564,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Property
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_RANGE);
 
-            AddDataElementAttributes(twinData, rangeProp);
+            AddDataElementAttributes(twinData, rangeProp, processInfo);
 
             if (rangeProp.valueType != null)
                 twinData.Contents.Add("valueType", rangeProp.valueType);
@@ -583,7 +587,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Operation
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_OPERATION);
 
-            AddSubmodelElementAttributes(twinData, operation);
+            AddSubmodelElementAttributes(twinData, operation, processInfo);
 
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
@@ -636,9 +640,9 @@ namespace AAS.AASX.CmdLine.Import.ADT
             return twinData?.Id;
         }
 
-        private void AddDataElementAttributes(BasicDigitalTwin twinData, DataElement dataElement)
+        private void AddDataElementAttributes(BasicDigitalTwin twinData, DataElement dataElement, ImportContext processInfo)
         {
-            AddSubmodelElementAttributes(twinData, dataElement);
+            AddSubmodelElementAttributes(twinData, dataElement, processInfo);
         }
 
         private async Task AddDataElementRelationships(BasicDigitalTwin twinData, DataElement dataElement, ImportContext processInfo)
@@ -646,9 +650,9 @@ namespace AAS.AASX.CmdLine.Import.ADT
             await AddSubmodelElementRelationships(twinData, dataElement, processInfo);
         }
 
-        private void AddSubmodelElementAttributes(BasicDigitalTwin twinData, SubmodelElement submodelElement)
+        private void AddSubmodelElementAttributes(BasicDigitalTwin twinData, SubmodelElement submodelElement, ImportContext processInfo)
         {
-            AddReferableAttributes(twinData, submodelElement);
+            AddReferableAttributes(twinData, submodelElement, processInfo);
 
             BasicDigitalTwinComponent kind = new BasicDigitalTwinComponent();
             kind.Contents.Add("kind", submodelElement.kind.kind);
@@ -677,7 +681,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Asset
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_FILE);
             
-            AddDataElementAttributes(twinData, fileSpec);
+            AddDataElementAttributes(twinData, fileSpec, processInfo);
 
             if (fileSpec.mimeType != null)
                 twinData.Contents.Add("contentType", fileSpec.mimeType);
@@ -698,7 +702,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             // Start by creating a twin for the Asset
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_BLOB);
 
-            AddDataElementAttributes(twinData, blob);
+            AddDataElementAttributes(twinData, blob, processInfo);
 
             if (blob.mimeType != null)
                 twinData.Contents.Add("mimeType", blob.mimeType);
@@ -738,7 +742,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
 
             // Start by creating a twin for the Concept description
             var twinData = CreateTwinForModel(ADTAASOntology.MODEL_CONCEPTDESCRIPTION);
-            AddIdentifiableAttributes(twinData, conceptDescription);
+            AddIdentifiableAttributes(twinData, conceptDescription, processInfo);
 
             if ( conceptDescription.IEC61360Content != null && conceptDescription.IEC61360Content.shortName != null )
             {
@@ -830,7 +834,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
                 return langStringSet;
             }
             else
-                return null;
+                return new BasicDigitalTwinComponent();
         }
 
         private async Task AddReferences(BasicDigitalTwin twinData, List<Reference> references, string relationshipName, ImportContext processInfo)
@@ -897,7 +901,7 @@ namespace AAS.AASX.CmdLine.Import.ADT
             return refTwinData;
         }
 
-        private void AddReferableAttributes(BasicDigitalTwin twinData, Referable referable)
+        private void AddReferableAttributes(BasicDigitalTwin twinData, Referable referable, ImportContext processInfo)
         {
             if (!string.IsNullOrEmpty(referable.idShort))
                 twinData.Contents.Add("idShort", referable.idShort);
@@ -924,13 +928,13 @@ namespace AAS.AASX.CmdLine.Import.ADT
             } else
                 twinData.Contents.Add("description", new BasicDigitalTwinComponent());
 
-            twinData.Contents.Add("tags", CreateStandardTagsForImport());
+            twinData.Contents.Add("tags", CreateStandardTagsForImport(processInfo));
         }
 
-        private void AddIdentifiableAttributes(BasicDigitalTwin twinData, Identifiable identifiable)
+        private void AddIdentifiableAttributes(BasicDigitalTwin twinData, Identifiable identifiable, ImportContext processInfo)
         {
             // Referable attributes
-            AddReferableAttributes(twinData, identifiable);
+            AddReferableAttributes(twinData, identifiable, processInfo);
 
             // Identifiable attributes
             if (identifiable.identification != null)
@@ -1040,11 +1044,22 @@ namespace AAS.AASX.CmdLine.Import.ADT
             return result;
         }
 
-        private BasicDigitalTwinComponent CreateStandardTagsForImport()
+        private BasicDigitalTwinComponent CreateStandardTagsForImport(ImportContext processInfo)
         {
             var tagsComponent = new BasicDigitalTwinComponent();
 
-            tagsComponent.Contents.Add("markers", new Dictionary<string, bool>() { { "import", true} });
+            tagsComponent.Contents.Add("markers", new Dictionary<string, bool>() { { "import", true } });
+
+            if (processInfo != null && ((processInfo.CurrentShellDtId != null) || (processInfo.CurrentSubmodelDtId != null)))
+            {
+                var valDict = new Dictionary<string, string>();
+                if (processInfo.CurrentShellDtId != null)
+                    valDict.Add("shellDtId", processInfo.CurrentShellDtId);
+                if (processInfo.CurrentSubmodelDtId != null)
+                    valDict.Add("submodelDtId", processInfo.CurrentSubmodelDtId);
+
+                tagsComponent.Contents.Add("values", valDict);
+            }
 
             return tagsComponent;
         }
