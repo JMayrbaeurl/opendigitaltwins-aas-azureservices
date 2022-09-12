@@ -5,8 +5,13 @@ Digital Twin](https://docs.microsoft.com/en-us/azure/digital-twins/overview) ins
 [AAS DTDLv2 ontology](https://github.com/JMayrbaeurl/opendigitaltwins-assetadminstrationshell).
 
 **Security**
-The tool is using Default Azure credentials to connect to your Azure Digital Twins instance. Therefore make sure, that 
-you do a `az login` with Azure CLI before starting it the first time.
+The tool is using the following chain of Azure credentials:
+- [EnvironmentCredential](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/identity-readme-pre#environment-variables)
+- [ManagedIdentityCredential](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/identity-readme-pre#managed-identity-support)
+- [AzureCliCredential](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/identity-readme-pre#authenticating-via-development-tools)
+- [InteractiveBrowserCredential](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/identity-readme-pre#authenticating-users)
+
+E.g. if you want to use Azure command line make sure, that you do a `az login` with Azure CLI before starting it the first time.
 
 **Basic usage**
 ```
@@ -25,6 +30,10 @@ Available subcommands are: `import` and `list-all`
 `--url -u`
 
 Url of the Azure Digital Twins instance. E.g. `https://[Your ADT instance name].api.weu.digitaltwins.azure.net`
+
+`--tenant -t`
+
+Optional tenant Id of the Azure Digital Twins instance. Only needed for ADT instances in 'other' tenants.
 
 `--file -f`
 

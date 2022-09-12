@@ -11,6 +11,10 @@
     "aasx-cmdline list-all": {
       "commandName": "Project",
       "commandLineArgs": "list-all -f \"C:\\Dev\\ADT\\AAS\\AASX Samples\\01_Festo.aasx\" -u https://aasadtdevjm.api.weu.digitaltwins.azure.net"
+    },
+    "aasx-cmdline import Wittenstein": {
+      "commandName": "Project",
+      "commandLineArgs": "import -f \"C:\\Dev\\ADT\\AAS\\AASX Samples\\30_Wittenstein.aasx\" -u https://aasadtjmstaging1.api.weu.digitaltwins.azure.net -t 16b3c013-d300-468d-ac64-7eda0820b6d3"
     }
   }
 }

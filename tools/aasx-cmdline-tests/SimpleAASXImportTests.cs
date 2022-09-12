@@ -27,7 +27,8 @@ namespace AAS.AASX.CmdLine.Test.Import
                 .ConfigureAppConfiguration((hostContext, configBuilder) => { configBuilder.AddJsonFile("appsettings.tests.json"); })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    ConfigureBasicServices(services, hostContext.Configuration["ADT_SERVICE_URL"]);
+                    ConfigureBasicServices(services, hostContext.Configuration["ADT_SERVICE_URL"],
+                        hostContext.Configuration["TENANT_ID"]);
 
                     services.AddSingleton<IAASRepo, ADTAASRepo>();
                     services.AddSingleton<IAASXImporter, ADTAASXPackageImporter>();

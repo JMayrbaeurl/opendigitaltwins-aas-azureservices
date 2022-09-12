@@ -22,7 +22,7 @@ namespace AAS.AASX.CmdLine.Test
             configuration = new ConfigurationBuilder().AddJsonFile("appsettings.tests.json").Build();
         }
 
-        protected static void ConfigureBasicServices(IServiceCollection services, string adtInstanceUrl)
+        protected static void ConfigureBasicServices(IServiceCollection services, string adtInstanceUrl, string tenantId = null)
         {
             services.Configure<DigitalTwinsClientOptions>(options => options.ADTEndpoint = new Uri(adtInstanceUrl));
 
@@ -32,7 +32,12 @@ namespace AAS.AASX.CmdLine.Test
                 {
                     var appOptions = provider.GetService<IOptions<DigitalTwinsClientOptions>>();
 
-                    var credentials = new DefaultAzureCredential();
+                    var credentials = new ChainedTokenCredential(
+                        new EnvironmentCredential(),
+                        new ManagedIdentityCredential(),
+                        new AzureCliCredential(new AzureCliCredentialOptions() { TenantId = tenantId }),
+                        new InteractiveBrowserCredential(new InteractiveBrowserCredentialOptions() { TenantId = tenantId }));
+
                     DigitalTwinsClient client = new DigitalTwinsClient(appOptions.Value.ADTEndpoint,
                                 credentials, new Azure.DigitalTwins.Core.DigitalTwinsClientOptions { Transport = new HttpClientTransport(new HttpClient()) });
                     return client;
@@ -47,5 +52,7 @@ namespace AAS.AASX.CmdLine.Test
     public class DigitalTwinsClientOptions
     {
         public Uri ADTEndpoint { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

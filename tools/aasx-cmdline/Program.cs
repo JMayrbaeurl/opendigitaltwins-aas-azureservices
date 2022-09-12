@@ -21,6 +21,8 @@ namespace AAS.AASX.CmdLine
         public string PackageFilePath { get; set; }
         [Option('u', "url", Required = true, HelpText = "ADT instance url")]
         public string Url { get; set; }
+        [Option('t', "tenant", Required = false, HelpText ="Azure Tenant Id")]
+        public string TenantId { get; set; }
         [Option("ignoreConceptDescriptions", Default = false)]
         public bool IgnoreConceptDescriptions { get; set; }
         [Option("deleteShellsBeforeImport", Default = false)]
@@ -35,6 +37,8 @@ namespace AAS.AASX.CmdLine
         public string PackageFilePath { get; set; }
         [Option('u', "url", Required = true, HelpText = "ADT instance url")]
         public string Url { get; set; }
+        [Option('t', "tenant", Required = false, HelpText = "Azure Tenant Id")]
+        public string TenantId { get; set; }
     }
 
     internal class Program
@@ -49,7 +53,7 @@ namespace AAS.AASX.CmdLine
             using IHost host = Host.CreateDefaultBuilder()
                 .ConfigureServices((_, services) =>
                 {
-                    ConfigureBasicServices(services, importOpts.Url);
+                    ConfigureBasicServices(services, importOpts.Url, importOpts.TenantId);
 
                     services.AddSingleton<IAASXImporter, ADTAASXPackageImporter>();
                 })
@@ -78,7 +82,7 @@ namespace AAS.AASX.CmdLine
             using IHost host = Host.CreateDefaultBuilder()
                 .ConfigureServices((_, services) =>
                 {
-                    ConfigureBasicServices(services, options.Url);
+                    ConfigureBasicServices(services, options.Url, options.TenantId);
 
                     services.AddSingleton<IAASXInspector, StdAASXInspector>();
                 })
@@ -95,9 +99,10 @@ namespace AAS.AASX.CmdLine
             return 0;
         }
 
-        private static void ConfigureBasicServices(IServiceCollection services, string adtInstanceUrl)
+        private static void ConfigureBasicServices(IServiceCollection services, string adtInstanceUrl, string tenantId)
         {
-            services.Configure<DigitalTwinsClientOptions>(options => options.ADTEndpoint = new Uri(adtInstanceUrl));
+            services.Configure<DigitalTwinsClientOptions>(options =>
+                { options.ADTEndpoint = new Uri(adtInstanceUrl); options.TenantId = tenantId; });
 
             services.AddAzureClients(builder =>
             {
@@ -105,14 +110,22 @@ namespace AAS.AASX.CmdLine
                 {
                     var appOptions = provider.GetService<IOptions<DigitalTwinsClientOptions>>();
 
-                    var credentials = new DefaultAzureCredential();
+                    var credentials = new ChainedTokenCredential(
+                        new EnvironmentCredential(),
+                        new ManagedIdentityCredential(),
+                        new AzureCliCredential(new AzureCliCredentialOptions() { TenantId = appOptions.Value.TenantId }),
+                        new InteractiveBrowserCredential(new InteractiveBrowserCredentialOptions() { TenantId = appOptions.Value.TenantId }));
+
                     DigitalTwinsClient client = new DigitalTwinsClient(appOptions.Value.ADTEndpoint,
                                 credentials, new Azure.DigitalTwins.Core.DigitalTwinsClientOptions { Transport = new HttpClientTransport(new HttpClient()) });
                     return client;
                 });
 
-                // First use DefaultAzureCredentials and second EnvironmentCredential to enable local docker execution
-                builder.UseCredential(new ChainedTokenCredential(new DefaultAzureCredential(), new EnvironmentCredential()));
+                builder.UseCredential(new ChainedTokenCredential(
+                        new EnvironmentCredential(),
+                        new ManagedIdentityCredential(),
+                        new AzureCliCredential(new AzureCliCredentialOptions() { TenantId = tenantId }),
+                        new InteractiveBrowserCredential(new InteractiveBrowserCredentialOptions() { TenantId = tenantId })));
             });
 
             services.AddSingleton<IAASRepo, ADTAASRepo>();
@@ -121,6 +134,8 @@ namespace AAS.AASX.CmdLine
         public class DigitalTwinsClientOptions
         {
             public Uri ADTEndpoint { get; set; }
+
+            public string TenantId { get; set; }
         }
     }
 }
