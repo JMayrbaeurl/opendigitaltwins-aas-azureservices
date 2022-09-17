@@ -24,28 +24,14 @@ namespace AAS.API.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class PackagesPackageIdBody : IEquatable<PackagesPackageIdBody>
+    public partial class HasKind : IEquatable<HasKind>
     { 
         /// <summary>
-        /// Gets or Sets AasIds
+        /// Gets or Sets Kind
         /// </summary>
 
-        [DataMember(Name="aasIds")]
-        public List<string> AasIds { get; set; }
-
-        /// <summary>
-        /// Gets or Sets File
-        /// </summary>
-
-        [DataMember(Name="file")]
-        public byte[] File { get; set; }
-
-        /// <summary>
-        /// Gets or Sets FileName
-        /// </summary>
-
-        [DataMember(Name="fileName")]
-        public string FileName { get; set; }
+        [DataMember(Name="kind")]
+        public ModelingKind Kind { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -54,10 +40,8 @@ namespace AAS.API.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class PackagesPackageIdBody {\n");
-            sb.Append("  AasIds: ").Append(AasIds).Append("\n");
-            sb.Append("  File: ").Append(File).Append("\n");
-            sb.Append("  FileName: ").Append(FileName).Append("\n");
+            sb.Append("class HasKind {\n");
+            sb.Append("  Kind: ").Append(Kind).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -80,34 +64,24 @@ namespace AAS.API.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((PackagesPackageIdBody)obj);
+            return obj.GetType() == GetType() && Equals((HasKind)obj);
         }
 
         /// <summary>
-        /// Returns true if PackagesPackageIdBody instances are equal
+        /// Returns true if HasKind instances are equal
         /// </summary>
-        /// <param name="other">Instance of PackagesPackageIdBody to be compared</param>
+        /// <param name="other">Instance of HasKind to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(PackagesPackageIdBody other)
+        public bool Equals(HasKind other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    AasIds == other.AasIds ||
-                    AasIds != null &&
-                    AasIds.SequenceEqual(other.AasIds)
-                ) && 
-                (
-                    File == other.File ||
-                    File != null &&
-                    File.Equals(other.File)
-                ) && 
-                (
-                    FileName == other.FileName ||
-                    FileName != null &&
-                    FileName.Equals(other.FileName)
+                    Kind == other.Kind ||
+                    Kind != null &&
+                    Kind.Equals(other.Kind)
                 );
         }
 
@@ -121,12 +95,8 @@ namespace AAS.API.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (AasIds != null)
-                    hashCode = hashCode * 59 + AasIds.GetHashCode();
-                    if (File != null)
-                    hashCode = hashCode * 59 + File.GetHashCode();
-                    if (FileName != null)
-                    hashCode = hashCode * 59 + FileName.GetHashCode();
+                    if (Kind != null)
+                    hashCode = hashCode * 59 + Kind.GetHashCode();
                 return hashCode;
             }
         }
@@ -134,12 +104,12 @@ namespace AAS.API.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(PackagesPackageIdBody left, PackagesPackageIdBody right)
+        public static bool operator ==(HasKind left, HasKind right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(PackagesPackageIdBody left, PackagesPackageIdBody right)
+        public static bool operator !=(HasKind left, HasKind right)
         {
             return !Equals(left, right);
         }

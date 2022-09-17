@@ -21,19 +21,19 @@ using Newtonsoft.Json;
 namespace AAS.API.Models
 { 
         /// <summary>
-        /// Gets or Sets AssetKind
+        /// Gets or Sets ReferenceTypes
         /// </summary>
         [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public enum AssetKind
+        public enum ReferenceTypes
         {
             /// <summary>
-            /// Enum InstanceEnum for Instance
+            /// Enum GlobalReferenceEnum for GlobalReference
             /// </summary>
-            [EnumMember(Value = "Instance")]
-            InstanceEnum = 0,
+            [EnumMember(Value = "GlobalReference")]
+            GlobalReferenceEnum = 0,
             /// <summary>
-            /// Enum TypeEnum for Type
+            /// Enum ModelReferenceEnum for ModelReference
             /// </summary>
-            [EnumMember(Value = "Type")]
-            TypeEnum = 1        }
+            [EnumMember(Value = "ModelReference")]
+            ModelReferenceEnum = 1        }
 }

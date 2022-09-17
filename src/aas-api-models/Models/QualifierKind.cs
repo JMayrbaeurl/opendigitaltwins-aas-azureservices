@@ -21,19 +21,24 @@ using Newtonsoft.Json;
 namespace AAS.API.Models
 { 
         /// <summary>
-        /// Gets or Sets AssetKind
+        /// Gets or Sets QualifierKind
         /// </summary>
         [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public enum AssetKind
+        public enum QualifierKind
         {
             /// <summary>
-            /// Enum InstanceEnum for Instance
+            /// Enum ConceptQualifierEnum for ConceptQualifier
             /// </summary>
-            [EnumMember(Value = "Instance")]
-            InstanceEnum = 0,
+            [EnumMember(Value = "ConceptQualifier")]
+            ConceptQualifierEnum = 0,
             /// <summary>
-            /// Enum TypeEnum for Type
+            /// Enum TemplateQualifierEnum for TemplateQualifier
             /// </summary>
-            [EnumMember(Value = "Type")]
-            TypeEnum = 1        }
+            [EnumMember(Value = "TemplateQualifier")]
+            TemplateQualifierEnum = 1,
+            /// <summary>
+            /// Enum ValueQualifierEnum for ValueQualifier
+            /// </summary>
+            [EnumMember(Value = "ValueQualifier")]
+            ValueQualifierEnum = 2        }
 }

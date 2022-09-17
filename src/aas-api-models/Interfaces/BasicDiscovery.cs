@@ -8,6 +8,7 @@ namespace AAS.API.Interfaces
 {
     public interface BasicDiscovery
     {
+        
         public Task<List<string>> GetAllAssetAdministrationShellIdsByAssetLink(List<IdentifierKeyValuePair> assetIds);
 
         public Task<List<IdentifierKeyValuePair>> GetAllAssetLinksById(string aasIdentifier);
@@ -15,5 +16,6 @@ namespace AAS.API.Interfaces
         public Task<List<IdentifierKeyValuePair>> CreateAllAssetLinksById(string aasIdentifier, List<IdentifierKeyValuePair> assetIds);
 
         public Task<List<IdentifierKeyValuePair>> DeleteAllAssetLinksById(string aasIdentifier);
+        
     }
 }

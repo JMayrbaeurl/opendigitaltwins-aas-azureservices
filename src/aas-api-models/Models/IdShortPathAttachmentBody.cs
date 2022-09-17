@@ -24,14 +24,14 @@ namespace AAS.API.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class PackagesPackageIdBody : IEquatable<PackagesPackageIdBody>
+    public partial class IdShortPathAttachmentBody : IEquatable<IdShortPathAttachmentBody>
     { 
         /// <summary>
-        /// Gets or Sets AasIds
+        /// Gets or Sets FileName
         /// </summary>
 
-        [DataMember(Name="aasIds")]
-        public List<string> AasIds { get; set; }
+        [DataMember(Name="fileName")]
+        public string FileName { get; set; }
 
         /// <summary>
         /// Gets or Sets File
@@ -41,23 +41,15 @@ namespace AAS.API.Models
         public byte[] File { get; set; }
 
         /// <summary>
-        /// Gets or Sets FileName
-        /// </summary>
-
-        [DataMember(Name="fileName")]
-        public string FileName { get; set; }
-
-        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class PackagesPackageIdBody {\n");
-            sb.Append("  AasIds: ").Append(AasIds).Append("\n");
-            sb.Append("  File: ").Append(File).Append("\n");
+            sb.Append("class IdShortPathAttachmentBody {\n");
             sb.Append("  FileName: ").Append(FileName).Append("\n");
+            sb.Append("  File: ").Append(File).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -80,34 +72,29 @@ namespace AAS.API.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((PackagesPackageIdBody)obj);
+            return obj.GetType() == GetType() && Equals((IdShortPathAttachmentBody)obj);
         }
 
         /// <summary>
-        /// Returns true if PackagesPackageIdBody instances are equal
+        /// Returns true if IdShortPathAttachmentBody instances are equal
         /// </summary>
-        /// <param name="other">Instance of PackagesPackageIdBody to be compared</param>
+        /// <param name="other">Instance of IdShortPathAttachmentBody to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(PackagesPackageIdBody other)
+        public bool Equals(IdShortPathAttachmentBody other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    AasIds == other.AasIds ||
-                    AasIds != null &&
-                    AasIds.SequenceEqual(other.AasIds)
+                    FileName == other.FileName ||
+                    FileName != null &&
+                    FileName.Equals(other.FileName)
                 ) && 
                 (
                     File == other.File ||
                     File != null &&
                     File.Equals(other.File)
-                ) && 
-                (
-                    FileName == other.FileName ||
-                    FileName != null &&
-                    FileName.Equals(other.FileName)
                 );
         }
 
@@ -121,12 +108,10 @@ namespace AAS.API.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (AasIds != null)
-                    hashCode = hashCode * 59 + AasIds.GetHashCode();
-                    if (File != null)
-                    hashCode = hashCode * 59 + File.GetHashCode();
                     if (FileName != null)
                     hashCode = hashCode * 59 + FileName.GetHashCode();
+                    if (File != null)
+                    hashCode = hashCode * 59 + File.GetHashCode();
                 return hashCode;
             }
         }
@@ -134,12 +119,12 @@ namespace AAS.API.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(PackagesPackageIdBody left, PackagesPackageIdBody right)
+        public static bool operator ==(IdShortPathAttachmentBody left, IdShortPathAttachmentBody right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(PackagesPackageIdBody left, PackagesPackageIdBody right)
+        public static bool operator !=(IdShortPathAttachmentBody left, IdShortPathAttachmentBody right)
         {
             return !Equals(left, right);
         }

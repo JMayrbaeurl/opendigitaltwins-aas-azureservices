@@ -18,7 +18,7 @@ namespace AAS.API.Services.ADT
                 string component1RawText = ((JsonElement)twin.Contents["identification"]).GetRawText();
                 var component1 = JsonSerializer.Deserialize<BasicDigitalTwinComponent>(component1RawText);
                 if (component1.Contents.ContainsKey("id"))
-                    aShell.Identification = component1.Contents["id"].ToString();
+                    aShell.Id = component1.Contents["id"].ToString();
             }
 
             if (twin.Contents.ContainsKey("idShort"))
@@ -34,7 +34,7 @@ namespace AAS.API.Services.ADT
                 aShell.Category = twin.Contents["category"].ToString();
 
             if (twin.Contents.ContainsKey("displayName"))
-                aShell.DisplayName = twin.Contents["displayName"].ToString();
+                aShell.DisplayName = CreateLanguageStringArrayFromString(twin.Contents["displayName"].ToString());
 
             if (twin.Contents.ContainsKey("description"))
                 aShell.Description = CreateLanguageStringArrayFromString(twin.Contents["description"].ToString());
@@ -58,7 +58,7 @@ namespace AAS.API.Services.ADT
                 aShell.Category = propFromADT.GetString();
 
             if (element.TryGetProperty("displayName", out propFromADT))
-                aShell.DisplayName = propFromADT.GetString();
+                aShell.DisplayName = CreateLanguageStringArrayFromString(propFromADT.GetString());
 
             if (element.TryGetProperty("description", out propFromADT))
                 aShell.Description = CreateLanguageStringArrayFromString(propFromADT.GetString());

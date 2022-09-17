@@ -4,9 +4,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace AAS.API.Registry.Tests
 {
@@ -34,7 +36,7 @@ namespace AAS.API.Registry.Tests
                 {
                     services.AddStackExchangeRedisCache(setupAction =>
                     {
-                        setupAction.Configuration = hostContext.Configuration.GetConnectionString("RedisCache");
+                        setupAction.Configuration = hostContext.Configuration.GetConnectionString("aas-registry-dbconn");
                     });
                     services.AddSingleton<AASRegistry, RedisAASRegistry>();
                     configuration = hostContext.Configuration;
@@ -76,6 +78,29 @@ namespace AAS.API.Registry.Tests
         }
 
         [TestMethod]
+        [DeploymentItem("Descriptor samples\\sampleAASDesc.json")]
+        public void TestCreateEntryForSampleAASDesc()
+        {
+            Assert.IsTrue(File.Exists("sampleAASDesc.json"));
+
+            AssetAdministrationShellDescriptor aasDesc = JsonConvert.DeserializeObject<AssetAdministrationShellDescriptor>(
+                File.ReadAllText("sampleAASDesc.json"));
+            Assert.IsNotNull(aasDesc);
+
+            AssetAdministrationShellDescriptor result = registryService.CreateAssetAdministrationShellDescriptor(aasDesc).GetAwaiter().GetResult();
+            Assert.IsNotNull(result);
+            Assert.AreEqual(aasDesc, result);
+
+            Console.WriteLine(cache.GetString($"aas_{aasDesc.Identification}"));
+        }
+
+        [TestMethod]
+        public void TestReadEntryForSampleAASDesc()
+        {
+            Assert.IsNotNull(registryService.GetAssetAdministrationShellDescriptorById("https://example.org/aas/motor"));
+        }
+
+        [TestMethod]
         public void TestDeleteEntryForDemo()
         {
             string key = Guid.NewGuid().ToString();
@@ -108,7 +133,12 @@ namespace AAS.API.Registry.Tests
             {
                 IdShort = "Nameplate",
                 Identification = "www.company.com/ids/sm/4343_5072_7091_3242",
-                SemanticId = new GlobalReference() { Value = new List<string>() { "https://www.hsu-hh.de/aut/aas/nameplate" } }
+                //SemanticId = new GlobalReference() { Value = new List<string>() { "https://www.hsu-hh.de/aut/aas/nameplate" } }
+                SemanticId = new Reference()
+                {
+                    Type = ReferenceTypes.GlobalReferenceEnum,
+                    Keys = new List<Key>() { new Key() { Type = KeyTypes.GlobalReferenceEnum, Value = "https://www.hsu-hh.de/aut/aas/nameplate" } }
+                }
             });
             result.Endpoints = new List<Endpoint>();
             result.Endpoints.Add(new Endpoint() 

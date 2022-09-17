@@ -24,28 +24,33 @@ namespace AAS.API.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class PackagesPackageIdBody : IEquatable<PackagesPackageIdBody>
+    public partial class SpecificAssetId : HasSemantics, IEquatable<SpecificAssetId>
     { 
         /// <summary>
-        /// Gets or Sets AasIds
+        /// Gets or Sets Name
         /// </summary>
+        [Required]
 
-        [DataMember(Name="aasIds")]
-        public List<string> AasIds { get; set; }
+        [MinLength(1)]
+        [DataMember(Name="name")]
+        public string Name { get; set; }
 
         /// <summary>
-        /// Gets or Sets File
+        /// Gets or Sets Value
         /// </summary>
+        [Required]
 
-        [DataMember(Name="file")]
-        public byte[] File { get; set; }
+        [MinLength(1)]
+        [DataMember(Name="value")]
+        public string Value { get; set; }
 
         /// <summary>
-        /// Gets or Sets FileName
+        /// Gets or Sets ExternalSubjectId
         /// </summary>
+        [Required]
 
-        [DataMember(Name="fileName")]
-        public string FileName { get; set; }
+        [DataMember(Name="externalSubjectId")]
+        public Reference ExternalSubjectId { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -54,10 +59,10 @@ namespace AAS.API.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class PackagesPackageIdBody {\n");
-            sb.Append("  AasIds: ").Append(AasIds).Append("\n");
-            sb.Append("  File: ").Append(File).Append("\n");
-            sb.Append("  FileName: ").Append(FileName).Append("\n");
+            sb.Append("class SpecificAssetId {\n");
+            sb.Append("  Name: ").Append(Name).Append("\n");
+            sb.Append("  Value: ").Append(Value).Append("\n");
+            sb.Append("  ExternalSubjectId: ").Append(ExternalSubjectId).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -66,7 +71,7 @@ namespace AAS.API.Models
         /// Returns the JSON string presentation of the object
         /// </summary>
         /// <returns>JSON string presentation of the object</returns>
-        public string ToJson()
+        public  new string ToJson()
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
@@ -80,34 +85,34 @@ namespace AAS.API.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((PackagesPackageIdBody)obj);
+            return obj.GetType() == GetType() && Equals((SpecificAssetId)obj);
         }
 
         /// <summary>
-        /// Returns true if PackagesPackageIdBody instances are equal
+        /// Returns true if SpecificAssetId instances are equal
         /// </summary>
-        /// <param name="other">Instance of PackagesPackageIdBody to be compared</param>
+        /// <param name="other">Instance of SpecificAssetId to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(PackagesPackageIdBody other)
+        public bool Equals(SpecificAssetId other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    AasIds == other.AasIds ||
-                    AasIds != null &&
-                    AasIds.SequenceEqual(other.AasIds)
+                    Name == other.Name ||
+                    Name != null &&
+                    Name.Equals(other.Name)
                 ) && 
                 (
-                    File == other.File ||
-                    File != null &&
-                    File.Equals(other.File)
+                    Value == other.Value ||
+                    Value != null &&
+                    Value.Equals(other.Value)
                 ) && 
                 (
-                    FileName == other.FileName ||
-                    FileName != null &&
-                    FileName.Equals(other.FileName)
+                    ExternalSubjectId == other.ExternalSubjectId ||
+                    ExternalSubjectId != null &&
+                    ExternalSubjectId.Equals(other.ExternalSubjectId)
                 );
         }
 
@@ -121,12 +126,12 @@ namespace AAS.API.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (AasIds != null)
-                    hashCode = hashCode * 59 + AasIds.GetHashCode();
-                    if (File != null)
-                    hashCode = hashCode * 59 + File.GetHashCode();
-                    if (FileName != null)
-                    hashCode = hashCode * 59 + FileName.GetHashCode();
+                    if (Name != null)
+                    hashCode = hashCode * 59 + Name.GetHashCode();
+                    if (Value != null)
+                    hashCode = hashCode * 59 + Value.GetHashCode();
+                    if (ExternalSubjectId != null)
+                    hashCode = hashCode * 59 + ExternalSubjectId.GetHashCode();
                 return hashCode;
             }
         }
@@ -134,12 +139,12 @@ namespace AAS.API.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(PackagesPackageIdBody left, PackagesPackageIdBody right)
+        public static bool operator ==(SpecificAssetId left, SpecificAssetId right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(PackagesPackageIdBody left, PackagesPackageIdBody right)
+        public static bool operator !=(SpecificAssetId left, SpecificAssetId right)
         {
             return !Equals(left, right);
         }

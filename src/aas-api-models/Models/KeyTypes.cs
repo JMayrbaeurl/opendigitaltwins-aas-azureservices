@@ -21,10 +21,10 @@ using Newtonsoft.Json;
 namespace AAS.API.Models
 { 
         /// <summary>
-        /// Gets or Sets ModelType
+        /// Gets or Sets KeyTypes
         /// </summary>
         [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-        public enum ModelType
+        public enum KeyTypes
         {
             /// <summary>
             /// Enum AnnotatedRelationshipElementEnum for AnnotatedRelationshipElement
@@ -57,68 +57,93 @@ namespace AAS.API.Models
             [EnumMember(Value = "ConceptDescription")]
             ConceptDescriptionEnum = 5,
             /// <summary>
-            /// Enum DataSpecificationIEC61360Enum for DataSpecificationIEC61360
+            /// Enum DataElementEnum for DataElement
             /// </summary>
-            [EnumMember(Value = "DataSpecificationIEC61360")]
-            DataSpecificationIEC61360Enum = 6,
-            /// <summary>
-            /// Enum DataSpecificationPhysicalUnitEnum for DataSpecificationPhysicalUnit
-            /// </summary>
-            [EnumMember(Value = "DataSpecificationPhysicalUnit")]
-            DataSpecificationPhysicalUnitEnum = 7,
+            [EnumMember(Value = "DataElement")]
+            DataElementEnum = 6,
             /// <summary>
             /// Enum EntityEnum for Entity
             /// </summary>
             [EnumMember(Value = "Entity")]
-            EntityEnum = 8,
+            EntityEnum = 7,
+            /// <summary>
+            /// Enum EventElementEnum for EventElement
+            /// </summary>
+            [EnumMember(Value = "EventElement")]
+            EventElementEnum = 8,
             /// <summary>
             /// Enum FileEnum for File
             /// </summary>
             [EnumMember(Value = "File")]
             FileEnum = 9,
             /// <summary>
+            /// Enum FragmentReferenceEnum for FragmentReference
+            /// </summary>
+            [EnumMember(Value = "FragmentReference")]
+            FragmentReferenceEnum = 10,
+            /// <summary>
+            /// Enum GlobalReferenceEnum for GlobalReference
+            /// </summary>
+            [EnumMember(Value = "GlobalReference")]
+            GlobalReferenceEnum = 11,
+            /// <summary>
+            /// Enum IdentifiableEnum for Identifiable
+            /// </summary>
+            [EnumMember(Value = "Identifiable")]
+            IdentifiableEnum = 12,
+            /// <summary>
             /// Enum MultiLanguagePropertyEnum for MultiLanguageProperty
             /// </summary>
             [EnumMember(Value = "MultiLanguageProperty")]
-            MultiLanguagePropertyEnum = 10,
+            MultiLanguagePropertyEnum = 13,
             /// <summary>
             /// Enum OperationEnum for Operation
             /// </summary>
             [EnumMember(Value = "Operation")]
-            OperationEnum = 11,
+            OperationEnum = 14,
             /// <summary>
             /// Enum PropertyEnum for Property
             /// </summary>
             [EnumMember(Value = "Property")]
-            PropertyEnum = 12,
+            PropertyEnum = 15,
             /// <summary>
             /// Enum RangeEnum for Range
             /// </summary>
             [EnumMember(Value = "Range")]
-            RangeEnum = 13,
+            RangeEnum = 16,
+            /// <summary>
+            /// Enum ReferableEnum for Referable
+            /// </summary>
+            [EnumMember(Value = "Referable")]
+            ReferableEnum = 17,
             /// <summary>
             /// Enum ReferenceElementEnum for ReferenceElement
             /// </summary>
             [EnumMember(Value = "ReferenceElement")]
-            ReferenceElementEnum = 14,
+            ReferenceElementEnum = 18,
             /// <summary>
             /// Enum RelationshipElementEnum for RelationshipElement
             /// </summary>
             [EnumMember(Value = "RelationshipElement")]
-            RelationshipElementEnum = 15,
+            RelationshipElementEnum = 19,
             /// <summary>
             /// Enum SubmodelEnum for Submodel
             /// </summary>
             [EnumMember(Value = "Submodel")]
-            SubmodelEnum = 16,
+            SubmodelEnum = 20,
+            /// <summary>
+            /// Enum SubmodelElementEnum for SubmodelElement
+            /// </summary>
+            [EnumMember(Value = "SubmodelElement")]
+            SubmodelElementEnum = 21,
             /// <summary>
             /// Enum SubmodelElementCollectionEnum for SubmodelElementCollection
             /// </summary>
             [EnumMember(Value = "SubmodelElementCollection")]
-            SubmodelElementCollectionEnum = 17,
+            SubmodelElementCollectionEnum = 22,
             /// <summary>
             /// Enum SubmodelElementListEnum for SubmodelElementList
             /// </summary>
             [EnumMember(Value = "SubmodelElementList")]
-            SubmodelElementListEnum = 18        }
+            SubmodelElementListEnum = 23        }
 }

@@ -1,14 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>AAS_Services_Support</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.DigitalTwins.Core" Version="1.2.2" />
-    <PackageReference Include="Azure.Identity" Version="1.4.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.0" />
+    <PackageReference Include="Azure.DigitalTwins.Core" Version="1.4.0" />
+    <PackageReference Include="Azure.Identity" Version="1.6.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
