@@ -1,9 +1,11 @@
+using AAS.API.Registry.CosmosDBImpl;
 using AAS.API.Registry.Models;
 using AAS.API.WebApp.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -77,7 +79,7 @@ namespace AAS.API.Registry.Server
                         },
                         TermsOfService = new Uri("https://github.com/admin-shell-io/aas-specs")
                     });
-                    c.CustomSchemaIds(type => type.FullName);
+                    c.CustomSchemaIds(type => type.FullName.Replace("+", "."));
                     //c.IncludeXmlComments($"{AppContext.BaseDirectory}{Path.DirectorySeparatorChar}{_hostingEnv.ApplicationName}.xml");
 
                     // Include DataAnnotation attributes on Controller Action parameters as Swagger validation rules (e.g required, pattern, ..)
@@ -108,11 +110,32 @@ namespace AAS.API.Registry.Server
                     });
                 });
 
-            services.AddStackExchangeRedisCache(setupAction =>
+            if (Configuration.GetValue<bool>("aas-registry-service-useRedisCache"))
             {
-                setupAction.Configuration = Configuration.GetConnectionString("RedisCache");
-            });
-            services.AddSingleton<AASRegistry, RedisAASRegistry>();
+                services.AddStackExchangeRedisCache(setupAction =>
+                {
+                    setupAction.Configuration = Configuration.GetConnectionString("RedisCache");
+                });
+                services.AddSingleton<AASRegistry, RedisAASRegistry>();
+            } else
+            {
+                services.AddSingleton<CosmosClient>(InitializeCosmosClientInstance(Configuration.GetSection("CosmosDb")));
+                services.AddSingleton<AASRegistry, CosmosDBAASRegistry>();
+            }
+        }
+
+        /// <summary>
+        /// Creates a Cosmos DB database and a container with the specified partition key. 
+        /// </summary>
+        /// <returns></returns>
+        private static CosmosClient InitializeCosmosClientInstance(IConfigurationSection configurationSection)
+        {
+            string account = configurationSection.GetSection("Account").Value;
+            string key = configurationSection.GetSection("Key").Value;
+            CosmosClient client = new CosmosClient(account, key,
+                new CosmosClientOptions() { SerializerOptions = new CosmosSerializationOptions() { IgnoreNullValues = true } });
+
+            return client;
         }
 
         /// <summary>

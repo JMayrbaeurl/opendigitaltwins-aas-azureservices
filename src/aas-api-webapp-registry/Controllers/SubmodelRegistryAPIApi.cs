@@ -24,7 +24,7 @@ namespace AAS.API.WebApp.Controllers
     /// <summary>
     /// 
     /// </summary>
-    [ApiController]
+    //[ApiController]
     public class SubmodelRegistryAPIApiController : ControllerBase
     { 
         /// <summary>
