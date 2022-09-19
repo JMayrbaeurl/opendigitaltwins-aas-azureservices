@@ -46,6 +46,13 @@ resource account 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
   name: toLower(accountName)
   location: location
   kind: 'GlobalDocumentDB'
+  tags: {
+    WorkloadName: 'AAS API Services'
+    DataClassification: 'General'
+    Criticality: 'Medium'
+    ApplicationName: 'AAS Registry'
+    Env: 'Test'
+  }
   properties: {
     consistencyPolicy: {
       defaultConsistencyLevel: 'Session'
@@ -54,10 +61,38 @@ resource account 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
     databaseAccountOfferType: 'Standard'
   }
 }
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' existing = {
+  name: logs.outputs.logAnalyticsWorkspace
+}
+
+resource diagnosticLogs 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: account.name
+  scope: account
+  properties: {
+    workspaceId: logAnalytics.id
+    logs: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+        retentionPolicy: {
+          days: 30
+          enabled: true 
+        }
+      }
+    ]
+  }
+}
 
 resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15' = {
   parent: account
   name: databaseName
+  tags: {
+    WorkloadName: 'AAS API Services'
+    DataClassification: 'General'
+    Criticality: 'Medium'
+    ApplicationName: 'AAS Registry'
+    Env: 'Test'
+  }
   properties: {
     resource: {
       id: databaseName
@@ -68,6 +103,13 @@ resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15
 resource containerShells 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-05-15' = {
   parent: database
   name: 'shells'
+  tags: {
+    WorkloadName: 'AAS API Services'
+    DataClassification: 'General'
+    Criticality: 'Medium'
+    ApplicationName: 'AAS Registry'
+    Env: 'Test'
+  }
   properties: {
     resource: {
       id: 'shells'
@@ -85,6 +127,13 @@ resource containerShells 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/con
 resource containerSubmodels 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-05-15' = {
   parent: database
   name: 'submodels'
+  tags: {
+    WorkloadName: 'AAS API Services'
+    DataClassification: 'General'
+    Criticality: 'Medium'
+    ApplicationName: 'AAS Registry'
+    Env: 'Test'
+  }
   properties: {
     resource: {
       id: 'submodels'
@@ -104,4 +153,11 @@ module config 'modules/aasservicesconfig.bicep' = {
   params: {
     location: location
   }
+}
+
+module logs 'modules/aasserviceslog.bicep' = {
+    name: 'aasserviceslog'
+    params: {
+        location: location
+    }
 }

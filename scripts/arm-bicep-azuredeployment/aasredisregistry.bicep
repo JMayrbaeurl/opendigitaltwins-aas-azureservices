@@ -7,6 +7,13 @@ param redisCacheName string = 'aasregistrydb-${uniqueString(resourceGroup().id)}
 resource registrydb 'Microsoft.Cache/redis@2021-06-01' = {
     location: location
     name: redisCacheName
+    tags: {
+        WorkloadName: 'AAS API Services'
+        DataClassification: 'General'
+        Criticality: 'Medium'
+        ApplicationName: 'AAS Registry'
+        Env: 'Test'
+    }
     properties: {
     redisVersion: '6'
     enableNonSslPort: false

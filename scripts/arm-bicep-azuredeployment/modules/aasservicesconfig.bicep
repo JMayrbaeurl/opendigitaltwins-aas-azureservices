@@ -10,4 +10,11 @@ resource configStore 'Microsoft.AppConfiguration/configurationStores@2021-10-01-
   sku: {
     name: 'standard'
   }
+  tags: {
+    WorkloadName: 'AAS API Services'
+    DataClassification: 'General'
+    Criticality: 'Medium'
+    ApplicationName: 'AAS Common'
+    Env: 'Test'
+  }
 }
