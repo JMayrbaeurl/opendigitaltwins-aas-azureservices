@@ -1,7 +1,11 @@
 param (
 	[string] $rg = 'aasapi-work-rg',
-	[string] $dbType = 'CosmosDB'
+	[string] $dbType = 'CosmosDB',
+	[string] $clientID,
+	[string] $appRegistrationName = 'aas-registryservice-test'
 )
+
+$clientID=$(.\createAASRegistryADAppRegIfNotExits.ps1 -appRegistrationName $appRegistrationName)
 
 if ($dbType -eq 'Redis')
 {

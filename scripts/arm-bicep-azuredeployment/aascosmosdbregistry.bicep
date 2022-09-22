@@ -24,6 +24,13 @@ param manualProvisionedThroughput int = 400
 @maxValue(1000000)
 param autoscaleMaxThroughput int = 1000
 
+@description('Web API name.')
+@minLength(2)
+param webAppName string = 'webApi-registry-${uniqueString(resourceGroup().id)}'
+
+@description('The Runtime stack of current web app')
+param linuxFxVersion string = 'DOCKER|aasapiimages.azurecr.io/aas-registry-server:latest'
+
 var locations = [
   {
     locationName: location
@@ -148,6 +155,23 @@ resource containerSubmodels 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/
   }
 }
 
+resource webApp 'Microsoft.Web/sites@2021-02-01' = {
+  name: webAppName
+  location: location
+  properties: {
+    httpsOnly: true
+    serverFarmId: appServicePlan.serverFarmId
+    siteConfig: {
+      linuxFxVersion: linuxFxVersion
+      minTlsVersion: '1.2'
+      ftpsState: 'FtpsOnly'
+    }
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+}
+
 module config 'modules/aasservicesconfig.bicep' = {
   name: 'aasservicesconfig'
   params: {
@@ -160,4 +184,18 @@ module logs 'modules/aasserviceslog.bicep' = {
     params: {
         location: location
     }
+}
+
+module apimgmt 'modules/aasapimgmt.bicep' = {
+  name: 'aasservicesapimgmt'
+  params: {
+    location: location
+  }
+}
+
+module appServicePlan 'modules/aasapiappserviceplan.bicep' = {
+    name: 'aasservicesappsrvplan'
+    params: {
+    location: location
+  }
 }

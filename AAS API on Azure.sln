@@ -69,7 +69,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS ADT SDK Tests", "src\AA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Model Generator", "Model Generator", "{26579DD3-6E6F-4959-8289-9A23C2A57997}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aas-model-generator", "tools\aas-model-generator\aas-model-generator.csproj", "{620930EE-63A3-452B-B2DA-7E24B9100704}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aas-model-generator", "tools\aas-model-generator\aas-model-generator.csproj", "{620930EE-63A3-452B-B2DA-7E24B9100704}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -29,6 +29,7 @@ namespace AAS.API.WebApp.Controllers
     /// <summary>
     /// 
     /// </summary>
+    [Authorize]
     [ApiController]
     public class AssetAdministrationShellRegistryAPIApiController : ControllerBase
     {

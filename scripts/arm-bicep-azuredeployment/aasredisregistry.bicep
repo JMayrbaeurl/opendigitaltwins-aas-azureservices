@@ -32,3 +32,10 @@ module config 'modules/aasservicesconfig.bicep' = {
     location: location
   }
 }
+
+module apimgmt 'modules/aasapimgmt.bicep' = {
+  name: 'aasservicesapimgmt'
+  params: {
+    location: location
+  }
+}
