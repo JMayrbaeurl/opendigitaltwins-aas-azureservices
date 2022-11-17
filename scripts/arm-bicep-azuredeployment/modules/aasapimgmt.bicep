@@ -34,6 +34,9 @@ resource apiManagementService 'Microsoft.ApiManagement/service@2021-08-01' = {
     name: sku
     capacity: skuCount
   }
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     publisherEmail: publisherEmail
     publisherName: publisherName
