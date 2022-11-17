@@ -93,7 +93,7 @@ namespace AAS.API.Registry
             return submodelDescriptor;
         }
 
-        public async Task DeleteAssetAdministrationShellDescriptorById(string aasIdentifier)
+        public async Task<bool> DeleteAssetAdministrationShellDescriptorById(string aasIdentifier)
         {
             if (string.IsNullOrEmpty(aasIdentifier))
             {
@@ -125,6 +125,8 @@ namespace AAS.API.Registry
 
                 throw new AASRegistryException("Exception while removing a value from the cache", ex);
             }
+
+            return true;
         }
 
         public async Task DeleteSubmodelDescriptorById(string submodelIdentifier)
@@ -163,7 +165,7 @@ namespace AAS.API.Registry
 
         }
 
-        public async Task<List<AssetAdministrationShellDescriptor>> GetAllAssetAdministrationShellDescriptors()
+        public async Task<List<AssetAdministrationShellDescriptor>> GetAllAssetAdministrationShellDescriptors(int maxItems)
         {
             throw new NotImplementedException();
         }
@@ -243,7 +245,7 @@ namespace AAS.API.Registry
             }
         }
 
-        public async Task UpdateAssetAdministrationShellDescriptorById(AssetAdministrationShellDescriptor aasDesc, string aasIdentifier)
+        public async Task<AssetAdministrationShellDescriptor> UpdateAssetAdministrationShellDescriptorById(AssetAdministrationShellDescriptor aasDesc)
         {
             if (aasDesc == null)
             {
@@ -253,12 +255,12 @@ namespace AAS.API.Registry
                 throw new AASRegistryException($"Parameter 'aasDesc' must not be null", new ArgumentNullException(nameof(aasDesc)));
             }
 
-            if (string.IsNullOrEmpty(aasIdentifier))
+            if (string.IsNullOrEmpty(aasDesc.Identification))
             {
                 if (_logger != null)
                     _logger.LogError($"Parameter 'aasIdentifier' must not be empty");
 
-                throw new AASRegistryException($"Parameter 'aasIdentifier' must not be empty", new ArgumentNullException(nameof(aasIdentifier)));
+                throw new AASRegistryException($"Parameter 'aasIdentifier' must not be empty", new ArgumentNullException(nameof(aasDesc.Identification)));
             }
 
             if (_cache == null)
@@ -270,17 +272,17 @@ namespace AAS.API.Registry
             }
 
             if (_logger != null)
-                _logger.LogTrace($"UpdateAssetAdministrationShellDescriptorById called for AAS Descriptor with id '{aasIdentifier}'");
+                _logger.LogTrace($"UpdateAssetAdministrationShellDescriptorById called for AAS Descriptor with id '{aasDesc.Identification}'");
 
             try
             {
-                await _cache.Set<AssetAdministrationShellDescriptor>(aasIdentifier, aasDesc, new DistributedCacheEntryOptions());
-
+                await _cache.Set<AssetAdministrationShellDescriptor>(aasDesc.Identification, aasDesc, new DistributedCacheEntryOptions());
+                return aasDesc;
             }
             catch (Exception ex)
             {
                 if (_logger != null)
-                    _logger.LogError($"Exception while updating '{aasIdentifier}' from the cache: {ex.Message}");
+                    _logger.LogError($"Exception while updating '{aasDesc.Identification}' from the cache: {ex.Message}");
 
                 throw new AASRegistryException("Exception while updating a value in the cache", ex);
             }

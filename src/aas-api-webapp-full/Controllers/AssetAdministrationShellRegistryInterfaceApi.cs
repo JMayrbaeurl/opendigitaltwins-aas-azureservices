@@ -243,7 +243,7 @@ namespace AAS.API.WebApp.Controllers
                 throw new AASRegistryException("Invalid setup. No Registry service configured. Check DI setup");
             }
 
-            registryService.UpdateAssetAdministrationShellDescriptorById(body, HttpUtility.UrlDecode(aasIdentifier)).GetAwaiter().GetResult();
+            registryService.UpdateAssetAdministrationShellDescriptorById(body/*, HttpUtility.UrlDecode(aasIdentifier)*/).GetAwaiter().GetResult();
 
             return StatusCode(204);
         }

@@ -141,6 +141,16 @@ namespace AAS.AASX.CmdLine.Import.ADT
             processInfo.CurrentShellDtId = twinData.Id;
             AddIdentifiableAttributes(twinData, shell, processInfo);
 
+            // Add Asset info short
+            if (shell.assetRef != null)
+            {
+                Asset assetRef = processInfo.Result.AASAssets[shell.assetRef.First.idType + shell.assetRef.First.value];
+
+                BasicDigitalTwinComponent assetInfoShort = new BasicDigitalTwinComponent();
+                assetInfoShort.Contents.Add("assetKind", assetRef.kind.kind);
+                twinData.Contents.Add("assetInformationShort", assetInfoShort);
+            }
+
             await DoCreateOrReplaceDigitalTwinAsync(twinData, processInfo);
 
             // Create twins and relationships for embedded data specifications

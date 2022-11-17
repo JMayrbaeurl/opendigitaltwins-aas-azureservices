@@ -6,14 +6,14 @@ namespace AAS.API.Interfaces
 {
     public interface Registry
     {
-        public Task<List<AssetAdministrationShellDescriptor>> GetAllAssetAdministrationShellDescriptors();
+        public Task<List<AssetAdministrationShellDescriptor>> GetAllAssetAdministrationShellDescriptors(int maxItems = 100);
 
         public Task<AssetAdministrationShellDescriptor> GetAssetAdministrationShellDescriptorById(string aasIdentifier);
 
         public Task<AssetAdministrationShellDescriptor> CreateAssetAdministrationShellDescriptor(AssetAdministrationShellDescriptor aasDesc);
 
-        public Task UpdateAssetAdministrationShellDescriptorById(AssetAdministrationShellDescriptor aasDesc, string aasIdentifier);
+        public Task<AssetAdministrationShellDescriptor> UpdateAssetAdministrationShellDescriptorById(AssetAdministrationShellDescriptor aasDesc);
 
-        public Task DeleteAssetAdministrationShellDescriptorById(string aasIdentifier);
+        public Task<bool> DeleteAssetAdministrationShellDescriptorById(string aasIdentifier);
     }
 }

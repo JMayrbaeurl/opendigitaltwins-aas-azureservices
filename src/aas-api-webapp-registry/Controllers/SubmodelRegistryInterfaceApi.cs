@@ -26,8 +26,8 @@ namespace AAS.API.WebApp.Controllers
     /// <summary>
     /// 
     /// </summary>
-    [Authorize]
-    [ApiController]
+    //[Authorize]
+    //[ApiController]
     public class SubmodelRegistryInterfaceApiController : ControllerBase
     {
         private readonly ILogger _logger;
