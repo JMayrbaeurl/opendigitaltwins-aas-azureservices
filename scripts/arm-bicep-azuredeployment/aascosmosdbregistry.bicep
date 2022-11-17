@@ -79,7 +79,7 @@ resource diagnosticLogs 'Microsoft.Insights/diagnosticSettings@2021-05-01-previe
     workspaceId: logAnalytics.id
     logs: [
       {
-        category: 'AllMetrics'
+        category: 'string'
         enabled: true
         retentionPolicy: {
           days: 30
@@ -160,7 +160,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
   location: location
   properties: {
     httpsOnly: true
-    serverFarmId: appServicePlan.serverFarmId
+    serverFarmId: appServicePlan.outputs.serverFarmId
     siteConfig: {
       linuxFxVersion: linuxFxVersion
       minTlsVersion: '1.2'
