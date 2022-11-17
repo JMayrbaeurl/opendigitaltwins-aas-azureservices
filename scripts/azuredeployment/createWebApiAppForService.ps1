@@ -35,7 +35,7 @@ else {
 $existingWebApps=$(az webapp list -g $rg --query "[?name=='$planName']") | ConvertFrom-Json
 if ($existingWebApps.Length -eq 0) {
 	Write-Host "Creating Web App" $appName
-	az webapp create -g $rg -p $planName -n $appName --runtime "DOTNETCORE:3.1" --assign-identity
+	az webapp create -g $rg -p $planName -n $appName --runtime "DOTNET:6.0" --assign-identity
 	# 4. Create App registration for Web app
 	$clientId = $(az ad app create --display-name $appName --sign-in-audience 'AzureADMyOrg'  --app-roles '@aasapiservicestdroles.json' --query appId -o tsv)
 
