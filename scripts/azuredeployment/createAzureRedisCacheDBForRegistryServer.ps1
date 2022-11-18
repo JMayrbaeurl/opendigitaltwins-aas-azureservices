@@ -14,16 +14,21 @@ param (
 	[string] $appName
 )
 
+Write-Host "`nStarting Deployment of Redis Cache" $cacheName "`n"
+
 # 1. Check existenc of resource group and create it if it's not existing yet
 $rsgExists = az group exists -n $rg
 if ( $rsgExists -eq 'false') {
 	Write-Host "Resource group " $rg " doesn't exist. Creating it now."
 	az group create -l $dcloc -n $rg
 }
+else {
+	Write-Host "Using existing Resource Group " $rg
+}
 
 # 2. Create Redis Cache if it doesn't exist yet
-$existingCaches=$(az redis list --query "[?name=='$cacheName']")
-if ( $$existingCaches.length == 0) {
+$existingCaches=$(az redis list -g $rg --query "[?name=='$cacheName']") | ConvertFrom-Json
+if ($existingCaches.Length -eq 0) {
 	Write-Host "Redis cache with name " $cacheName " doesn't exist. Creating it now"
 
 	$redis=$(az redis create --location $dcloc --name $cacheName -g $rg `
@@ -35,6 +40,10 @@ if ( $$existingCaches.length == 0) {
 	Write-Host "Redis cache connection string: " $connString
 
 # 4. Assign the connection string to an App Setting in the Web App
-	if (-not $appName)
+	if (-not $appName){
 		az webapp config appsettings set --name $appName -g $rg --settings "AASREGISTRYCACHECONNSTRING=$connString"
+	}
+}
+else {
+	Write-Host "Redis Cache " $cacheName " already exists"
 }

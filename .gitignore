@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+src/aas-api-webapp-aasxfile/Properties/ServiceDependencies/*Zip Deploy*/**
+src/aas-api-webapp-aasxfile/.config/dotnet-tools.json
