@@ -140,7 +140,10 @@ namespace AAS.API.Discovery
                             IdentifierKeyValuePair link = new IdentifierKeyValuePair() { Value = valueFromADT.GetString(), Key = keyFromADT.GetString() };
                             JsonElement semanticIdForADT;
                             if (keyTwin.TryGetProperty("semanticId", out semanticIdForADT))
-                                link.SemanticId = new GlobalReference() { Value = new List<string>() { semanticIdForADT.GetString() } };
+                            {
+                                // TODO: GlobalReference was removed in version 3.0 RC02 of the AAS metamodel
+                                //link.SemanticId = new GlobalReference() { Value = new List<string>() { semanticIdForADT.GetString() } };
+                            }
                             // TODO: SubjectID missing
                             if (!result.Exists(id => (id.Key == link.Key && id.Value == link.Value)))
                             {

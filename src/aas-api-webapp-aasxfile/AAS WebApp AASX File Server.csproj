@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<TargetFramework>net6.0</TargetFramework>
 		<RootNamespace>AAS_WebApp_AASX_File_Server</RootNamespace>
 		<UserSecretsId>8307df6a-cd8c-45e8-9ab0-2cbc62a85639</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
