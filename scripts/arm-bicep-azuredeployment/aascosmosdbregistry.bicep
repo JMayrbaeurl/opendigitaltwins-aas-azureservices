@@ -79,7 +79,7 @@ resource diagnosticLogs 'Microsoft.Insights/diagnosticSettings@2021-05-01-previe
     workspaceId: logAnalytics.id
     logs: [
       {
-        category: 'string'
+        category: 'AllMetrics'
         enabled: true
         retentionPolicy: {
           days: 30
