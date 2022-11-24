@@ -261,5 +261,193 @@ namespace AAS.API.Registry.Tests
             await ShellsContainer().DeleteItemAsync<DBAssetAdministrationShellDescriptor>(
                         DBAssetAdministrationShellDescriptor.CreateDocumentId(aasId), new PartitionKey(aasId));
         }
+
+        [TestMethod]
+        [DeploymentItem("Descriptor samples\\test001SubmodelDesc.json")]
+        public void TestCreateSubmodelDescriptorForTest001()
+        {
+            Assert.IsTrue(File.Exists("test001SubmodelDesc.json"));
+
+            SubmodelDescriptor submodelDesc = JsonConvert.DeserializeObject<SubmodelDescriptor>(
+                File.ReadAllText("test001SubmodelDesc.json"));
+            Assert.IsNotNull(submodelDesc);
+
+            //string fullDBdoc = JsonConvert.SerializeObject(new DBSubmodelDescriptor(desc));
+            //Assert.IsNotNull(fullDBdoc);
+
+            try
+            {
+                Assert.IsNotNull(registryService.CreateSubmodelDescriptor(submodelDesc).GetAwaiter().GetResult());
+                Assert.IsNull(registryService.CreateSubmodelDescriptor(submodelDesc).GetAwaiter().GetResult());
+            }
+            finally
+            {
+                try
+                {
+                    DeleteSubmodelDescriptor(submodelDesc.Identification).GetAwaiter().GetResult();
+                }
+                catch (Exception) { }
+            }
+        }
+
+        [TestMethod]
+        [DeploymentItem("Descriptor samples\\test001SubmodelDesc.json")]
+        public void TestReadSubmodelDescriptorForTest001()
+        {
+            Assert.IsTrue(File.Exists("test001SubmodelDesc.json"));
+
+            SubmodelDescriptor submodelDesc = JsonConvert.DeserializeObject<SubmodelDescriptor>(
+                File.ReadAllText("test001SubmodelDesc.json"));
+            Assert.IsNotNull(submodelDesc);
+
+            
+            SubmodelsContainer().CreateItemAsync<DBSubmodelDescriptor>(
+                new DBSubmodelDescriptor(submodelDesc), new PartitionKey(submodelDesc.Identification)).GetAwaiter().GetResult(); 
+            try
+            {
+                Assert.IsNotNull(registryService.GetSubmodelDescriptorById(submodelDesc.Identification).GetAwaiter().GetResult());
+            }
+            finally
+            {
+                try
+                {
+                    DeleteSubmodelDescriptor(submodelDesc.Identification).GetAwaiter().GetResult();
+                }
+                catch (Exception) { }
+            }
+        }
+
+        [TestMethod]
+        [DeploymentItem("Descriptor samples\\test001SubmodelDesc.json")]
+        public void TestDeleteSubmodelDescriptorForTest001()
+        {
+            Assert.IsTrue(File.Exists("test001SubmodelDesc.json"));
+
+            SubmodelDescriptor submodelDesc = JsonConvert.DeserializeObject<SubmodelDescriptor>(
+                File.ReadAllText("test001SubmodelDesc.json"));
+            Assert.IsNotNull(submodelDesc);
+
+            SubmodelsContainer().CreateItemAsync<DBSubmodelDescriptor>(
+                new DBSubmodelDescriptor(submodelDesc), new PartitionKey(submodelDesc.Identification)).GetAwaiter().GetResult();
+            try
+            {
+                Assert.IsTrue(registryService.DeleteSubmodelDescriptorById(
+                    submodelDesc.Identification).GetAwaiter().GetResult());
+            }
+            finally
+            {
+                try
+                {
+                    DeleteSubmodelDescriptor(submodelDesc.Identification).GetAwaiter().GetResult();
+                }
+                catch (Exception) { }
+            }
+        }
+
+        [TestMethod]
+        public void TestDeleteSubmodelDescriptorForNonExisting()
+        {
+            Assert.IsFalse(registryService.DeleteSubmodelDescriptorById("Den gibt es wirklich nicht").GetAwaiter().GetResult());
+        }
+
+        [TestMethod]
+        public void TestReadSubmodelDescriptorForNonExisting()
+        {
+            Assert.IsNull(registryService.GetSubmodelDescriptorById("Den gibt es wirklich nicht").GetAwaiter().GetResult());
+        }
+
+        [TestMethod]
+        [DeploymentItem("Descriptor samples\\testSubmodelDescs.json")]
+        public void TestReadAllSubmodelDescriptors()
+        {
+            Assert.IsTrue(File.Exists("testSubmodelDescs.json"));
+
+            var submodelDescs = JsonConvert.DeserializeObject<List<SubmodelDescriptor>>(
+                File.ReadAllText("testSubmodelDescs.json"));
+            Assert.IsNotNull(submodelDescs);
+
+            try
+            {
+                foreach (var submodelDesc in submodelDescs)
+                {
+                    SubmodelsContainer().CreateItemAsync<DBSubmodelDescriptor>(
+                        new DBSubmodelDescriptor(submodelDesc), new PartitionKey(submodelDesc.Identification)).GetAwaiter().GetResult();
+                }
+
+                var readDescs = registryService.GetAllSubmodelDescriptors().GetAwaiter().GetResult();
+                Assert.IsNotNull(readDescs);
+                Assert.IsTrue(readDescs.Count >= 3);
+            }
+            finally
+            {
+                try
+                {
+                    foreach (var submodelDesc in submodelDescs)
+                    {
+                        DeleteSubmodelDescriptor(submodelDesc.Identification).GetAwaiter().GetResult();
+                    }
+                }
+                catch (Exception) { }
+            }
+        }
+
+        [TestMethod]
+        [DeploymentItem("Descriptor samples\\test001SubmodelDesc.json")]
+        public void TestUpdateSubmodelDescriptorForTest001()
+        {
+            Assert.IsTrue(File.Exists("test001SubmodelDesc.json"));
+
+            SubmodelDescriptor submodelDesc = JsonConvert.DeserializeObject<SubmodelDescriptor>(
+                File.ReadAllText("test001SubmodelDesc.json"));
+            Assert.IsNotNull(submodelDesc);
+
+            SubmodelsContainer().CreateItemAsync<DBSubmodelDescriptor>(
+                new DBSubmodelDescriptor(submodelDesc), new PartitionKey(submodelDesc.Identification)).GetAwaiter().GetResult();
+            try
+            {
+                submodelDesc.IdShort = "ChangedIdShortValue";
+                Assert.IsNotNull(registryService.UpdateSubmodelDescriptorById(submodelDesc).GetAwaiter().GetResult());
+
+                DBSubmodelDescriptor readDesc = SubmodelsContainer().ReadItemAsync<DBSubmodelDescriptor>(
+                    DBSubmodelDescriptor.CreateDocumentId(submodelDesc.Identification),
+                    new PartitionKey(submodelDesc.Identification)).GetAwaiter().GetResult();
+
+                Assert.AreEqual("ChangedIdShortValue", readDesc.Desc.IdShort);
+            }
+            finally
+            {
+                try
+                {
+                    DeleteSubmodelDescriptor(submodelDesc.Identification).GetAwaiter().GetResult();
+                }
+                catch (Exception) { }
+            }
+        }
+
+        [TestMethod]
+        [DeploymentItem("Descriptor samples\\test001SubmodelDesc.json")]
+        public void TestUpdateSubmodelDescriptorForNonExisting()
+        {
+            Assert.IsTrue(File.Exists("test001SubmodelDesc.json"));
+
+            SubmodelDescriptor submodelDesc = JsonConvert.DeserializeObject<SubmodelDescriptor>(
+                File.ReadAllText("test001SubmodelDesc.json"));
+            Assert.IsNotNull(submodelDesc);
+
+            submodelDesc.Identification = "Den gibt es wirklich nicht";
+
+            Assert.IsNull(registryService.UpdateSubmodelDescriptorById(submodelDesc).GetAwaiter().GetResult());
+        }
+
+        private Container SubmodelsContainer()
+        {
+            return dbClient.GetContainer(CosmosDBAASRegistry.AASREGISTRYDBNAME, CosmosDBAASRegistry.SUBMODELSCONTAINERNAME);
+        }
+
+        private async Task DeleteSubmodelDescriptor(string submodelId)
+        {
+            await SubmodelsContainer().DeleteItemAsync<DBSubmodelDescriptor>(
+                        DBSubmodelDescriptor.CreateDocumentId(submodelId), new PartitionKey(submodelId));
+        }
     }
 }

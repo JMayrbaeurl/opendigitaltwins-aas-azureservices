@@ -31,6 +31,12 @@
     <None Update="appsettings.tests.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Descriptor samples\test001SubmodelDesc.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Descriptor samples\testSubmodelDescs.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Descriptor samples\testAASDescs.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

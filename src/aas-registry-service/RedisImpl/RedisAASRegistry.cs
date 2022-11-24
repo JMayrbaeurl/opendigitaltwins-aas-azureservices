@@ -129,7 +129,7 @@ namespace AAS.API.Registry
             return true;
         }
 
-        public async Task DeleteSubmodelDescriptorById(string submodelIdentifier)
+        public async Task<bool> DeleteSubmodelDescriptorById(string submodelIdentifier)
         {
             if (string.IsNullOrEmpty(submodelIdentifier))
             {
@@ -162,7 +162,7 @@ namespace AAS.API.Registry
 
                 throw new AASRegistryException($"Exception while deleting submodel descriptor for id '{submodelIdentifier}' from the cache", ex);
             }
-
+            return true;
         }
 
         public async Task<List<AssetAdministrationShellDescriptor>> GetAllAssetAdministrationShellDescriptors(int maxItems)
@@ -170,7 +170,7 @@ namespace AAS.API.Registry
             throw new NotImplementedException();
         }
 
-        public async Task<List<SubmodelDescriptor>> GetAllSubmodelDescriptors()
+        public async Task<List<SubmodelDescriptor>> GetAllSubmodelDescriptors(int maxItems)
         {
             throw new NotImplementedException();
         }
@@ -288,8 +288,10 @@ namespace AAS.API.Registry
             }
         }
 
-        public async Task UpdateSubmodelDescriptorById(string submodelIdentifier, SubmodelDescriptor submodelDescriptor)
+        public async Task<SubmodelDescriptor> UpdateSubmodelDescriptorById(SubmodelDescriptor submodelDescriptor)
         {
+            string submodelIdentifier = submodelDescriptor?.Identification;
+
             if (submodelDescriptor == null)
             {
                 if (_logger != null)
@@ -329,6 +331,8 @@ namespace AAS.API.Registry
 
                 throw new AASRegistryException("Exception while updating a value in the cache", ex);
             }
+
+            return submodelDescriptor;
         }
     }
 }

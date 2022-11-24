@@ -38,7 +38,7 @@ namespace AAS.API.Registry.CosmosDBImpl
             {
                 var database = _cosmosClient.GetDatabase(AASREGISTRYDBNAME);
                 _shellsContainer = database.CreateContainerIfNotExistsAsync(SHELLSCONTAINERNAME, "/shellDesc/identification").GetAwaiter().GetResult().Container;
-                _submodelsContainer = database.CreateContainerIfNotExistsAsync(SUBMODELSCONTAINERNAME, "/shellDesc/identification").GetAwaiter().GetResult().Container;
+                _submodelsContainer = database.CreateContainerIfNotExistsAsync(SUBMODELSCONTAINERNAME, "/submodelDesc/identification").GetAwaiter().GetResult().Container;
             }
         }
 
@@ -294,29 +294,256 @@ namespace AAS.API.Registry.CosmosDBImpl
             return result;
         }
 
-        public Task<SubmodelDescriptor> CreateSubmodelDescriptor(SubmodelDescriptor submodelDescriptor)
+        private async Task<DBSubmodelDescriptor> ReadSubmodelDescWithSubmodelId(string submodelIdentifier)
         {
-            throw new NotImplementedException();
+            DBSubmodelDescriptor result = null;
+
+            var query = new QueryDefinition(query: "SELECT * FROM submodels where submodels.submodelDesc.identification = @submodelId")
+                    .WithParameter("@submodelId", submodelIdentifier);
+            using FeedIterator<DBSubmodelDescriptor> feed =
+                _submodelsContainer.GetItemQueryIterator<DBSubmodelDescriptor>(queryDefinition: query);
+
+            while (feed.HasMoreResults && result == null)
+            {
+                FeedResponse<DBSubmodelDescriptor> response = await feed.ReadNextAsync();
+                foreach (DBSubmodelDescriptor item in response)
+                {
+                    result = item;
+                    break;
+                }
+            }
+
+            return result;
         }
 
-        public Task DeleteSubmodelDescriptorById(string idsubmodelIdentifier)
+        public async Task<SubmodelDescriptor> CreateSubmodelDescriptor(SubmodelDescriptor submodelDesc)
         {
-            throw new NotImplementedException();
+            if (submodelDesc == null)
+            {
+                if (_logger != null)
+                    _logger.LogError($"Parameter 'submodelDesc' must not be empty");
+
+                throw new AASRegistryException($"Parameter 'submodelDesc' must not be empty", new ArgumentNullException(nameof(submodelDesc)));
+            }
+
+            if (string.IsNullOrEmpty(submodelDesc.Identification))
+            {
+                if (_logger != null)
+                    _logger.LogError($"Parameter 'submodelDescriptor.Identification' must not be empty");
+
+                throw new AASRegistryException($"Parameter 'submodelDescriptor.Identification' must not be empty", new ArgumentNullException(nameof(submodelDesc.Identification)));
+            }
+
+            if (_submodelsContainer == null)
+            {
+                if (_logger != null)
+                    _logger.LogError("Wrong DI configuration. No '_submodelsContainer' configured");
+
+                throw new AASRegistryException("Wrong DI configuration. No '_submodelsContainer' configured");
+            }
+
+            if (_logger != null)
+                _logger.LogTrace($"CreateSubmodelDescriptor called for id '{submodelDesc.Identification}'");
+
+            SubmodelDescriptor result = null;
+
+            try
+            {
+                DBSubmodelDescriptor dbDesc = await ReadSubmodelDescWithSubmodelId(submodelDesc.Identification);
+                if (dbDesc == null)
+                {
+                    dbDesc = new DBSubmodelDescriptor(submodelDesc);
+                    await _submodelsContainer.CreateItemAsync<DBSubmodelDescriptor>(dbDesc,
+                                                                    new PartitionKey(submodelDesc.Identification));
+                    result = dbDesc.Desc;
+                }
+                else
+                {
+                    _logger?.LogInformation($"Can not create Submodel descriptor for '{submodelDesc.Identification}', because there's already an entry with this identification stored");
+                }
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                    _logger.LogError($"Exception while trying to create an entry for '{submodelDesc.Identification}': {ex.Message}");
+
+                throw new AASRegistryException($"Exception while trying to create an entry for '{submodelDesc.Identification}'", ex);
+            }
+
+            return result;
         }
 
-        public Task<List<SubmodelDescriptor>> GetAllSubmodelDescriptors()
+        public async Task<bool> DeleteSubmodelDescriptorById(string submodelIdentifier)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(submodelIdentifier))
+            {
+                if (_logger != null)
+                    _logger.LogError($"Parameter 'submodelIdentifier' must not be empty");
+
+                throw new AASRegistryException($"Parameter 'submodelIdentifier' must not be empty", new ArgumentNullException(nameof(submodelIdentifier)));
+            }
+
+            if (_submodelsContainer == null)
+            {
+                if (_logger != null)
+                    _logger.LogError("Wrong DI configuration. No '_submodelsContainer' configured");
+
+                throw new AASRegistryException("Wrong DI configuration. No '_submodelsContainer' configured");
+            }
+
+            if (_logger != null)
+                _logger.LogTrace($"DeleteSubmodelDescriptorById called for id '{submodelIdentifier}'");
+
+            try
+            {
+                DBSubmodelDescriptor dbDesc = await ReadSubmodelDescWithSubmodelId(submodelIdentifier);
+                if (dbDesc != null)
+                {
+                    await _submodelsContainer.DeleteItemAsync<DBSubmodelDescriptor>(
+                        dbDesc.Id, new PartitionKey(dbDesc.Desc.Identification));
+                    return true;
+                }
+                else
+                    return false;
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                    _logger.LogError($"Exception while removing submodel '{submodelIdentifier}' from the cache: {ex.Message}");
+
+                throw new AASRegistryException("Exception while removing a value from the cache", ex);
+            }
+        }
+
+        public async Task<List<SubmodelDescriptor>> GetAllSubmodelDescriptors(int maxItems)
+        {
+            List<SubmodelDescriptor> result = new List<SubmodelDescriptor>();
+
+            if (_submodelsContainer == null)
+            {
+                if (_logger != null)
+                    _logger.LogError("Wrong DI configuration. No '_submodelsContainer' configured");
+
+                throw new AASRegistryException("Wrong DI configuration. No '_submodelsContainer' configured");
+            }
+
+            if (_logger != null)
+                _logger.LogTrace("GetAllSubmodelDescriptors called");
+
+            try
+            {
+                var query = new QueryDefinition(query: "SELECT TOP @limit * FROM submodels").WithParameter("@limit", maxItems);
+                using FeedIterator<DBSubmodelDescriptor> feed =
+                    _submodelsContainer.GetItemQueryIterator<DBSubmodelDescriptor>(queryDefinition: query);
+
+                while (feed.HasMoreResults)
+                {
+                    FeedResponse<DBSubmodelDescriptor> response = await feed.ReadNextAsync();
+                    foreach (DBSubmodelDescriptor item in response)
+                    {
+                        result.Add(item.Desc);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                    _logger.LogError($"Exception while reading all submodel descriptors from the database: {ex.Message}");
+
+                throw new AASRegistryException($"Exception while reading all submodel descriptors from the database: {ex.Message}", ex);
+            }
+
+            return result;
         }
         
-        public Task<SubmodelDescriptor> GetSubmodelDescriptorById(string submodelIdentifier)
+        public async Task<SubmodelDescriptor> GetSubmodelDescriptorById(string submodelIdentifier)
         {
-            throw new NotImplementedException();
+            SubmodelDescriptor result = null;
+
+            if (string.IsNullOrEmpty(submodelIdentifier))
+            {
+                if (_logger != null)
+                    _logger.LogError($"Parameter 'submodelIdentifier' must not be empty");
+
+                throw new AASRegistryException($"Parameter 'submodelIdentifier' must not be empty", new ArgumentNullException(nameof(submodelIdentifier)));
+            }
+
+            if (_submodelsContainer == null)
+            {
+                if (_logger != null)
+                    _logger.LogError("Wrong DI configuration. No '_submodelsContainer' configured");
+
+                throw new AASRegistryException("Wrong DI configuration. No '_submodelsContainer' configured");
+            }
+
+            if (_logger != null)
+                _logger.LogTrace($"GetSubmodelDescriptorById called with id '{submodelIdentifier}'");
+
+            try
+            {
+                result = (await ReadSubmodelDescWithSubmodelId(submodelIdentifier))?.Desc;
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                    _logger.LogError($"Exception while reading submodel descriptor for id '{submodelIdentifier}' from the database: {ex.Message}");
+
+                throw new AASRegistryException($"Exception while reading submodel descriptor for id '{submodelIdentifier}' from the database", ex);
+            }
+
+            return result;
         }
 
-        public Task UpdateSubmodelDescriptorById(string submodelIdentifier, SubmodelDescriptor submodelDescriptor)
+        public async Task<SubmodelDescriptor> UpdateSubmodelDescriptorById(SubmodelDescriptor submodelDesc)
         {
-            throw new NotImplementedException();
+            if (submodelDesc == null)
+            {
+                _logger?.LogError($"Parameter 'submodelDesc' must not be empty");
+
+                throw new AASRegistryException($"Parameter 'aasDesc' must not be empty", new ArgumentNullException(nameof(submodelDesc)));
+            }
+
+            if (string.IsNullOrEmpty(submodelDesc.Identification))
+            {
+                if (_logger != null)
+                    _logger.LogError($"Parameter 'submodelDesc.Identification' must not be empty");
+
+                throw new AASRegistryException($"Parameter 'submodelDesc.Identification' must not be empty", new ArgumentNullException(nameof(submodelDesc.Identification)));
+            }
+
+            if (_submodelsContainer == null)
+            {
+                if (_logger != null)
+                    _logger.LogError("Wrong DI configuration. No '_submodelsContainer' configured");
+
+                throw new AASRegistryException("Wrong DI configuration. No '_submodelsContainer' configured");
+            }
+
+            if (_logger != null)
+                _logger.LogTrace($"UpdateSubmodelDescriptorById called for '{submodelDesc?.Identification}'");
+
+            try
+            {
+                var existingShellDesc = await ReadSubmodelDescWithSubmodelId(submodelDesc.Identification);
+                if (existingShellDesc == null)
+                {
+                    _logger?.LogInformation($"UpdateSubmodelDescriptorById: No entry found for '{submodelDesc?.Identification}'");
+                    return null;
+                }
+                else
+                {
+                    var newEntry = new DBSubmodelDescriptor(submodelDesc);
+                    await _submodelsContainer.ReplaceItemAsync<DBSubmodelDescriptor>(
+                        newEntry, newEntry.Id, new PartitionKey(submodelDesc.Identification));
+                    return submodelDesc;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError($"Exception while trying to update '{submodelDesc.Identification}': {ex.Message}");
+
+                throw new AASRegistryException($"Exception while trying to update '{submodelDesc.Identification}': {ex.Message}", ex);
+            }
         }
     }
 }
