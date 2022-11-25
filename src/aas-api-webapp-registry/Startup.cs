@@ -69,8 +69,8 @@ namespace AAS.API.Registry.Server
                     c.SwaggerDoc("Final-Draft", new OpenApiInfo
                     {
                         Version = "Final-Draft",
-                        Title = "DotAAS Part 2 | HTTP/REST | Entire Interface Collection",
-                        Description = "DotAAS Part 2 | HTTP/REST | Entire Interface Collection (ASP.NET Core 3.1)",
+                        Title = "Asset Administration Shell Part 2 | HTTP/REST | Registry Interface",
+                        Description = "Asset Administration Shell Part 2 | HTTP/REST | Registry Interface",
                         Contact = new OpenApiContact()
                         {
                             Name = "Michael Hoffmeister, Torben Miny, Andreas Orzelski, Manuel Sauer, Constantin Ziesche",
@@ -161,10 +161,10 @@ namespace AAS.API.Registry.Server
             app.UseSwaggerUI(c =>
             {
                 //TODO: Either use the SwaggerGen generated Swagger contract (generated from C# classes)
-                c.SwaggerEndpoint("/swagger/Final-Draft/swagger.json", "Asset Administration Shell Part 2 | HTTP/REST | Discovery Interface");
+                c.SwaggerEndpoint("/swagger/Final-Draft/swagger.json", "Asset Administration Shell Part 2 | HTTP/REST | Registry Interface");
 
                 //TODO: Or alternatively use the original Swagger contract that's included in the static files - Dont forget to uncomment app.UseStaticFiles
-                //c.SwaggerEndpoint("/swagger-original-discovery.json", "Asset Administration Shell Part 2 | HTTP/REST | Discovery Interface");
+                //c.SwaggerEndpoint("/swagger-original-discovery.json", "Asset Administration Shell Part 2 | HTTP/REST | Registry Interface");
             });
 
             //TODO: Use Https Redirection

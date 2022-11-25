@@ -66,7 +66,7 @@ namespace AAS.API.WebApp.Controllers
         /// <response code="404">Not Found</response>
         /// <response code="0">Default error handling for unmentioned status codes</response>
         [HttpDelete]
-        [Route("api/v1//shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")]
+        [Route("api/v1/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteSubmodelDescriptorByIdAASRegistry")]
         [SwaggerResponse(statusCode: 404, type: typeof(Result), description: "Not Found")]

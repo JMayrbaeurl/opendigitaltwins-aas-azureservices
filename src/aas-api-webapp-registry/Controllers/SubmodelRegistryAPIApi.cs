@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 using AAS.API.Registry;
 using Microsoft.Extensions.Logging;
+using System.Web;
 
 namespace AAS.API.WebApp.Controllers
 { 
@@ -46,23 +47,43 @@ namespace AAS.API.WebApp.Controllers
         /// <response code="404">Not Found</response>
         /// <response code="0">Default error handling for unmentioned status codes</response>
         [HttpDelete]
-        [Route("/submodel-descriptors/{submodelIdentifier}")]
+        [Route("api/v1/submodel-descriptors/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteSubmodelDescriptorById")]
         [SwaggerResponse(statusCode: 404, type: typeof(Result), description: "Not Found")]
         [SwaggerResponse(statusCode: 0, type: typeof(Result), description: "Default error handling for unmentioned status codes")]
-        public virtual IActionResult DeleteSubmodelDescriptorById([FromRoute][Required]byte[] submodelIdentifier)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204);
+        public virtual IActionResult DeleteSubmodelDescriptorById([FromRoute][Required]string submodelIdentifier)
+        {
+            _logger.LogInformation($"DeleteSubmodelDescriptorById called for Asset identifier '{submodelIdentifier}'");
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(Result));
+            try
+            {
+                if (registryService == null)
+                {
+                    _logger.LogError("Invalid setup. No Registry service configured. Check DI setup");
+                    throw new AASRegistryException("Invalid setup. No Registry service configured. Check DI setup");
+                }
 
-            //TODO: Uncomment the next line to return response 0 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(0, default(Result));
+                var decodedsmIdentifier = HttpUtility.UrlDecode(submodelIdentifier);
 
-            throw new NotImplementedException();
+                if (registryService.DeleteSubmodelDescriptorById(decodedsmIdentifier).GetAwaiter().GetResult())
+                    return StatusCode(204);
+                else
+                {
+                    return StatusCode(404, new AAS.API.Models.Result()
+                    {
+                        Success = false,
+                        Messages = new List<Message>() {
+                            new Message() { MessageType = Message.MessageTypeEnum.ErrorEnum,
+                            Code = "404", Text = $"Submodel descriptor '{decodedsmIdentifier}' doesn't exist",
+                            Timestamp = DateTime.UtcNow.ToString("o")} }
+                    });
+                }
+            }
+            catch (AASRegistryException aasEx)
+            {
+                return AASRegistryException(aasEx);
+            }
         }
 
         /// <summary>
@@ -71,25 +92,31 @@ namespace AAS.API.WebApp.Controllers
         /// <response code="200">Requested Submodel Descriptors</response>
         /// <response code="0">Default error handling for unmentioned status codes</response>
         [HttpGet]
-        [Route("/submodel-descriptors")]
+        [Route("api/v1/submodel-descriptors")]
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodelDescriptors")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<SubmodelDescriptor>), description: "Requested Submodel Descriptors")]
         [SwaggerResponse(statusCode: 0, type: typeof(Result), description: "Default error handling for unmentioned status codes")]
         public virtual IActionResult GetAllSubmodelDescriptors()
         { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<SubmodelDescriptor>));
+            _logger.LogInformation("GetAllSubmodelDescriptors called");
 
-            //TODO: Uncomment the next line to return response 0 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(0, default(Result));
-            string exampleJson = null;
-            //exampleJson = "[ \"{ \\"identification\\": \\"https://admin-shell.io/zvei/nameplate/1/0/Nameplate\\", \\"endpoints\\": [ { \\"protocolInformation\\": { \\"endpointAddress\\": \\"https://localhost:1234\\", \\"endpointProtocolVersion\\": \\"1.1\\" }, \\"interface\\": \\"AAS-1.0\\" }, { \\"protocolInformation\\": { \\"endpointAddress\\": \\"opc.tcp://localhost:4840\\" }, \\"interface\\": \\"AAS-1.0\\" }, { \\"protocolInformation\\": { \\"endpointAddress\\": \\"https://localhost:5678\\", \\"endpointProtocolVersion\\": \\"1.1\\", \\"subprotocol\\": \\"OPC UA Basic SOAP\\", \\"subprotocolBody\\": \\"ns=2;s=MyAAS\\", \\"subprotocolBodyEncoding\\": \\"application/soap+xml\\" }, \\"interface\\": \\"AAS-1.0\\" } ] }\", \"{ \\"identification\\": \\"https://admin-shell.io/zvei/nameplate/1/0/Nameplate\\", \\"endpoints\\": [ { \\"protocolInformation\\": { \\"endpointAddress\\": \\"https://localhost:1234\\", \\"endpointProtocolVersion\\": \\"1.1\\" }, \\"interface\\": \\"AAS-1.0\\" }, { \\"protocolInformation\\": { \\"endpointAddress\\": \\"opc.tcp://localhost:4840\\" }, \\"interface\\": \\"AAS-1.0\\" }, { \\"protocolInformation\\": { \\"endpointAddress\\": \\"https://localhost:5678\\", \\"endpointProtocolVersion\\": \\"1.1\\", \\"subprotocol\\": \\"OPC UA Basic SOAP\\", \\"subprotocolBody\\": \\"ns=2;s=MyAAS\\", \\"subprotocolBodyEncoding\\": \\"application/soap+xml\\" }, \\"interface\\": \\"AAS-1.0\\" } ] }\" ]";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<List<SubmodelDescriptor>>(exampleJson)
-                        : default(List<SubmodelDescriptor>);            //TODO: Change the data returned
-            return new ObjectResult(example);
+            try
+            {
+                if (registryService == null)
+                {
+                    _logger.LogError("Invalid setup. No Registry service configured. Check DI setup");
+                    throw new AASRegistryException("Invalid setup. No Registry service configured. Check DI setup");
+                }
+
+                var submodelDescs = registryService.GetAllSubmodelDescriptors().GetAwaiter().GetResult();
+
+                return new OkObjectResult(submodelDescs);
+            }
+            catch (AASRegistryException aasEx)
+            {
+                return AASRegistryException(aasEx);
+            }
         }
 
         /// <summary>
@@ -100,29 +127,35 @@ namespace AAS.API.WebApp.Controllers
         /// <response code="404">Not Found</response>
         /// <response code="0">Default error handling for unmentioned status codes</response>
         [HttpGet]
-        [Route("/submodel-descriptors/{submodelIdentifier}")]
+        [Route("api/v1/submodel-descriptors/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("GetSubmodelDescriptorById")]
         [SwaggerResponse(statusCode: 200, type: typeof(SubmodelDescriptor), description: "Requested Submodel Descriptor")]
         [SwaggerResponse(statusCode: 404, type: typeof(Result), description: "Not Found")]
         [SwaggerResponse(statusCode: 0, type: typeof(Result), description: "Default error handling for unmentioned status codes")]
-        public virtual IActionResult GetSubmodelDescriptorById([FromRoute][Required]byte[] submodelIdentifier)
+        public virtual IActionResult GetSubmodelDescriptorById([FromRoute][Required]string submodelIdentifier)
         { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(SubmodelDescriptor));
+            _logger.LogInformation($"GetSubmodelDescriptorById called for Asset identifier '{submodelIdentifier}'");
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(Result));
+            try
+            {
+                if (registryService == null)
+                {
+                    _logger.LogError("Invalid setup. No Registry service configured. Check DI setup");
+                    throw new AASRegistryException("Invalid setup. No Registry service configured. Check DI setup");
+                }
 
-            //TODO: Uncomment the next line to return response 0 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(0, default(Result));
-            string exampleJson = null;
-            //exampleJson = "\"{ \\"identification\\": \\"https://admin-shell.io/zvei/nameplate/1/0/Nameplate\\", \\"endpoints\\": [ { \\"protocolInformation\\": { \\"endpointAddress\\": \\"https://localhost:1234\\", \\"endpointProtocolVersion\\": \\"1.1\\" }, \\"interface\\": \\"AAS-1.0\\" }, { \\"protocolInformation\\": { \\"endpointAddress\\": \\"opc.tcp://localhost:4840\\" }, \\"interface\\": \\"AAS-1.0\\" }, { \\"protocolInformation\\": { \\"endpointAddress\\": \\"https://localhost:5678\\", \\"endpointProtocolVersion\\": \\"1.1\\", \\"subprotocol\\": \\"OPC UA Basic SOAP\\", \\"subprotocolBody\\": \\"ns=2;s=MyAAS\\", \\"subprotocolBodyEncoding\\": \\"application/soap+xml\\" }, \\"interface\\": \\"AAS-1.0\\" } ] }\"";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<SubmodelDescriptor>(exampleJson)
-                        : default(SubmodelDescriptor);            //TODO: Change the data returned
-            return new ObjectResult(example);
+                var submodelDesc = registryService.GetSubmodelDescriptorById(HttpUtility.UrlDecode(submodelIdentifier)).GetAwaiter().GetResult();
+
+                if (submodelDesc == null)
+                    return NotFound();
+                else
+                    return new OkObjectResult(submodelDesc);
+            }
+            catch (AASRegistryException aasEx)
+            {
+                return AASRegistryException(aasEx);
+            }
         }
 
         /// <summary>
@@ -181,27 +214,69 @@ namespace AAS.API.WebApp.Controllers
         /// <response code="404">Not Found</response>
         /// <response code="0">Default error handling for unmentioned status codes</response>
         [HttpPut]
-        [Route("/submodel-descriptors/{submodelIdentifier}")]
+        [Route("api/v1/submodel-descriptors/{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("PutSubmodelDescriptorById")]
         [SwaggerResponse(statusCode: 400, type: typeof(Result), description: "Bad Request")]
         [SwaggerResponse(statusCode: 404, type: typeof(Result), description: "Not Found")]
         [SwaggerResponse(statusCode: 0, type: typeof(Result), description: "Default error handling for unmentioned status codes")]
-        public virtual IActionResult PutSubmodelDescriptorById([FromBody]SubmodelDescriptor body, [FromRoute][Required]byte[] submodelIdentifier)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204);
+        public virtual IActionResult PutSubmodelDescriptorById([FromBody]SubmodelDescriptor body, [FromRoute][Required]string submodelIdentifier)
+        {
+            _logger.LogInformation("PutSubmodelDescriptorById called");
 
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(Result));
+            try
+            {
+                if (registryService == null)
+                {
+                    _logger.LogError("Invalid setup. No Registry service configured. Check DI setup");
+                    throw new AASRegistryException("Invalid setup. No Registry service configured. Check DI setup");
+                }
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(Result));
+                if (string.IsNullOrEmpty(submodelIdentifier))
+                {
+                    return StatusCode(400, new AAS.API.Models.Result()
+                    {
+                        Success = false,
+                        Messages = new List<Message>() {
+                            new Message() { MessageType = Message.MessageTypeEnum.ErrorEnum,
+                            Code = "400", Text = "submodelIdentifier must not be null or empty",
+                            Timestamp = DateTime.UtcNow.ToString("o")} }
+                    });
+                }
 
-            //TODO: Uncomment the next line to return response 0 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(0, default(Result));
+                var decodedsmIdentifier = HttpUtility.UrlDecode(submodelIdentifier);
 
-            throw new NotImplementedException();
+                if (body == null || !body.Identification.Equals(decodedsmIdentifier))
+                {
+                    return StatusCode(400, new AAS.API.Models.Result()
+                    {
+                        Success = false,
+                        Messages = new List<Message>() {
+                            new Message() { MessageType = Message.MessageTypeEnum.ErrorEnum,
+                            Code = "400", Text = "Invalid request body specified",
+                            Timestamp = DateTime.UtcNow.ToString("o")} }
+                    });
+                }
+
+                var result = registryService.UpdateSubmodelDescriptorById(body).GetAwaiter().GetResult();
+                if (result != null)
+                    return StatusCode(204);
+                else
+                {
+                    return StatusCode(404, new AAS.API.Models.Result()
+                    {
+                        Success = false,
+                        Messages = new List<Message>() {
+                            new Message() { MessageType = Message.MessageTypeEnum.ErrorEnum,
+                            Code = "404", Text = $"Submodel descriptor '{decodedsmIdentifier}' doesn't exist",
+                            Timestamp = DateTime.UtcNow.ToString("o")} }
+                    });
+                }
+            }
+            catch (AASRegistryException aasEx)
+            {
+                return AASRegistryException(aasEx);
+            }
         }
 
         private IActionResult AASRegistryException(AASRegistryException aasEx)
