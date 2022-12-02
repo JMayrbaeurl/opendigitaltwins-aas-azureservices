@@ -159,42 +159,7 @@ namespace AAS.API.Registry.Controllers
             return new ObjectResult(example);
         }
 
-        /// <summary>
-        /// Returns all Asset Administration Shells
-        /// </summary>
-        /// <param name="assetIds">The key-value-pair of an Asset identifier</param>
-        /// <param name="idShort">The Asset Administration Shell’s IdShort</param>
-        /// <response code="200">Requested Asset Administration Shells</response>
-        [HttpGet]
-        [Route("api/v1/shells")]
-        [ValidateModelState]
-        [SwaggerOperation("GetAllAssetAdministrationShells")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<AssetAdministrationShell>), description: "Requested Asset Administration Shells")]
-        public virtual IActionResult GetAllAssetAdministrationShells([FromQuery(Name = "assetIds")]List<IdentifierKeyValuePair> assetIds, [FromQuery]string idShort)
-        {
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<AssetAdministrationShell>));
-            /*
-            string exampleJson = null;
-            exampleJson = "[ \"\", \"\" ]";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<List<AssetAdministrationShell>>(exampleJson)
-                        : default(List<AssetAdministrationShell>);            //TODO: Change the data returned
-            return new ObjectResult(example);
-            */
-            if (idShort != null && idShort.Length > 0)
-            {
-                return new ObjectResult(repository.GetAllAssetAdministrationShellsByIdShort(idShort).GetAwaiter().GetResult());
-            }
-            else
-            {
-                if (assetIds != null && assetIds.Count > 0)
-                    return new ObjectResult(repository.GetAllAssetAdministrationShellsByAssetId(assetIds).GetAwaiter().GetResult());
-                else 
-                    return new ObjectResult(repository.GetAllAdministrationShells().GetAwaiter().GetResult());
-            }
-        }
+        
 
         /// <summary>
         /// Returns all Concept Descriptions

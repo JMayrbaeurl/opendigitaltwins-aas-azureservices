@@ -1,123 +1,66 @@
-﻿using AAS.API.Models;
+﻿using System;
+using AAS.API.Models;
 using AAS.API.Services.ADT;
 using Azure;
 using Azure.DigitalTwins.Core;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using AdtModels.AdtModels;
+using System.Text.Json.Serialization;
+using System.Xml.Linq;
+using System.Net.Sockets;
+using AAS_Services_Support.ADT_Support;
+
 
 namespace AAS.API.Repository
 {
-    public class ADTAASRepository : AbstractADTAASService, AASRepository
+    public class ADTAASRepository : AASRepository
     {
-        private ADTAASModelFactory modelFactory = new ADTAASModelFactory();
+        private readonly ADTAASModelFactory _modelFactory;
+        private readonly AdtInteractions _adtInteractions;
 
-        public ADTAASRepository(DigitalTwinsClient client) : base(client)
+        public ADTAASRepository(DigitalTwinsClient client) //: base(client)
         {
+            _modelFactory = new ADTAASModelFactory(client);
+            _adtInteractions = new AdtInteractions(client);
         }
+
 
         public async Task<List<AssetAdministrationShell>> GetAllAdministrationShells()
         {
-            return await ReadAASFromQuery(GetStdAASQueryString());
+            var ids = GetAllAasIds();
+            var shells = new List<AssetAdministrationShell>();
+            foreach (var id in ids)
+            {
+                shells.Add(_modelFactory.GetAasWithId(id));
+            }
+            return shells;
         }
 
-        public async Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShellsByIdShort(string withIdShort)
+        public Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShellsByAssetId(List<IdentifierKeyValuePair> assetIds)
         {
-            string query = GetStdAASQueryString() + $" AND idShort = '{withIdShort}'";
-
-            return await ReadAASFromQuery(query);
+            throw new NotImplementedException();
         }
 
-        public async Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShellsByAssetId(List<IdentifierKeyValuePair> assetIds)
+        public Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShellsByIdShort(string withIdShort)
         {
-            List<AssetAdministrationShell> result = new List<AssetAdministrationShell>();
-
-            foreach (IdentifierKeyValuePair identifier in assetIds)
-            {
-                if (identifier.Key != null && identifier.Value != null)
-                {
-                    List<string> idDTIds = await ReadIdentifers(identifier.Key, identifier.Value);
-                    foreach (string idDTId in idDTIds)
-                    {
-                        result.AddRange(await ReadAllAASwithIdentifierKeyValuePairInstance(idDTId));
-                    }
-                }
-            }
-
-            return result;
+            throw new NotImplementedException();
         }
 
-        private async Task<List<AssetAdministrationShell>> ReadAASFromQuery(string queryString)
+        public List<string> GetAllAasIds()
         {
-            List<AssetAdministrationShell> result = new List<AssetAdministrationShell>();
-
-            try
-            {
-                AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
-                await foreach (BasicDigitalTwin twin in twins)
-                {
-                    result.Add(modelFactory.CreateAASFromBasicDigitalTwin(twin));
-                }
-            }
-            catch (RequestFailedException exc)
-            {
-                //log.LogError($"*** Error in retrieving parent:{exc.Status}/{exc.Message}");
-                throw new AASRepositoryException($"*** Error in retrieving AAS:{exc.Status}/{exc.Message}");
-            }
-
-            return result;
+            return _adtInteractions.GetAllAasIds();
         }
 
-        private async Task<List<AssetAdministrationShell>> ReadAllAASwithIdentifierKeyValuePairInstance(string dtId)
+        public AssetAdministrationShell GetAdministrationShellForAasId(string aasId)
         {
-            List<AssetAdministrationShell> result = new List<AssetAdministrationShell>();
-
-            string queryString = $"SELECT AAS FROM digitaltwins AAS JOIN AASInfo RELATED AAS.assetInformation JOIN AASID RELATED AASInfo.specificAssetId WHERE AASID.$dtId = '{dtId}'";
-
-            try
-            {
-                AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
-                await foreach (BasicDigitalTwin twin in twins)
-                {
-                    result.Add(modelFactory.CreateAASFromJsonElement((System.Text.Json.JsonElement)twin.Contents["AAS"]));
-                }
-            }
-            catch (RequestFailedException exc)
-            {
-                //log.LogError($"*** Error in retrieving parent:{exc.Status}/{exc.Message}");
-                throw new AASRepositoryException($"*** Error in retrieving AAS:{exc.Status}/{exc.Message}");
-            }
-
-            return result;
+            throw new NotImplementedException();
         }
-
-        private async Task<List<string>> ReadIdentifers(string key, string value)
-        {
-            List<string> result = new List<string>();
-
-            string queryString = $"SELECT * FROM digitaltwins WHERE IS_OF_MODEL('dtmi:digitaltwins:aas:IdentifierKeyValuePair;1') and key = '{key}' and value = '{value}'";
-
-            try
-            {
-                AsyncPageable<BasicDigitalTwin> twins = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
-                await foreach (BasicDigitalTwin twin in twins)
-                {
-                    result.Add(twin.Id);
-                }
-            }
-            catch (RequestFailedException exc)
-            {
-                //log.LogError($"*** Error in retrieving parent:{exc.Status}/{exc.Message}");
-                throw new AASRepositoryException($"*** Error in retrieving AAS:{exc.Status}/{exc.Message}");
-            }
-
-            return result;
-        }
-
-        private string GetStdAASQueryString()
-        {
-            return $"SELECT * FROM digitaltwins WHERE IS_OF_MODEL('{ADTConstants.AAS_MODEL_NAME}')";
-        }
-
-
     }
+
+    
+
 }

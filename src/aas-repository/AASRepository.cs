@@ -11,6 +11,9 @@ namespace AAS.API.Repository
 {
     public interface AASRepository : ShellRepository
     {
+        public List<string> GetAllAasIds();
+        public AssetAdministrationShell GetAdministrationShellForAasId(string aasId);
+
     }
 
     public class AASRepositoryException : AASServiceException

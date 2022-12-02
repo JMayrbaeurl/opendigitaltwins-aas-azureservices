@@ -1,19 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>AAS.API.Repository</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.DigitalTwins.Core" Version="1.4.0" />
-    <PackageReference Include="Azure.Identity" Version="1.8.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
-    <ProjectReference Include="..\aas-services-support\AAS Services Support.csproj" />
   </ItemGroup>
 
 </Project>

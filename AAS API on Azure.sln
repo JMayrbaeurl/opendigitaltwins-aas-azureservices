@@ -4,16 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS WebApp Repository", "src\aas-api-webapp-repository\AAS WebApp Repository.csproj", "{37E281C2-FC84-4BD9-AFB5-AC55A9D92B0F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C82208F3-1191-4284-8D92-2E70C804E028} = {C82208F3-1191-4284-8D92-2E70C804E028}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS API Models", "src\aas-api-models\AAS API Models.csproj", "{8246142F-9B71-424D-A219-9F4BA4C4B77B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Repository", "src\aas-repository\AAS Repository.csproj", "{71AD2742-04E6-4C8C-8D94-C061DEE9D5A3}"
-	ProjectSection(ProjectDependencies) = postProject
-		{C82208F3-1191-4284-8D92-2E70C804E028} = {C82208F3-1191-4284-8D92-2E70C804E028}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Repository Tests", "src\aas-repository-tests\AAS Repository Tests.csproj", "{2295DDEC-6AD9-41A5-82A9-FA72BFBC98E8}"
 EndProject
@@ -21,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS WebApp full", "src\aas-
 	ProjectSection(ProjectDependencies) = postProject
 		{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01} = {E657B3A4-0D61-4EDB-8B42-E3B137D1AC01}
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Services Support", "src\aas-services-support\AAS Services Support.csproj", "{C82208F3-1191-4284-8D92-2E70C804E028}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Discovery Service", "src\aas-discovery-service\AAS Discovery Service.csproj", "{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01}"
 EndProject
@@ -41,6 +33,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS WebApp Registry", "src\aas-api-webapp-registry\AAS WebApp Registry.csproj", "{B3AA9231-9B5E-4A71-AE05-57A687CD9097}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AASX Package Command line", "tools\aasx-cmdline\AASX Package Command line.csproj", "{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B28ED681-5E82-4DDF-9F0E-986383CA5036} = {B28ED681-5E82-4DDF-9F0E-986383CA5036}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AASX Package Command line Tests", "tools\aasx-cmdline-tests\AASX Package Command line Tests.csproj", "{5BBB7304-26FC-4690-BEF4-59782E720A68}"
 EndProject
@@ -71,6 +66,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Model Generator", "Model Ge
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aas-model-generator", "tools\aas-model-generator\aas-model-generator.csproj", "{620930EE-63A3-452B-B2DA-7E24B9100704}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AasxCsharpLibrary", "..\aasx-package-explorer\src\AasxCsharpLibrary\AasxCsharpLibrary.csproj", "{B28ED681-5E82-4DDF-9F0E-986383CA5036}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Services Support Test", "src\aas-services-support-tests\AAS Services Support Test.csproj", "{523C5777-63CE-446D-83FA-E81DDEE35D37}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdtModels", "src\adt-models\AdtModels.csproj", "{6F6F5E00-E2D2-42D2-88FB-623E501553E2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS Services Support", "src\aas-services-support\AAS Services Support.csproj", "{E1FD2ACC-918B-40E2-A735-B1B3D61CBFC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,10 +100,6 @@ Global
 		{5E55C6F8-30F0-46BC-8637-D5B397E04D6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E55C6F8-30F0-46BC-8637-D5B397E04D6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E55C6F8-30F0-46BC-8637-D5B397E04D6B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C82208F3-1191-4284-8D92-2E70C804E028}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C82208F3-1191-4284-8D92-2E70C804E028}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C82208F3-1191-4284-8D92-2E70C804E028}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C82208F3-1191-4284-8D92-2E70C804E028}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -153,6 +152,22 @@ Global
 		{620930EE-63A3-452B-B2DA-7E24B9100704}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{620930EE-63A3-452B-B2DA-7E24B9100704}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{620930EE-63A3-452B-B2DA-7E24B9100704}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B28ED681-5E82-4DDF-9F0E-986383CA5036}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B28ED681-5E82-4DDF-9F0E-986383CA5036}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B28ED681-5E82-4DDF-9F0E-986383CA5036}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B28ED681-5E82-4DDF-9F0E-986383CA5036}.Release|Any CPU.Build.0 = Release|Any CPU
+		{523C5777-63CE-446D-83FA-E81DDEE35D37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{523C5777-63CE-446D-83FA-E81DDEE35D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{523C5777-63CE-446D-83FA-E81DDEE35D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{523C5777-63CE-446D-83FA-E81DDEE35D37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F6F5E00-E2D2-42D2-88FB-623E501553E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F6F5E00-E2D2-42D2-88FB-623E501553E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F6F5E00-E2D2-42D2-88FB-623E501553E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F6F5E00-E2D2-42D2-88FB-623E501553E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1FD2ACC-918B-40E2-A735-B1B3D61CBFC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1FD2ACC-918B-40E2-A735-B1B3D61CBFC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1FD2ACC-918B-40E2-A735-B1B3D61CBFC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1FD2ACC-918B-40E2-A735-B1B3D61CBFC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -163,7 +178,6 @@ Global
 		{71AD2742-04E6-4C8C-8D94-C061DEE9D5A3} = {60E05FDD-8466-4A85-AF46-82C451B53C37}
 		{2295DDEC-6AD9-41A5-82A9-FA72BFBC98E8} = {60E05FDD-8466-4A85-AF46-82C451B53C37}
 		{5E55C6F8-30F0-46BC-8637-D5B397E04D6B} = {498C9BA9-D946-4D8B-BB37-AD0FC939D457}
-		{C82208F3-1191-4284-8D92-2E70C804E028} = {FC582922-7227-4B4C-8FE2-28BEB8D06AF4}
 		{E657B3A4-0D61-4EDB-8B42-E3B137D1AC01} = {6667EF7A-F23F-46AD-B3C7-BE52355F6BE7}
 		{A1582F1D-ED33-4197-A7C8-73BA6802435D} = {37B709F4-6530-461C-BB69-2E96286F7F67}
 		{E3D5DCB3-4CA1-4833-8A86-DA3D33D1748E} = {37B709F4-6530-461C-BB69-2E96286F7F67}
@@ -179,6 +193,9 @@ Global
 		{FC067E73-FA78-472C-A100-2BE5F7B8A379} = {FC582922-7227-4B4C-8FE2-28BEB8D06AF4}
 		{26579DD3-6E6F-4959-8289-9A23C2A57997} = {D3185476-EC73-4773-BA8D-E19147F729AE}
 		{620930EE-63A3-452B-B2DA-7E24B9100704} = {26579DD3-6E6F-4959-8289-9A23C2A57997}
+		{523C5777-63CE-446D-83FA-E81DDEE35D37} = {FC582922-7227-4B4C-8FE2-28BEB8D06AF4}
+		{6F6F5E00-E2D2-42D2-88FB-623E501553E2} = {FC582922-7227-4B4C-8FE2-28BEB8D06AF4}
+		{E1FD2ACC-918B-40E2-A735-B1B3D61CBFC5} = {FC582922-7227-4B4C-8FE2-28BEB8D06AF4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3B9D5232-0DAC-44CB-B879-A2E20EC77D59}
