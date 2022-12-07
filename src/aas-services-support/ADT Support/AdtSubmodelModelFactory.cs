@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AAS.API.Models;
+using AasCore.Aas3_0_RC02;
+//using AAS.API.Models;
 using AdtModels.AdtModels;
 using Azure.DigitalTwins.Core;
 
@@ -37,12 +38,11 @@ namespace AAS_Services_Support.ADT_Support
 
         private Submodel CreateSubmodelFromAdtSubmodel(AdtSubmodel adtSubmodel)
         {
-            Submodel submodel = new Submodel();
+            Submodel submodel = new Submodel(adtSubmodel.Id);
             submodel.Category = adtSubmodel.Category;
-            submodel.Id = adtSubmodel.Id;
             submodel.Checksum = adtSubmodel.Checksum;
             submodel.IdShort = adtSubmodel.IdShort;
-            submodel.Kind = adtSubmodel.Kind.Kind == "Instance" ? ModelingKind.InstanceEnum : ModelingKind.TemplateEnum;
+            submodel.Kind = adtSubmodel.Kind.Kind == "Instance" ? ModelingKind.Instance : ModelingKind.Template;
             submodel.Description = ConvertAdtLangStringToGeneraLangString(adtSubmodel.Description);
             submodel.DisplayName = ConvertAdtLangStringToGeneraLangString(adtSubmodel.DisplayName);
             //submodel.SemanticId = GetSemanticId(adtSubmodel.dtId);
@@ -51,9 +51,9 @@ namespace AAS_Services_Support.ADT_Support
             return submodel;
         }
 
-        private List<SubmodelElement> GetAllSubmodelElementsForAdtTwinId(string adtTwinId)
+        private List<ISubmodelElement> GetAllSubmodelElementsForAdtTwinId(string adtTwinId)
         {
-            List<SubmodelElement> submodelElements = new List<SubmodelElement>();
+            List<ISubmodelElement> submodelElements = new List<ISubmodelElement>();
             var adtSubmodelElements = _adtInteractions.GetAdtSubmodelElementsFromParentTwinWithId(adtTwinId);
             foreach (var adtSubmodelElement in adtSubmodelElements)
             {
@@ -62,35 +62,35 @@ namespace AAS_Services_Support.ADT_Support
             return submodelElements;
         }
 
-        private SubmodelElement CreateSubmodelElementFromAdtSubmodelElement(AdtSubmodelElement adtSubmodelElement)
+        private ISubmodelElement CreateSubmodelElementFromAdtSubmodelElement(AdtSubmodelElement adtSubmodelElement)
         {
-            var sme = new SubmodelElement();
+            var sme = new SubmodelElementCollection();
             
-            var adtSmeType = adtSubmodelElement.GetType();
-            if (adtSmeType == typeof(AdtProperty))
-            {
-                sme.ModelType = ModelType.PropertyEnum;
-            }
-            else if (adtSmeType == typeof(AdtSubmodelElementCollection))
-            {
-                sme.ModelType = ModelType.SubmodelElementCollectionEnum;
-            }
-            else if (adtSmeType == typeof(AdtFile))
-            {
-                sme.ModelType = ModelType.FileEnum;
-            }
-            else
-            {
-                throw new AdtException($"SubmodelElementType {adtSubmodelElement.GetType()} ist not supported for conversion");
-            }
-            sme.Kind = adtSubmodelElement.Kind.Kind == "Instance"
-                ? ModelingKind.InstanceEnum
-                : ModelingKind.TemplateEnum;
-            sme.DisplayName = ConvertAdtLangStringToGeneraLangString(adtSubmodelElement.DisplayName);
-            sme.Description = ConvertAdtLangStringToGeneraLangString(adtSubmodelElement.Description);
-            sme.Category = adtSubmodelElement.Category;
-            sme.Checksum = adtSubmodelElement.Checksum;
-            sme.IdShort = adtSubmodelElement.IdShort;
+            //var adtSmeType = adtSubmodelElement.GetType();
+            //if (adtSmeType == typeof(AdtProperty))
+            //{
+            //    sme.ModelType = ModelType.Property;
+            //}
+            //else if (adtSmeType == typeof(AdtSubmodelElementCollection))
+            //{
+            //    sme.ModelType = ModelType.SubmodelElementCollectionEnum;
+            //}
+            //else if (adtSmeType == typeof(AdtFile))
+            //{
+            //    sme.ModelType = ModelType.FileEnum;
+            //}
+            //else
+            //{
+            //    throw new AdtException($"SubmodelElementType {adtSubmodelElement.GetType()} ist not supported for conversion");
+            //}
+            //sme.Kind = adtSubmodelElement.Kind.Kind == "Instance"
+            //    ? ModelingKind.InstanceEnum
+            //    : ModelingKind.TemplateEnum;
+            //sme.DisplayName = ConvertAdtLangStringToGeneraLangString(adtSubmodelElement.DisplayName);
+            //sme.Description = ConvertAdtLangStringToGeneraLangString(adtSubmodelElement.Description);
+            //sme.Category = adtSubmodelElement.Category;
+            //sme.Checksum = adtSubmodelElement.Checksum;
+            //sme.IdShort = adtSubmodelElement.IdShort;
 
             return sme;
         }

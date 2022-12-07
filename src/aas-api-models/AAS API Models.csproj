@@ -10,4 +10,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\aas-core3.0rc02-csharp\src\AasCore.Aas3_0_RC02\AasCore.Aas3_0_RC02.csproj" />
+  </ItemGroup>
+
 </Project>

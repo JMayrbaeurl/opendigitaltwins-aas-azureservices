@@ -1,5 +1,4 @@
 ﻿using System;
-using AAS.API.Models;
 using AAS.API.Services.ADT;
 using Azure;
 using Azure.DigitalTwins.Core;
@@ -13,6 +12,7 @@ using System.Text.Json.Serialization;
 using System.Xml.Linq;
 using System.Net.Sockets;
 using AAS_Services_Support.ADT_Support;
+using AasCore.Aas3_0_RC02;
 
 
 namespace AAS.API.Repository
@@ -40,7 +40,7 @@ namespace AAS.API.Repository
             return shells;
         }
 
-        public Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShellsByAssetId(List<IdentifierKeyValuePair> assetIds)
+        public Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShellsByAssetId(List<SpecificAssetId> assetIds)
         {
             throw new NotImplementedException();
         }

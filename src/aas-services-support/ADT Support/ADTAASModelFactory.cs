@@ -1,4 +1,4 @@
-﻿using AAS.API.Models;
+﻿//using AAS.API.Models;
 using Azure;
 using Azure.DigitalTwins.Core;
 using System;
@@ -12,6 +12,7 @@ using AdtModels.AdtModels;
 using System.Threading.Tasks;
 using AAS_Services_Support.ADT_Support;
 using AAS.API.Interfaces;
+using AasCore.Aas3_0_RC02;
 
 namespace AAS.API.Services.ADT
 {
@@ -67,8 +68,9 @@ namespace AAS.API.Services.ADT
 
         private AssetAdministrationShell ConvertAdtAasToAas(AdtAas adtAas)
         {
-            var aas = new AssetAdministrationShell();
-            aas.Id = adtAas.Id;
+            // TODO Add Asset Information
+            var assetInformation = new AssetInformation(AssetKind.Instance);
+            var aas = new AssetAdministrationShell(adtAas.Id,assetInformation);
             aas.IdShort = adtAas.IdShort;
             aas.DisplayName = ConvertAdtLangStringToGeneraLangString(adtAas.DisplayName);
             aas.Description = ConvertAdtLangStringToGeneraLangString(adtAas.Description);
@@ -89,53 +91,42 @@ namespace AAS.API.Services.ADT
 
         private AssetInformation CreateAssetInformationFromAdtAssetInformation(AdtAssetInformation adtAssetInformation)
         {
-            var assetInformation = new AssetInformation();
-            assetInformation.AssetKind = adtAssetInformation.AssetKind.AssetKind == "Instance"
-                ? AssetKind.InstanceEnum
-                : AssetKind.TypeEnum;
-            var globalAssetId = new Reference();
-            globalAssetId.Keys = new List<Key>();
-            var key = new Key();
-            key.Value = adtAssetInformation.GlobalAssetId;
-            key.Type = KeyTypes.GlobalReferenceEnum;
-            globalAssetId.Keys.Add(key);
+            var assetKind = adtAssetInformation.AssetKind.AssetKind == "Instance"
+                ? AssetKind.Instance
+                : AssetKind.Type;
+            var assetInformation = new AssetInformation(assetKind);
+            
+            var key = new Key(KeyTypes.GlobalReference,adtAssetInformation.GlobalAssetId );
+            var globalAssetId = new Reference(ReferenceTypes.GlobalReference,new List<Key>(){key});
             assetInformation.GlobalAssetId = globalAssetId;
 
             assetInformation.SpecificAssetIds = new List<SpecificAssetId>();
-            var specificAssetId = new SpecificAssetId();
-            specificAssetId.Value = adtAssetInformation.SpecificAssetId;
-            assetInformation.SpecificAssetIds.Add(specificAssetId);
-
+            
+            // TODO implement specific AssetId
+            var specificRawAssetIds = adtAssetInformation.SpecificAssetId.Split(',');
+            foreach (var specificRawAssetId in specificRawAssetIds)
+            {
+                var temp = specificRawAssetId.Replace(" ","").Split(")");
+                //TODO Not just create dummy reference
+                var specificAssetId = new SpecificAssetId(temp[0].Replace("(",""), temp[1],
+                    new Reference(ReferenceTypes.GlobalReference,new List<Key>()));
+                assetInformation.SpecificAssetIds.Add(specificAssetId);
+            }
             return assetInformation;
 
         }
         private static Reference GetSubmodelReferenceFromAdtSubmodel(AdtSubmodel submodel)
         {
-            var reference = new Reference();
-            reference.Keys = new List<Key>();
-            var key = new Key();
-            key.Value = submodel.Id;
-            key.Type = KeyTypes.SubmodelEnum;
-            reference.Keys.Add(key);
-
-            reference.Type = ReferenceTypes.ModelReferenceEnum;
+            var reference = new Reference(ReferenceTypes.ModelReference,new List<Key>(){ new Key(KeyTypes.Submodel,submodel.Id) });
             return reference;
         }
 
         private static Reference CreateDerivedFromFromAdtAas(AdtAas aas)
         {
-            var derivedFrom = new Reference();
+            var keys = new List<Key>()
+                { new Key(KeyTypes.AssetAdministrationShell, aas.Id) };
 
-            derivedFrom.Keys = new List<Key>()
-                { new() { Type = KeyTypes.AssetAdministrationShellEnum, Value = aas.Id } };
-
-            if (derivedFrom.Keys == null)
-            {
-                return null;
-            }
-
-            derivedFrom.Type = ReferenceTypes.ModelReferenceEnum;
-            return derivedFrom;
+           return new Reference(ReferenceTypes.ModelReference, keys);
         }
 
         

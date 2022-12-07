@@ -1,4 +1,4 @@
-﻿using AAS.API.Models;
+﻿//using AAS.API.Models;
 using AdtModels.AdtModels;
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Azure.DigitalTwins.Core;
 using System.Reflection;
 using AAS.API.Services.ADT;
+using AasCore.Aas3_0_RC02;
 
 namespace AAS_Services_Support.ADT_Support
 {
@@ -23,7 +24,7 @@ namespace AAS_Services_Support.ADT_Support
             }
             foreach (var langString in adtLangString.LangStrings)
             {
-                languageStrings.Add(new LangString() { Language = langString.Key, Text = langString.Value });
+                languageStrings.Add(new LangString(langString.Key, langString.Value ));
             }
 
             return languageStrings;
@@ -48,10 +49,10 @@ namespace AAS_Services_Support.ADT_Support
 
         public Reference ConvertAdtReferenceToGeneralReference(AdtReference adtReference)
         {
-            var reference= new Reference();
-            reference.Type = adtReference.Type == "ModelReference"
-                ? ReferenceTypes.ModelReferenceEnum
-                : ReferenceTypes.GlobalReferenceEnum;
+            var referenceType = adtReference.Type == "ModelReference"
+                ? ReferenceTypes.ModelReference
+                : ReferenceTypes.GlobalReference;
+            var reference= new Reference(referenceType,new List<Key>());
             reference.Keys = new List<Key>();
             
             for (int i = 0; i < 8; i++)
@@ -68,25 +69,19 @@ namespace AAS_Services_Support.ADT_Support
 
         public Key ConvertAdtKeyToGeneralKey(AdtKey adtKey)
         {
-            var keyTypeString = $"{adtKey.Type}Enum";
-            var key = new Key();
-            key.Type = (KeyTypes)Enum.Parse(typeof(KeyTypes), keyTypeString);
-            key.Value= adtKey.Value;
-            return key;
+            return new Key((KeyTypes)Enum.Parse(typeof(KeyTypes), adtKey.Type), adtKey.Value);
         }
 
         public EmbeddedDataSpecification CreateEmbeddedDataSpecificationFromAdtDataSpecification(AdtDataSpecification twin)
         {
-            var dataSpecification = new Reference();
-            dataSpecification.Type = ReferenceTypes.GlobalReferenceEnum;
-            dataSpecification.Keys = new List<Key>()
-                { new() { Type = KeyTypes.GlobalReferenceEnum, Value = twin.UnitIdValue } };
-
-            var embeddedDataSpecification = new EmbeddedDataSpecification();
-            embeddedDataSpecification.DataSpecification = dataSpecification;
+            var keys = new List<Key>()
+                { new Key(KeyTypes.GlobalReference, twin.UnitIdValue) };
+            var dataSpecification = new Reference(ReferenceTypes.GlobalReference,keys);
+            
 
             // TODO implement DataSpecificationContent
-            embeddedDataSpecification.DataSpecificationContent = new DataSpecificationContent();
+            var dummyDataSpecificationContent = new DataSpecificationIec61360(new List<LangString>(){new LangString("de","dummy")}); var embeddedDataSpecification = new EmbeddedDataSpecification(dataSpecification,dummyDataSpecificationContent);
+
             return embeddedDataSpecification;
         }
     }

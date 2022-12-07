@@ -13,6 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\aas-core3.0rc02-csharp\src\AasCore.Aas3_0_RC02\AasCore.Aas3_0_RC02.csproj" />
+    <ProjectReference Include="..\..\tools\aasx-cmdline\AASX Package Command line.csproj" />
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
     <ProjectReference Include="..\adt-models\AdtModels.csproj" />
   </ItemGroup>

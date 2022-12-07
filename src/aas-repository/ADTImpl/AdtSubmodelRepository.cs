@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AAS.API.Models;
 using AAS_Services_Support.ADT_Support;
+using AasCore.Aas3_0_RC02;
 
 namespace AAS.API.Repository.ADTImpl
 {
