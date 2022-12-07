@@ -15,13 +15,13 @@ using AAS.API.Interfaces;
 
 namespace AAS.API.Services.ADT
 {
-    public class ADTAASModelFactory
+    public class ADTAASModelFactory : AdtGeneralModelFactory
     {
-        private readonly AdtInteractions _adtInteractions;
+        private readonly IAdtInteractions _adtInteractions;
 
-        public ADTAASModelFactory(DigitalTwinsClient client)
+        public ADTAASModelFactory(IAdtInteractions adtInteractions) : base()
         {
-            _adtInteractions = new AdtInteractions(client);
+            _adtInteractions = adtInteractions;
         }
 
         public AssetAdministrationShell GetAasWithId(string aasId)
@@ -76,21 +76,6 @@ namespace AAS.API.Services.ADT
             aas.Administration = convertAdtAdministrationToAdministrativeInformation(adtAas.Administration);
             aas.Checksum = adtAas.Checksum;
             return aas;
-        }
-
-        private List<LangString> ConvertAdtLangStringToGeneraLangString(AdtLanguageString adtLangString)
-        {
-            var languageStrings = new List<LangString>();
-            if (adtLangString.LangStrings == null)
-            {
-                return null;
-            }
-            foreach (var langString in adtLangString.LangStrings)
-            {
-                languageStrings.Add(new LangString() { Language = langString.Key, Text = langString.Value });
-            }
-
-            return languageStrings;
         }
 
         private AdministrativeInformation convertAdtAdministrationToAdministrativeInformation(
@@ -153,19 +138,6 @@ namespace AAS.API.Services.ADT
             return derivedFrom;
         }
 
-        private EmbeddedDataSpecification CreateEmbeddedDataSpecificationFromAdtDataSpecification(AdtDataSpecification twin)
-        {
-            var dataSpecification = new Reference();
-            dataSpecification.Type = ReferenceTypes.GlobalReferenceEnum;
-            dataSpecification.Keys = new List<Key>()
-            { new() { Type = KeyTypes.GlobalReferenceEnum, Value = twin.UnitIdValue } };
-
-            var embeddedDataSpecification = new EmbeddedDataSpecification();
-            embeddedDataSpecification.DataSpecification = dataSpecification;
-
-            // TODO implement DataSpecificationContent
-            embeddedDataSpecification.DataSpecificationContent = new DataSpecificationContent();
-            return embeddedDataSpecification;
-        }
+        
     }
 }

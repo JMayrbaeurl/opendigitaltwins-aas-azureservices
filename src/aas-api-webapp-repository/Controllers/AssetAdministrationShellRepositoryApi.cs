@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 using Microsoft.Extensions.Configuration;
 using AAS.API.Repository;
+using AAS_Services_Support.ADT_Support;
 
 namespace AAS.API.Registry.Controllers
 { 
@@ -38,11 +39,11 @@ namespace AAS.API.Registry.Controllers
         /// <summary>
         /// 
         /// </summary>
-        public AssetAdministrationShellRepositoryApiController(IConfiguration config) : base()
+        public AssetAdministrationShellRepositoryApiController(IConfiguration config, IAdtInteractions adtInteractions) : base()
         {
             _configuration = config;
 
-            repository = new AASRepositoryFactory().CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]);
+            repository = new AASRepositoryFactory(adtInteractions).CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]);
         }
 
         /// <summary>
@@ -263,30 +264,6 @@ namespace AAS.API.Registry.Controllers
         }
 
         /// <summary>
-        /// Returns all Submodels
-        /// </summary>
-        /// <param name="semanticId">The value of the semantic id reference (BASE64-URL-encoded)</param>
-        /// <param name="idShort">The Submodel’s idShort</param>
-        /// <response code="200">Requested Submodels</response>
-        [HttpGet]
-        [Route("api/v1/submodels")]
-        [ValidateModelState]
-        [SwaggerOperation("GetAllSubmodels")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<Submodel>), description: "Requested Submodels")]
-        public virtual IActionResult GetAllSubmodels([FromQuery]string semanticId, [FromQuery]string idShort)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<Submodel>));
-            string exampleJson = null;
-            exampleJson = "[ \"\", \"\" ]";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<List<Submodel>>(exampleJson)
-                        : default(List<Submodel>);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
         /// Returns the Asset Administration Shell
         /// </summary>
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
@@ -310,28 +287,7 @@ namespace AAS.API.Registry.Controllers
             return new ObjectResult(example);
         }
 
-        /// <summary>
-        /// Returns a specific Asset Administration Shell
-        /// </summary>
-        /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
-        /// <response code="200">Requested Asset Administration Shell</response>
-        [HttpGet]
-        [Route("api/v1/shells/{aasIdentifier}")]
-        [ValidateModelState]
-        [SwaggerOperation("GetAssetAdministrationShellById")]
-        [SwaggerResponse(statusCode: 200, type: typeof(AssetAdministrationShell), description: "Requested Asset Administration Shell")]
-        public virtual IActionResult GetAssetAdministrationShellById([FromRoute][Required]string aasIdentifier)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(AssetAdministrationShell));
-            string exampleJson = null;
-            exampleJson = "\"\"";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<AssetAdministrationShell>(exampleJson)
-                        : default(AssetAdministrationShell);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        
 
         /// <summary>
         /// Returns the Asset Information

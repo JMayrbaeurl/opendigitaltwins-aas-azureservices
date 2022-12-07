@@ -20,12 +20,12 @@ namespace AAS.API.Repository
     public class ADTAASRepository : AASRepository
     {
         private readonly ADTAASModelFactory _modelFactory;
-        private readonly AdtInteractions _adtInteractions;
+        private readonly IAdtInteractions _adtInteractions;
 
-        public ADTAASRepository(DigitalTwinsClient client) //: base(client)
+        public ADTAASRepository(DigitalTwinsClient client, IAdtInteractions adtInteractions) //: base(client)
         {
-            _modelFactory = new ADTAASModelFactory(client);
-            _adtInteractions = new AdtInteractions(client);
+            _modelFactory = new ADTAASModelFactory(adtInteractions);
+            _adtInteractions = adtInteractions;
         }
 
 
@@ -48,6 +48,11 @@ namespace AAS.API.Repository
         public Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShellsByIdShort(string withIdShort)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<AssetAdministrationShell> GetAssetAdministrationShellWithId(string aasIdentifier)
+        {
+            return _modelFactory.GetAasWithId(aasIdentifier);
         }
 
         public List<string> GetAllAasIds()

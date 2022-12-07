@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 using Microsoft.Extensions.Configuration;
 using AAS.API.Repository;
+using AAS_Services_Support.ADT_Support;
 
 namespace AAS.API.Registry.Controllers
 {
@@ -29,12 +30,12 @@ namespace AAS.API.Registry.Controllers
         /// <summary>
         /// 
         /// </summary>
-        public AasRepositoryApi(IConfiguration config) : base()
+        public AasRepositoryApi(IConfiguration config, IAdtInteractions adtInteractions) : base()
         {
             _configuration = config ??
                              throw new ArgumentNullException(nameof(config));
 
-            repository = new AASRepositoryFactory().CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
+            repository = new AASRepositoryFactory(adtInteractions).CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
                          throw new ArgumentNullException(); ;
         }
 
@@ -72,6 +73,22 @@ namespace AAS.API.Registry.Controllers
             // }
         }
 
+        /// <summary>
+        /// Returns a specific Asset Administration Shell
+        /// </summary>
+        /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
+        /// <response code="200">Requested Asset Administration Shell</response>
+        [HttpGet]
+        [Route("api/v1/shells/{aasIdentifier}")]
+        [ValidateModelState]
+        [SwaggerOperation("GetAssetAdministrationShellById")]
+        [SwaggerResponse(statusCode: 200, type: typeof(AssetAdministrationShell), description: "Requested Asset Administration Shell")]
+        public async Task<ActionResult<AssetAdministrationShell>> GetAssetAdministrationShellById([FromRoute][Required] string aasIdentifier)
+        {
+            aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
+            var aas = await repository.GetAssetAdministrationShellWithId(aasIdentifier);
+            return Ok(aas);
+        }
 
     }
 }

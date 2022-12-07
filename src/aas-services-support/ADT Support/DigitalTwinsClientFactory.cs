@@ -4,6 +4,7 @@ using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Net.Http;
+using AAS.API.Registry.Clients;
 
 namespace AAS.API.Services.ADT
 {
@@ -15,17 +16,19 @@ namespace AAS.API.Services.ADT
     public class StdDigitalTwinsClientFactory : DigitalTwinsClientFactory
     {
         private IConfiguration _config;
+        private readonly IAzureDigitalTwinsHttpClient _httpClient;
 
-        public StdDigitalTwinsClientFactory(IConfiguration config)
+        public StdDigitalTwinsClientFactory(IConfiguration config, IAzureDigitalTwinsHttpClient httpClient)
         {
             _config = config;
+            _httpClient = httpClient;
         }
 
         public DigitalTwinsClient CreateClient()
         {
             var credentials = new DefaultAzureCredential();
             DigitalTwinsClient client = new DigitalTwinsClient(new Uri(_config["ADT_SERVICE_URL"]),
-                        credentials, new DigitalTwinsClientOptions { Transport = new HttpClientTransport(new HttpClient()) });
+                        credentials, new DigitalTwinsClientOptions { Transport = new HttpClientTransport(_httpClient.Client) });
 
             return client;
         }

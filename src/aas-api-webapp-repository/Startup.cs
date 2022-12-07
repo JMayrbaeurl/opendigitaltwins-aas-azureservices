@@ -9,6 +9,7 @@
  */
 using System;
 using System.IO;
+using AAS.API.Registry.Clients;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,9 +24,15 @@ using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using AAS.API.Registry.Filters;
 using AAS.API.Registry.Models;
+using AAS.API.Repository;
+using AAS.API.Repository.ADTImpl;
+using AAS.API.Services.ADT;
+using Azure.DigitalTwins.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Azure;
+using AAS_Services_Support.ADT_Support;
 
 namespace AAS.API.Registry
 {
@@ -73,7 +80,13 @@ namespace AAS.API.Registry
                 })
                 .AddXmlSerializerFormatters();
 
-
+            services.AddHttpClient<IAzureDigitalTwinsHttpClient, AzureDigitalTwinsHttpClient>(client =>
+                client.BaseAddress = new Uri(Configuration["ADT_SERVICE_URL"]));
+            services.AddTransient<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
+            services.AddTransient<ISubmodelRepository, AdtSubmodelRepository>();
+            services.AddTransient<IAdtInteractions, AdtInteractions>();
+            services.AddTransient<IAdtSubmodelInteractions, AdtSubmodelInteractions>();
+            
             services
                 .AddSwaggerGen(c =>
                 {
@@ -120,6 +133,7 @@ namespace AAS.API.Registry
                         }
                     });
                 });
+
         }
 
         /// <summary>

@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
 using Microsoft.Extensions.Configuration;
 using AAS.API.Repository;
+using AAS_Services_Support.ADT_Support;
 
 namespace AAS.API.WebApp.Controllers
 {
@@ -38,11 +39,11 @@ namespace AAS.API.WebApp.Controllers
         /// <summary>
         /// 
         /// </summary>
-        public AssetAdministrationShellRepositoryInterfaceApiController(IConfiguration config) : base()
+        public AssetAdministrationShellRepositoryInterfaceApiController(IConfiguration config, IAdtInteractions adtInteractions) : base()
         {
             _configuration = config;
 
-            repository = new AASRepositoryFactory().CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]);
+            repository = new AASRepositoryFactory(adtInteractions).CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]);
         }
 
         /// <summary>

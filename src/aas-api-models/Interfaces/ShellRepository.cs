@@ -13,5 +13,7 @@ namespace AAS.API.Interfaces
         public Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShellsByAssetId(List<IdentifierKeyValuePair> assetIds);
 
         public Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShellsByIdShort(string withIdShort);
+
+        public Task<AssetAdministrationShell> GetAssetAdministrationShellWithId(string aasIdentifier);
     }
 }
