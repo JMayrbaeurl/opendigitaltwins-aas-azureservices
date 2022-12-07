@@ -17,8 +17,7 @@ namespace AdtModels.AdtModels
         [JsonPropertyName("checksum")]
         public string? Checksum { get; set; }
 
-        [JsonPropertyName("description")]
-        public AdtLanguageString? Description { get; set; }
+        
 
         
 

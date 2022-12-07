@@ -30,5 +30,8 @@ namespace AdtModels.AdtModels
 
         [JsonPropertyName("administration")]
         public AdtAdministration? Administration { get; set; }
+
+        [JsonPropertyName("description")]
+        public AdtLanguageString? Description { get; set; }
     }
 }

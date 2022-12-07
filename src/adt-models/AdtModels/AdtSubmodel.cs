@@ -13,8 +13,11 @@ namespace AdtModels.AdtModels
         [JsonPropertyName("category")]
         public string Category { get; set; }
 
-        [JsonPropertyName("kind/kind")]
-        public ModelingKind Kind { get; set; }
+        [JsonPropertyName("kind")]
+        public AdtHasKind Kind { get; set; }
+
+        [JsonPropertyName("checksum")]
+        public string? Checksum { get; set; }
 
     }
 }
