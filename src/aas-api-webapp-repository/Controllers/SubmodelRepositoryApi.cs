@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using AAS.API.Models;
 using AAS.API.Registry.Attributes;
@@ -40,7 +41,27 @@ namespace AAS.API.Registry.Controllers
         [SwaggerResponse(statusCode: 200, type: typeof(List<Submodel>), description: "Requested Submodels")]
         public async Task<ActionResult<List<Submodel>>>GetAllSubmodels([FromQuery] string semanticId, [FromQuery] string idShort)
         {
-            return Ok(await _repository.GetAllSubmodels());
+            var result = await _repository.GetAllSubmodels();
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Returns the Submodel
+        /// </summary>
+        /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
+        /// <param name="level">Determines the structural depth of the respective resource content</param>
+        /// <param name="content">Determines the request or response kind of the resource</param>
+        /// <param name="extent">Determines to which extent the resource is being serialized</param>
+        /// <response code="200">Requested Submodel</response>
+        [HttpGet]
+        [Route("{submodelIdentifier}/submodel")]
+        [ValidateModelState]
+        [SwaggerOperation("GetSubmodelSubmodelRepo")]
+        [SwaggerResponse(statusCode: 200, type: typeof(Submodel), description: "Requested Submodel")]
+        public async Task<ActionResult<Submodel>> GetSubmodelSubmodelRepo([FromRoute][Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content, [FromQuery] string extent)
+        {
+            submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
+            return Ok(_repository.GetSubmodelWithId(submodelIdentifier));
         }
     }
 }

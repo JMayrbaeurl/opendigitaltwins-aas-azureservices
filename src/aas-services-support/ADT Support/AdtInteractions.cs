@@ -65,7 +65,6 @@ namespace AAS_Services_Support.ADT_Support
             }
 
             return allAasInformation;
-
         }
 
 
@@ -83,16 +82,17 @@ namespace AAS_Services_Support.ADT_Support
             throw new AdtException($"Could not find twinId for given aasId {aasId}");
         }
 
-        public List<string> GetAllSubmodelTwinIds()
+        public async Task<List<string>> GetAllSubmodelTwinIds()
         {
-            string queryString =
-                "SELECT submodel.$dtId as submodelId FROM digitaltwins submodel where is_of_model('dtmi:digitaltwins:aas:Submodel;1')";
-            var ids = _client.Query<JsonObject>(queryString);
-            var submodelIds = new List<string>();
-            foreach (var submodelId in ids)
-                submodelIds.Add(submodelId["submodelId"].ToString());
-
-            return submodelIds;
+            var submodelTwinIds = new List<string>();
+            var queryString =
+                "Select twin.$dtId as dtId from digitaltwins twin where is_of_model('dtmi:digitaltwins:aas:Submodel') ";
+            var items = _client.QueryAsync<JsonObject>(queryString);
+            await foreach (var item in items)
+            {
+                submodelTwinIds.Add(item["dtId"].ToString());
+            }
+            return submodelTwinIds;
         }
 
         public AdtSubmodel GetAdtSubmodelWithSubmodelId(string submodelId)
@@ -138,6 +138,19 @@ namespace AAS_Services_Support.ADT_Support
             }
 
             return submodelElements;
+        }
+
+        public string GetTwinIdForElementWithId(string Id)
+        {
+            string queryString =
+                $"Select twin.$dtId as dtId from digitaltwins twin where twin.id='{Id}'";
+            var response = _client.Query<JsonObject>(queryString);
+            foreach (var twin in response)
+            {
+                return twin["dtId"].ToString();
+            }
+
+            throw new AdtException($"No Object with Id {Id} found.");
         }
 
         public AdtReference GetSemanticId(string parentTwinId)

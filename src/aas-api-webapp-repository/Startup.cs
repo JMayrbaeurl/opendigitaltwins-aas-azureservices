@@ -83,7 +83,7 @@ namespace AAS.API.Registry
             services.AddHttpClient<IAzureDigitalTwinsHttpClient, AzureDigitalTwinsHttpClient>(client =>
                 client.BaseAddress = new Uri(Configuration["ADT_SERVICE_URL"]));
             services.AddTransient<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
-            services.AddTransient<ISubmodelRepository, AdtSubmodelRepository>();
+            services.AddScoped<ISubmodelRepository, AdtSubmodelRepository>();
             services.AddTransient<IAdtInteractions, AdtInteractions>();
             services.AddTransient<IAdtSubmodelInteractions, AdtSubmodelInteractions>();
             

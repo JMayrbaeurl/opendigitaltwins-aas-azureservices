@@ -470,31 +470,7 @@ namespace AAS.API.Registry.Controllers
             return new ObjectResult(example);
         }
 
-        /// <summary>
-        /// Returns the Submodel
-        /// </summary>
-        /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
-        /// <param name="level">Determines the structural depth of the respective resource content</param>
-        /// <param name="content">Determines the request or response kind of the resource</param>
-        /// <param name="extent">Determines to which extent the resource is being serialized</param>
-        /// <response code="200">Requested Submodel</response>
-        [HttpGet]
-        [Route("api/v1/submodels/{submodelIdentifier}/submodel")]
-        [ValidateModelState]
-        [SwaggerOperation("GetSubmodelSubmodelRepo")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Submodel), description: "Requested Submodel")]
-        public virtual IActionResult GetSubmodelSubmodelRepo([FromRoute][Required]string submodelIdentifier, [FromQuery]string level, [FromQuery]string content, [FromQuery]string extent)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Submodel));
-            string exampleJson = null;
-            exampleJson = "\"\"";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Submodel>(exampleJson)
-                        : default(Submodel);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        
 
         /// <summary>
         /// Synchronously or asynchronously invokes an Operation at a specified path

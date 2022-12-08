@@ -20,6 +20,8 @@ namespace AAS_Services_Support.ADT_Support
             _client = adtClientFactory.CreateClient();
         }
 
+       
+
         public async Task<AdtSubmodelInformation> GetAllInformationForSubmodelWithTwinId(string twinId)
         {
             var adtSubmodelInformation = new AdtSubmodelInformation();
@@ -46,7 +48,7 @@ namespace AAS_Services_Support.ADT_Support
                 items = _client.Query<JsonObject>($"Select twin from digitaltwins twin where twin.$dtId = '{twinId}'");
                 foreach (var item in items)
                 {
-                    adtSubmodelInformation.RootElement = JsonSerializer.Deserialize<AdtSubmodel>(item["twin0"].ToString());
+                    adtSubmodelInformation.RootElement = JsonSerializer.Deserialize<AdtSubmodel>(item["twin"].ToString());
                 }
             }
             return adtSubmodelInformation;

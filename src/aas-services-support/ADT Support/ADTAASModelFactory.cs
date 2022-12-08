@@ -1,5 +1,4 @@
-﻿//using AAS.API.Models;
-using Azure;
+﻿using Azure;
 using Azure.DigitalTwins.Core;
 using System;
 using System.Collections.Generic;

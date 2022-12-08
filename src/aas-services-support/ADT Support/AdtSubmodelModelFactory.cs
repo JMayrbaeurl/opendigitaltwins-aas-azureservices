@@ -26,16 +26,17 @@ namespace AAS_Services_Support.ADT_Support
         {
             var submodelInformation = await _adtSubmodelInteractions.GetAllInformationForSubmodelWithTwinId(submodelTwinId);
             var submodel = CreateSubmodelFromAdtSubmodel(submodelInformation.RootElement);
-            
             foreach (var dataSpecification in submodelInformation.ConcreteAasInformation.dataSpecifications)
             {
                 submodel.EmbeddedDataSpecifications.Add(
                     CreateEmbeddedDataSpecificationFromAdtDataSpecification(dataSpecification));
             }
 
+            submodel.SubmodelElements = GetSubmodelElementsFromAdtSubmodelAndSMCInformation(submodelInformation);
+
             return submodel;
         }
-
+        
         private Submodel CreateSubmodelFromAdtSubmodel(AdtSubmodel adtSubmodel)
         {
             Submodel submodel = new Submodel(adtSubmodel.Id);
@@ -47,52 +48,65 @@ namespace AAS_Services_Support.ADT_Support
             submodel.DisplayName = ConvertAdtLangStringToGeneraLangString(adtSubmodel.DisplayName);
             //submodel.SemanticId = GetSemanticId(adtSubmodel.dtId);
             submodel.EmbeddedDataSpecifications = new List<EmbeddedDataSpecification>();
-            
+            submodel.SubmodelElements = new List<ISubmodelElement>();
             return submodel;
         }
+        
 
-        private List<ISubmodelElement> GetAllSubmodelElementsForAdtTwinId(string adtTwinId)
+        private T UpdateSubmodelElementFromAdtSubmodelElement<T>(T sme, AdtSubmodelElement adtSubmodelElement) where T : ISubmodelElement
         {
-            List<ISubmodelElement> submodelElements = new List<ISubmodelElement>();
-            var adtSubmodelElements = _adtInteractions.GetAdtSubmodelElementsFromParentTwinWithId(adtTwinId);
-            foreach (var adtSubmodelElement in adtSubmodelElements)
-            {
-                submodelElements.Add(CreateSubmodelElementFromAdtSubmodelElement(adtSubmodelElement));
-            }
-            return submodelElements;
-        }
 
-        private ISubmodelElement CreateSubmodelElementFromAdtSubmodelElement(AdtSubmodelElement adtSubmodelElement)
-        {
-            var sme = new SubmodelElementCollection();
-            
-            //var adtSmeType = adtSubmodelElement.GetType();
-            //if (adtSmeType == typeof(AdtProperty))
-            //{
-            //    sme.ModelType = ModelType.Property;
-            //}
-            //else if (adtSmeType == typeof(AdtSubmodelElementCollection))
-            //{
-            //    sme.ModelType = ModelType.SubmodelElementCollectionEnum;
-            //}
-            //else if (adtSmeType == typeof(AdtFile))
-            //{
-            //    sme.ModelType = ModelType.FileEnum;
-            //}
-            //else
-            //{
-            //    throw new AdtException($"SubmodelElementType {adtSubmodelElement.GetType()} ist not supported for conversion");
-            //}
-            //sme.Kind = adtSubmodelElement.Kind.Kind == "Instance"
-            //    ? ModelingKind.InstanceEnum
-            //    : ModelingKind.TemplateEnum;
-            //sme.DisplayName = ConvertAdtLangStringToGeneraLangString(adtSubmodelElement.DisplayName);
-            //sme.Description = ConvertAdtLangStringToGeneraLangString(adtSubmodelElement.Description);
-            //sme.Category = adtSubmodelElement.Category;
-            //sme.Checksum = adtSubmodelElement.Checksum;
-            //sme.IdShort = adtSubmodelElement.IdShort;
+            sme.Kind = adtSubmodelElement.Kind.Kind == "Instance"
+                ? ModelingKind.Instance
+                : ModelingKind.Template;
+            sme.DisplayName = ConvertAdtLangStringToGeneraLangString(adtSubmodelElement.DisplayName);
+            sme.Description = ConvertAdtLangStringToGeneraLangString(adtSubmodelElement.Description);
+            sme.Category = adtSubmodelElement.Category;
+            sme.Checksum = adtSubmodelElement.Checksum;
+            sme.IdShort = adtSubmodelElement.IdShort;
 
             return sme;
         }
+
+        private List<ISubmodelElement> GetSubmodelElementsFromAdtSubmodelAndSMCInformation<T>(AdtSubmodelAndSMCInformation<T> information)
+        {
+            var submodelElements = new List<ISubmodelElement>();
+            foreach (var adtProperty in information.properties)
+            {
+                // TODO support more than just string Properties
+                var property = new Property(DataTypeDefXsd.String);
+                property = UpdateSubmodelElementFromAdtSubmodelElement(property, adtProperty);
+                property.Value = adtProperty.Value;
+                submodelElements.Add(property);
+            }
+
+            foreach (var adtFile in information.files)
+            {
+                var file = new File(adtFile.ContentType);
+                file = UpdateSubmodelElementFromAdtSubmodelElement(file, adtFile);
+                file.Value = adtFile.Value;
+                submodelElements.Add(file);
+            }
+
+            foreach (var smeCollectionInformation in information.smeCollections)
+            {
+                var smeC = CreateSubmodelElementCollectionFromSmeCollectionInformation(smeCollectionInformation);
+                submodelElements.Add(smeC);
+            }
+
+            return submodelElements;
+        }
+
+        private SubmodelElementCollection CreateSubmodelElementCollectionFromSmeCollectionInformation(
+            AdtSubmodelElementCollectionInformation information)
+        {
+            var smeCollection = new SubmodelElementCollection();
+            smeCollection = UpdateSubmodelElementFromAdtSubmodelElement(smeCollection, information.RootElement);
+            smeCollection.Value = GetSubmodelElementsFromAdtSubmodelAndSMCInformation(information);
+
+            return smeCollection;
+        }
+
+        
     }
 }
