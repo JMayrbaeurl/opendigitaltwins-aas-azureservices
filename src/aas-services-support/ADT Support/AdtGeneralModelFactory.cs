@@ -14,7 +14,6 @@ namespace AAS_Services_Support.ADT_Support
 {
     public class AdtGeneralModelFactory
     {
-
         public List<LangString> ConvertAdtLangStringToGeneraLangString(AdtLanguageString adtLangString)
         {
             var languageStrings = new List<LangString>();
@@ -30,8 +29,13 @@ namespace AAS_Services_Support.ADT_Support
             return languageStrings;
         }
 
+
         public Reference GetSemanticId(AdtReference adtReference)
         {
+            if (adtReference.Key1 == null)
+            {
+                return null;
+            }
             var semanticId = ConvertAdtReferenceToGeneralReference(adtReference);
             semanticId.Keys = new List<Key>() { semanticId.Keys[0] };
             return semanticId;

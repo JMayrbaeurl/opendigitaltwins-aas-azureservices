@@ -42,24 +42,21 @@ namespace AAS_Services_Support.ADT_Support
             new Dictionary<string, AdtConceptDescription>();
 
         public Dictionary<string, List<BasicRelationship>> Relationships = new Dictionary<string, List<BasicRelationship>>();
-
-        public Dictionary<string, List<AdtConceptDescription>> conceptDescriptions =
-            new Dictionary<string, List<AdtConceptDescription>>();
     }
 
-    public abstract class AdtSubmodelAndSmcInformation<T> : AdtGeneralAasInformation<T> where T : AdtBase, new()
+    public class AdtSubmodelAndSmcInformation<T> : AdtGeneralAasInformation<T> where T : AdtBase, new()
     {
-        public List<AdtSubmodelElementCollectionInformation> smeCollections = new List<AdtSubmodelElementCollectionInformation>();
+        public List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> smeCollections = new List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>>();
         public List<AdtProperty> properties = new List<AdtProperty>();
         public List<AdtFile> files = new List<AdtFile>();
     }
 
-    public class AdtSubmodelInformation : AdtSubmodelAndSmcInformation<AdtSubmodel>
-    {
-    }
+    //public class AdtSubmodelInformation : AdtSubmodelAndSmcInformation<AdtSubmodel>
+    //{
+    //}
 
-    public class AdtSubmodelElementCollectionInformation :
-        AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>
-    {
-    }
+    //public class AdtSubmodelElementCollectionInformation :
+    //    AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>
+    //{
+    //}
 }

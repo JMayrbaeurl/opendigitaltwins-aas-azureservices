@@ -8,13 +8,13 @@ namespace AAS.API.Repository.ADTImpl
 {
     public class AdtSubmodelRepository : ISubmodelRepository
     {
-        private readonly AdtSubmodelModelFactory _modelFactory;
         private readonly IAdtInteractions _adtInteractions;
+        private readonly IAdtSubmodelInteractions _adtSubmodelInteractions;
 
         public AdtSubmodelRepository(IAdtSubmodelInteractions adtSubmodelInteractions, IAdtInteractions adtInteractions)
         {
-            _modelFactory = new AdtSubmodelModelFactory(adtSubmodelInteractions, adtInteractions);
             _adtInteractions = adtInteractions;
+            _adtSubmodelInteractions = adtSubmodelInteractions;
         }
         public async Task<List<Submodel>> GetAllSubmodels()
         {
@@ -22,7 +22,9 @@ namespace AAS.API.Repository.ADTImpl
             var twinIds = await _adtInteractions.GetAllSubmodelTwinIds();
             foreach (var twinId in twinIds)
             {
-                submodels.Add(await _modelFactory.GetSubmodelFromTwinId(twinId));
+                var information = await _adtSubmodelInteractions.GetAllInformationForSubmodelWithTwinId(twinId);
+                var modelFactory = new AdtSubmodelModelFactory(information);
+                submodels.Add(await modelFactory.GetSubmodel());
             }
             return submodels;
         }
@@ -30,7 +32,9 @@ namespace AAS.API.Repository.ADTImpl
         public async Task<Submodel> GetSubmodelWithId(string submodelId)
         {
             var twinId = _adtInteractions.GetTwinIdForElementWithId(submodelId);
-            return await _modelFactory.GetSubmodelFromTwinId(twinId);
+            var information = await _adtSubmodelInteractions.GetAllInformationForSubmodelWithTwinId(twinId);
+            var modelFactory = new AdtSubmodelModelFactory(information);
+            return await modelFactory.GetSubmodel();
         }
 
     }

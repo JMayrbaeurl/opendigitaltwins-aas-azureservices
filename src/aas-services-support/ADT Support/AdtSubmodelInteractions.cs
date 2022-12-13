@@ -8,6 +8,7 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using AAS.AASX.CmdLine.ADT;
 using AAS.API.Services.ADT;
+using AasCore.Aas3_0_RC02;
 using AdtModels.AdtModels;
 using Azure;
 using Azure.DigitalTwins.Core;
@@ -26,9 +27,9 @@ namespace AAS_Services_Support.ADT_Support
 
 
 
-        public async Task<AdtSubmodelInformation> GetAllInformationForSubmodelWithTwinId(string twinId)
+        public async Task<AdtSubmodelAndSmcInformation<AdtSubmodel>> GetAllInformationForSubmodelWithTwinId(string twinId)
         {
-            var adtSubmodelInformation = new AdtSubmodelInformation();
+            var adtSubmodelInformation = new AdtSubmodelAndSmcInformation<AdtSubmodel>();
             string queryString = "Select twin0, rel, twin1 from digitaltwins match (twin0)-[rel]->(twin1) " +
                                  $"where twin0.$dtId='{twinId}'";
             var items = _client.Query<JsonObject>(queryString);
@@ -109,10 +110,10 @@ namespace AAS_Services_Support.ADT_Support
         }
 
 
-        public async Task<AdtSubmodelElementCollectionInformation> GetAllSubmodelElementCollectionInformation(
+        public async Task<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> GetAllSubmodelElementCollectionInformation(
             string twinId)
         {
-            var adtSmeCollectionInformation = new AdtSubmodelElementCollectionInformation();
+            var adtSmeCollectionInformation = new AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>();
 
             var items = GetAllTwinsDirectlyRelatedToTwinWithId(twinId);
 
