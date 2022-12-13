@@ -33,6 +33,7 @@ using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Azure;
 using AAS_Services_Support.ADT_Support;
+using Newtonsoft.Json;
 
 namespace AAS.API.Registry
 {
@@ -77,6 +78,7 @@ namespace AAS.API.Registry
                 {
                     opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                     opts.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
+                    opts.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 })
                 .AddXmlSerializerFormatters();
 

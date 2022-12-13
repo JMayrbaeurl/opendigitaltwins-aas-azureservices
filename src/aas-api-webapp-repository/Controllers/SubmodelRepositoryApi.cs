@@ -61,7 +61,7 @@ namespace AAS.API.Registry.Controllers
         public async Task<ActionResult<Submodel>> GetSubmodelSubmodelRepo([FromRoute][Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content, [FromQuery] string extent)
         {
             submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
-            return Ok(_repository.GetSubmodelWithId(submodelIdentifier));
+            return Ok(await _repository.GetSubmodelWithId(submodelIdentifier));
         }
     }
 }

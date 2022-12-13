@@ -8,16 +8,10 @@ using AAS.API.Models;
 
 namespace AdtModels.AdtModels
 {
-    public class AdtSubmodel : AdtBase
+    public class AdtSubmodel : AdtIdentifiable
     {
-        [JsonPropertyName("category")]
-        public string Category { get; set; }
-
         [JsonPropertyName("kind")]
         public AdtHasKind Kind { get; set; }
-
-        [JsonPropertyName("checksum")]
-        public string? Checksum { get; set; }
 
     }
 }

@@ -15,7 +15,6 @@ namespace AAS.API.Repository.ADTImpl
         {
             _modelFactory = new AdtSubmodelModelFactory(adtSubmodelInteractions, adtInteractions);
             _adtInteractions = adtInteractions;
-
         }
         public async Task<List<Submodel>> GetAllSubmodels()
         {

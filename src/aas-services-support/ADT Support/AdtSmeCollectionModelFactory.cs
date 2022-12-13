@@ -9,63 +9,52 @@ using Azure.DigitalTwins.Core;
 
 namespace AAS_Services_Support.ADT_Support
 {
-    public class AdtSubmodelModelFactory : AdtGeneralModelFactory
+    public class AdtSmeCollectionModelFactory : AdtGeneralModelFactory
     {
         private readonly IAdtSubmodelInteractions _adtSubmodelInteractions;
         private readonly IAdtInteractions _adtInteractions;
-        private AdtSubmodelAndSmcInformation<AdtSubmodel> submodelInformation;
+        private AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection> _smeCollectionInformation;
 
-        public AdtSubmodelModelFactory(IAdtSubmodelInteractions adtSubmodelInteractions, IAdtInteractions adtInteractions)
+        public AdtSmeCollectionModelFactory(AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection> information)
         {
-            _adtSubmodelInteractions = adtSubmodelInteractions;
-            _adtInteractions = adtInteractions;
+            _smeCollectionInformation = information;
         }
 
 
-        public async Task<Submodel> GetSubmodelFromTwinId(string submodelTwinId)
+        public SubmodelElementCollection GetSmeCollection()
         {
-            this.submodelInformation = await _adtSubmodelInteractions.GetAllInformationForSubmodelWithTwinId(submodelTwinId);
-            var submodel = CreateSubmodelFromAdtSubmodel();
-            //submodel.EmbeddedDataSpecifications = GetEmbeddedDataSpecifications(submodelInformation);
-            submodel.SemanticId =
-                GetSemanticId(this.submodelInformation.ConcreteAasInformation.semanticId);
-            foreach (var dataSpecification in submodelInformation.ConcreteAasInformation.dataSpecifications)
+            var smeCollection = CreateSubmodelElementCollectionFromADTSmeCollection();
+            smeCollection.EmbeddedDataSpecifications = GetEmbeddedDataSpecifications(_smeCollectionInformation);
+            //smeCollection.SemanticId =
+            //    GetSemanticId(this._smeCInformation.ConcreteAasInformation.semanticId);
+            foreach (var dataSpecification in _smeCollectionInformation.ConcreteAasInformation.dataSpecifications)
             {
-                submodel.EmbeddedDataSpecifications.Add(
+                smeCollection.EmbeddedDataSpecifications.Add(
                     CreateEmbeddedDataSpecificationFromAdtDataSpecification(dataSpecification));
             }
-
-            foreach (var supplementalSemanticId in submodelInformation.ConcreteAasInformation.supplementalSemanticId)
+            foreach (var supplementalSemanticId in _smeCollectionInformation.ConcreteAasInformation.supplementalSemanticId)
             {
-                submodel.SupplementalSemanticIds.Add(GetSemanticId(supplementalSemanticId));
+                smeCollection.SupplementalSemanticIds.Add(GetSemanticId(supplementalSemanticId));
             }
+            smeCollection.Value = GetSubmodelElementsFromAdtSubmodelAndSMCInformation();
 
-            submodel.SubmodelElements = GetSubmodelElementsFromAdtSubmodelAndSMCInformation();
-
-            return submodel;
+            return smeCollection;
         }
 
-        private Submodel CreateSubmodelFromAdtSubmodel()
+        private SubmodelElementCollection CreateSubmodelElementCollectionFromADTSmeCollection()
         {
-            var adtSubmodel = this.submodelInformation.RootElement;
-            Submodel submodel = new Submodel(adtSubmodel.Id);
-            submodel.Category = adtSubmodel.Category;
-            submodel.Checksum = adtSubmodel.Checksum;
-            submodel.IdShort = adtSubmodel.IdShort;
-            submodel.Kind = adtSubmodel.Kind.Kind == "Instance" ? ModelingKind.Instance : ModelingKind.Template;
-            submodel.Description = ConvertAdtLangStringToGeneraLangString(adtSubmodel.Description);
-            submodel.DisplayName = ConvertAdtLangStringToGeneraLangString(adtSubmodel.DisplayName);
-            submodel.EmbeddedDataSpecifications = new List<EmbeddedDataSpecification>();
-            submodel.SubmodelElements = new List<ISubmodelElement>();
-            submodel.SupplementalSemanticIds = new List<Reference>();
-            return submodel;
+            var adtSmeCollection = _smeCollectionInformation.RootElement;
+            var smeCollection = new SubmodelElementCollection();
+            smeCollection.SupplementalSemanticIds = new List<Reference>();
+            smeCollection = UpdateSubmodelElementFromAdtSubmodelElement(smeCollection, adtSmeCollection);
+            return smeCollection;
         }
 
 
         private List<ISubmodelElement> GetSubmodelElementsFromAdtSubmodelAndSMCInformation()
         {
             var submodelElements = new List<ISubmodelElement>();
-            foreach (var adtProperty in submodelInformation.properties)
+            foreach (var adtProperty in _smeCollectionInformation.properties)
             {
                 var property = new Property(DataTypeDefXsd.String);
                 property = UpdateSubmodelElementFromAdtSubmodelElement(property, adtProperty);
@@ -77,7 +66,7 @@ namespace AAS_Services_Support.ADT_Support
                 submodelElements.Add(property);
             }
 
-            foreach (var adtFile in submodelInformation.files)
+            foreach (var adtFile in _smeCollectionInformation.files)
             {
                 var file = new File(adtFile.ContentType);
                 file = UpdateSubmodelElementFromAdtSubmodelElement(file, adtFile);
@@ -87,7 +76,7 @@ namespace AAS_Services_Support.ADT_Support
                 submodelElements.Add(file);
             }
 
-            foreach (var smeCollectionInformation in submodelInformation.smeCollections)
+            foreach (var smeCollectionInformation in _smeCollectionInformation.smeCollections)
             {
                 var smeC = CreateSubmodelElementCollectionFromSmeCollectionInformation(smeCollectionInformation);
                 submodelElements.Add(smeC);
@@ -108,20 +97,20 @@ namespace AAS_Services_Support.ADT_Support
             catch (NoSemanticIdFound e)
             {
                 Console.WriteLine(e);
+                return null;
             }
-            return null;
         }
 
 
         private AdtReference GetAdtSemanticId(string twinId)
         {
-            if (submodelInformation.definitionsAndSemantic.Relationships.ContainsKey(twinId))
+            if (_smeCollectionInformation.definitionsAndSemantic.Relationships.ContainsKey(twinId))
             {
-                foreach (var relationship in submodelInformation.definitionsAndSemantic.Relationships[twinId])
+                foreach (var relationship in _smeCollectionInformation.definitionsAndSemantic.Relationships[twinId])
                 {
                     if (relationship.Name == "semanticId")
                     {
-                        return submodelInformation.definitionsAndSemantic.References[relationship.TargetId];
+                        return _smeCollectionInformation.definitionsAndSemantic.References[relationship.TargetId];
                     }
                 }
             }
@@ -149,13 +138,13 @@ namespace AAS_Services_Support.ADT_Support
         private List<AdtReference> GetAdtSupplementalsSemanticIdsForTwin(string twinId)
         {
             var adtSupplementalSemanticIds = new List<AdtReference>();
-            if (submodelInformation.definitionsAndSemantic.Relationships.ContainsKey(twinId))
+            if (_smeCollectionInformation.definitionsAndSemantic.Relationships.ContainsKey(twinId))
             {
-                foreach (var relationship in submodelInformation.definitionsAndSemantic.Relationships[twinId])
+                foreach (var relationship in _smeCollectionInformation.definitionsAndSemantic.Relationships[twinId])
                 {
                     if (relationship.Name == "supplementalSemanticId")
                     {
-                        adtSupplementalSemanticIds.Add(submodelInformation.definitionsAndSemantic.References[relationship.TargetId]);
+                        adtSupplementalSemanticIds.Add(_smeCollectionInformation.definitionsAndSemantic.References[relationship.TargetId]);
                     }
                 }
             }
@@ -230,16 +219,12 @@ namespace AAS_Services_Support.ADT_Support
 
             }
 
-            foreach (var smeCollection in information.smeCollections)
-            {
-                embeddedDataSpecifications.AddRange(GetEmbeddedDataSpecifications(smeCollection));
-            }
             return embeddedDataSpecifications;
         }
 
         private AdtConceptDescription GetConceptDescription(string dtId)
         {
-            var twinRelationships = this.submodelInformation.definitionsAndSemantic.Relationships[dtId];
+            var twinRelationships = this._smeCollectionInformation.definitionsAndSemantic.Relationships[dtId];
             foreach (var twinRelationship in twinRelationships)
             {
                 if (twinRelationship.Name == "referredElement")
@@ -248,7 +233,7 @@ namespace AAS_Services_Support.ADT_Support
 
                     {
                         var conceptDescription =
-                            submodelInformation.definitionsAndSemantic.ConceptDescriptions[twinRelationship.TargetId];
+                            _smeCollectionInformation.definitionsAndSemantic.ConceptDescriptions[twinRelationship.TargetId];
                         return conceptDescription;
                     }
                     catch (Exception e)
@@ -262,7 +247,7 @@ namespace AAS_Services_Support.ADT_Support
         }
         private AdtDataSpecificationIEC61360 GetDataSpecificationIec61360ForTwinWithId(string twinId)
         {
-            var twinRelationships = this.submodelInformation.definitionsAndSemantic.Relationships[twinId];
+            var twinRelationships = this._smeCollectionInformation.definitionsAndSemantic.Relationships[twinId];
             foreach (var twinRelationship in twinRelationships)
             {
                 if (twinRelationship.Name == "referredElement")
@@ -271,7 +256,7 @@ namespace AAS_Services_Support.ADT_Support
                 }
                 else if (twinRelationship.Name == "dataSpecification")
                 {
-                    return submodelInformation.definitionsAndSemantic.Iec61360s[twinRelationship.TargetId];
+                    return _smeCollectionInformation.definitionsAndSemantic.Iec61360s[twinRelationship.TargetId];
                 }
             }
             throw new AdtException($"Could not find DataSpecificationIec61360 for twinId {twinId}");

@@ -11,4 +11,6 @@ public interface IAdtSubmodelInteractions
 
     Task<AdtSubmodelElementCollectionInformation> GetAllSubmodelElementCollectionInformation(
         string twinId);
+
+    public Task<DefinitionsAndSemantic> GetAllDescriptionsForSubmodelElements(string rootTwinId);
 }

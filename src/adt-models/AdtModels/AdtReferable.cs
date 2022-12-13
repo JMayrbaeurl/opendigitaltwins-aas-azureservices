@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AdtModels.AdtModels
 {
-    public class AdtReferable
+    public class AdtReferable : AdtBase
     {
         [JsonPropertyName("category")]
         public string? Category { get; set; }

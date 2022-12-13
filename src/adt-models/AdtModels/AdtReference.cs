@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace AdtModels.AdtModels
 {
-    public class AdtReference
+    public class AdtReference : AdtBase
     {
+
         [JsonPropertyName("key1")]
         public AdtKey? Key1 { get; set; }
 

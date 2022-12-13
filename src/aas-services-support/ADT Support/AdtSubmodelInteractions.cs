@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
@@ -15,20 +18,20 @@ namespace AAS_Services_Support.ADT_Support
     {
         private readonly DigitalTwinsClient _client;
 
+
         public AdtSubmodelInteractions(DigitalTwinsClientFactory adtClientFactory)
         {
             _client = adtClientFactory.CreateClient();
         }
 
-       
+
 
         public async Task<AdtSubmodelInformation> GetAllInformationForSubmodelWithTwinId(string twinId)
         {
             var adtSubmodelInformation = new AdtSubmodelInformation();
-            //var items = GetAllTwinsDirectlyRelatedToTwinWithId(twinId);
             string queryString = "Select twin0, rel, twin1 from digitaltwins match (twin0)-[rel]->(twin1) " +
                                  $"where twin0.$dtId='{twinId}'";
-            var items= _client.Query<JsonObject>(queryString);
+            var items = _client.Query<JsonObject>(queryString);
             foreach (var item in items)
             {
                 var dataTwin1 = item["twin1"];
@@ -51,6 +54,9 @@ namespace AAS_Services_Support.ADT_Support
                     adtSubmodelInformation.RootElement = JsonSerializer.Deserialize<AdtSubmodel>(item["twin"].ToString());
                 }
             }
+
+            adtSubmodelInformation.definitionsAndSemantic = await
+                GetAllDescriptionsForSubmodelElements(twinId);
             return adtSubmodelInformation;
         }
 
@@ -79,9 +85,9 @@ namespace AAS_Services_Support.ADT_Support
             return information;
         }
 
-        private async Task<AdtSubmodelAndSMCInformation<T>>
+        private async Task<AdtSubmodelAndSmcInformation<T>>
             DeserializeAdtResponseForSubmodelOrSmeCollection<T>(
-            string relationship, JsonNode dataTwin, AdtSubmodelAndSMCInformation<T> information)
+            string relationship, JsonNode dataTwin, AdtSubmodelAndSmcInformation<T> information) where T : AdtBase, new()
         {
 
             if (relationship == "submodelElement" || relationship == "value")
@@ -97,7 +103,6 @@ namespace AAS_Services_Support.ADT_Support
                     information.files.Add(JsonSerializer.Deserialize<AdtFile>(dataTwin));
                 else
                     throw new AdtModelNotSupported($"Unsupported AdtModel of Type {model}");
-
             }
 
             return information;
@@ -134,45 +139,115 @@ namespace AAS_Services_Support.ADT_Support
                 }
             }
 
+            adtSmeCollectionInformation.definitionsAndSemantic = await
+                GetAllDescriptionsForSubmodelElements(twinId);
+
             return adtSmeCollectionInformation;
 
+        }
+
+        public async Task<DefinitionsAndSemantic> GetAllDescriptionsForSubmodelElements(string rootTwinId)
+        {
+            var definitionsAndSemantik = new DefinitionsAndSemantic();
+            string queryString = "Select sme.$dtId as smeTwinId, twin2 from digitaltwins match (twin0)-[rel1]->(sme)-[*..9]->(twin2) " +
+                                 $"where twin0.$dtId='{rootTwinId}' and " +
+                                 "rel1.$relationshipName in ['submodelElement','value']  and " +
+                                 "not sme.$metadata.$model='dtmi:digitaltwins:aas:SubmodelElementCollection;1'";
+            var twinIds = new List<string>();
+            var tempDictToCheckDuplicates = new Dictionary<string, string>();
+
+            var items = _client.QueryAsync<JsonObject>(queryString);
+            await foreach (var item in items)
+            {
+                var type = item["twin2"]["$metadata"]["$model"].ToString();
+                var twinId = item["twin2"]["$dtId"].ToString();
+                var smeTwinId = item["smeTwinId"].ToString();
+                twinIds.Add(twinId);
+                if (!tempDictToCheckDuplicates.ContainsKey(smeTwinId))
+                {
+                    twinIds.Add(smeTwinId);
+                    tempDictToCheckDuplicates.Add(smeTwinId, "");
+                }
+
+                var data = item["twin2"].ToString();
+                if (type == ADTAASOntology.MODEL_REFERENCE)
+                {
+                    if (definitionsAndSemantik.References.ContainsKey(twinId) == false)
+                    {
+                        var adtModel = JsonSerializer.Deserialize<AdtReference>(data);
+                        definitionsAndSemantik.References.Add(twinId, adtModel);
+                    }
+                }
+                else if (type == ADTAASOntology.MODEL_DATASPECIEC61360)
+                {
+                    if (definitionsAndSemantik.Iec61360s.ContainsKey(twinId) == false)
+                    {
+
+                        definitionsAndSemantik.Iec61360s.Add(twinId,
+                            JsonSerializer.Deserialize<AdtDataSpecificationIEC61360>(data));
+                    }
+                }
+                else if (type == ADTAASOntology.MODEL_CONCEPTDESCRIPTION)
+                {
+                    if (definitionsAndSemantik.ConceptDescriptions.ContainsKey(twinId) == false)
+                    {
+                        definitionsAndSemantik.ConceptDescriptions.Add(twinId,
+                            JsonSerializer.Deserialize<AdtConceptDescription>(data));
+                    }
+
+                }
+
+            }
+
+            definitionsAndSemantik.Relationships = await GetAllRelationshipsForTwinIds(twinIds);
+
+            return definitionsAndSemantik;
+        }
+
+        public async Task<Dictionary<string, List<BasicRelationship>>> GetAllRelationshipsForTwinIds(List<string> twinIds)
+        {
+            var relationshipDict = new Dictionary<string, List<BasicRelationship>>();
+
+
+            int j = 0;
+            int FirstIndexOfThisIteration = 0;
+            while (j < twinIds.Count)
+
+            {
+                FirstIndexOfThisIteration = j;
+                var relationshipIdsForAdt = "'" + twinIds[j] + "'";
+                for (j++; j < twinIds.Count && QueryContentWithinBoundaries(relationshipIdsForAdt, twinIds[j], j - FirstIndexOfThisIteration); j++)
+                {
+                    relationshipIdsForAdt += ",'" + twinIds[j] + "'";
+                }
+
+                var queryString = $"Select * from Relationships r where r.$sourceId In [{relationshipIdsForAdt}]";
+
+                var relationships = _client.QueryAsync<BasicRelationship>(queryString);
+                await foreach (var relationship in relationships)
+                {
+                    if (relationshipDict.ContainsKey(relationship.SourceId))
+                    {
+                        relationshipDict[relationship.SourceId].Add(relationship);
+                    }
+                    else
+                    {
+                        relationshipDict.Add(relationship.SourceId,
+                            new List<BasicRelationship> { relationship });
+                    }
+                }
+            }
+            return relationshipDict;
+        }
+
+        private bool QueryContentWithinBoundaries(string currentElements, string newElement, int index)
+        {
+            var MAX_STRING_LENGTH = 7500;
+            var MAX_NUMBER_OF_ELEMENTS_PER_IN_OPERATION = 100;
+            return index < 100 && currentElements.Length + newElement.Length < MAX_STRING_LENGTH;
         }
     }
 
 
-    public class AdtConcreteAasInformation
-    {
-        public List<AdtDataSpecification> dataSpecifications =
-                    new List<AdtDataSpecification>();
 
-        public AdtReference semanticId = new AdtReference();
-
-        public List<AdtReference> supplementalSemanticId = new List<AdtReference>();
-    }
-
-    public abstract class AdtGeneralAasInformation<T>
-    {
-        public T RootElement { get; set; }
-
-        public AdtConcreteAasInformation ConcreteAasInformation = new AdtConcreteAasInformation();
-
-    }
-
-    public abstract class AdtSubmodelAndSMCInformation<T> : AdtGeneralAasInformation<T>
-    {
-        public List<AdtSubmodelElementCollectionInformation> smeCollections = new List<AdtSubmodelElementCollectionInformation>();
-        public List<AdtProperty> properties = new List<AdtProperty>();
-        public List<AdtFile> files = new List<AdtFile>();
-    }
-
-    public class AdtSubmodelInformation : AdtSubmodelAndSMCInformation<AdtSubmodel>
-    {
-        public AdtSubmodel RootElement = new AdtSubmodel();
-    }
-
-    public class AdtSubmodelElementCollectionInformation :
-        AdtSubmodelAndSMCInformation<AdtSubmodelElementCollection>
-    {
-        public AdtSubmodelElementCollection RootElement = new AdtSubmodelElementCollection();
-    }
 }
