@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AasCore.Aas3_0_RC02" Version="1.1.0" />
     <PackageReference Include="Azure.DigitalTwins.Core" Version="1.4.0" />
     <PackageReference Include="Azure.Identity" Version="1.6.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
@@ -13,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\aas-core3.0rc02-csharp\src\AasCore.Aas3_0_RC02\AasCore.Aas3_0_RC02.csproj" />
     <ProjectReference Include="..\..\tools\aasx-cmdline\AASX Package Command line.csproj" />
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
     <ProjectReference Include="..\adt-models\AdtModels.csproj" />
