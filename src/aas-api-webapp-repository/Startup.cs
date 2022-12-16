@@ -10,7 +10,6 @@
 using System;
 using System.IO;
 using AAS.API.Registry.Clients;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -20,19 +19,16 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using Swashbuckle.AspNetCore.Swagger;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using AAS.API.Registry.Filters;
 using AAS.API.Registry.Models;
 using AAS.API.Repository;
 using AAS.API.Repository.ADTImpl;
 using AAS.API.Services.ADT;
-using Azure.DigitalTwins.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Azure;
 using AAS_Services_Support.ADT_Support;
+using AutoMapper;
 using Newtonsoft.Json;
 
 namespace AAS.API.Registry
@@ -55,6 +51,7 @@ namespace AAS.API.Registry
         {
             _hostingEnv = env;
             Configuration = configuration;
+
         }
 
         /// <summary>
@@ -63,6 +60,13 @@ namespace AAS.API.Registry
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
+            var configuration = new MapperConfiguration(cfg =>
+            {
+                cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies());
+                cfg.DisableConstructorMapping();
+            }); 
+            IMapper mapper = configuration.CreateMapper();
+            services.AddSingleton(mapper);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
@@ -88,6 +92,8 @@ namespace AAS.API.Registry
             services.AddScoped<ISubmodelRepository, AdtSubmodelRepository>();
             services.AddTransient<IAdtInteractions, AdtInteractions>();
             services.AddTransient<IAdtSubmodelInteractions, AdtSubmodelInteractions>();
+            services.AddTransient<IAdtDefinitionsAndSemanticsModelFactory, AdtDefinitionsAndSemanticsModelFactory>();
+            services.AddTransient<IAdtSubmodelModelFactory, AdtSubmodelModelFactory>();
             
             services
                 .AddSwaggerGen(c =>
@@ -144,10 +150,14 @@ namespace AAS.API.Registry
         /// <param name="app"></param>
         /// <param name="env"></param>
         /// <param name="loggerFactory"></param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IMapper mapper)
         {
+            mapper.ConfigurationProvider.AssertConfigurationIsValid();
             app.UseRouting();
-
+            //app.UseCors(builder => builder
+            //    .AllowAnyOrigin()
+            //    .AllowAnyMethod()
+            //    .AllowAnyHeader());
             //TODO: Uncomment this if you need wwwroot folder
             // app.UseStaticFiles();
 

@@ -1,5 +1,4 @@
 ﻿using AdtModels.AdtModels;
-using System.Collections.Generic;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
@@ -13,5 +12,5 @@ public interface IAdtSubmodelInteractions
     Task<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> GetAllSubmodelElementCollectionInformation(
         string twinId);
 
-    public Task<DefinitionsAndSemantic> GetAllDescriptionsForSubmodelElements(string rootTwinId);
+    public Task<DefinitionsAndSemantics> GetAllDescriptionsForSubmodelElements(string rootTwinId);
 }

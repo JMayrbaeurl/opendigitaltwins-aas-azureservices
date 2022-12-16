@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Text.Json.Nodes;
 using AdtModels.AdtModels;
 using Azure.DigitalTwins.Core;
 
@@ -18,7 +15,7 @@ namespace AAS_Services_Support.ADT_Support
         public List<AdtReference> supplementalSemanticId = new List<AdtReference>();
     }
 
-    public abstract class AdtGeneralAasInformation<T> where T : AdtBase, new()
+    public class AdtGeneralAasInformation<T> where T : AdtBase, new()
     {
         public AdtGeneralAasInformation()
         {
@@ -27,11 +24,11 @@ namespace AAS_Services_Support.ADT_Support
         public T RootElement { get; set; }
 
         public AdtConcreteAasInformation ConcreteAasInformation = new AdtConcreteAasInformation();
-        public DefinitionsAndSemantic definitionsAndSemantic = new DefinitionsAndSemantic();
-
+        public DefinitionsAndSemantics definitionsAndSemantics = new DefinitionsAndSemantics();
+        public List<(JsonNode,string)> relatedTwins = new List<(JsonNode,string)>();
     }
 
-    public class DefinitionsAndSemantic
+    public class DefinitionsAndSemantics
     {
         public Dictionary<string, AdtReference> References = new Dictionary<string, AdtReference>();
 

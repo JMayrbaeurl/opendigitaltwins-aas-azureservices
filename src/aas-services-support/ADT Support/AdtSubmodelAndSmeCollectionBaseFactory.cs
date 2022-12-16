@@ -1,74 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AasCore.Aas3_0_RC02;
 using AdtModels.AdtModels;
 
 namespace AAS_Services_Support.ADT_Support
 {
-    public class AdtSubmodelAndSmeCollectionBaseFactory<T> : AdtGeneralModelFactory where T : AdtBase, new()
+    public abstract class AdtSubmodelAndSmeCollectionBaseFactory<T> : AdtGeneralModelFactory where T : AdtBase, new()
     {
         protected AdtSubmodelAndSmcInformation<T> information;
+        private readonly IAdtDefinitionsAndSemanticsModelFactory _definitionsAndSemanticsFactory;
 
-        public AdtSubmodelAndSmeCollectionBaseFactory(AdtSubmodelAndSmcInformation<T> information)
+        public AdtSubmodelAndSmeCollectionBaseFactory(IAdtDefinitionsAndSemanticsModelFactory adtDefinitionsAndSemanticsModelFactory)
+        {
+            _definitionsAndSemanticsFactory =
+                adtDefinitionsAndSemanticsModelFactory; 
+        }
+
+        public void Configure(AdtSubmodelAndSmcInformation<T> information)
         {
             this.information = information;
-        }
-
-
-
-
-        private AdtReference GetAdtSemanticId(string twinId)
-        {
-            if (information.definitionsAndSemantic.Relationships.ContainsKey(twinId))
-            {
-                foreach (var relationship in information.definitionsAndSemantic.Relationships[twinId])
-                {
-                    if (relationship.Name == "semanticId")
-                    {
-                        return information.definitionsAndSemantic.References[relationship.TargetId];
-                    }
-                }
-            }
-
-            throw new NoSemanticIdFound($"No Semantic Id found for twin with dtId {twinId}");
-        }
-
-        protected List<Reference> GetSupplementalSemanticIdsForTwin(string twinId)
-        {
-            var supplementalSemanticIds = new List<Reference>();
-
-            var adtSupplementalsSemanticIds = GetAdtSupplementalsSemanticIdsForTwin(twinId);
-            if (adtSupplementalsSemanticIds.Count == 0)
-            {
-                return null;
-            }
-            foreach (var adtSupplementalsSemanticId in adtSupplementalsSemanticIds)
-            {
-                supplementalSemanticIds.Add(GetSemanticId(adtSupplementalsSemanticId));
-
-            }
-            return supplementalSemanticIds;
-        }
-
-        private List<AdtReference> GetAdtSupplementalsSemanticIdsForTwin(string twinId)
-        {
-            var adtSupplementalSemanticIds = new List<AdtReference>();
-            if (information.definitionsAndSemantic.Relationships.ContainsKey(twinId))
-            {
-                foreach (var relationship in information.definitionsAndSemantic.Relationships[twinId])
-                {
-                    if (relationship.Name == "supplementalSemanticId")
-                    {
-                        adtSupplementalSemanticIds.Add(information.definitionsAndSemantic.References[relationship.TargetId]);
-                    }
-                }
-            }
-
-            return adtSupplementalSemanticIds;
-
+            _definitionsAndSemanticsFactory.Configure(information.definitionsAndSemantics);
         }
 
         protected List<ISubmodelElement> GetSubmodelElementsFromAdtSubmodelAndSMCInformation()
@@ -80,8 +31,8 @@ namespace AAS_Services_Support.ADT_Support
                 property = UpdateSubmodelElementFromAdtSubmodelElement(property, adtProperty);
                 property.Value = adtProperty.Value;
                 property.SemanticId = GetSemanticIdForTwin(adtProperty.dtId);
-                property.SupplementalSemanticIds = GetSupplementalSemanticIdsForTwin(adtProperty.dtId);
-                property.EmbeddedDataSpecifications = GetEmbeddedDataSpecificationsForTwin(adtProperty.dtId);
+                property.SupplementalSemanticIds = _definitionsAndSemanticsFactory.GetSupplementalSemanticIdsForTwin(adtProperty.dtId);
+                property.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory.GetEmbeddedDataSpecificationsForTwin(adtProperty.dtId);
                 submodelElements.Add(property);
             }
 
@@ -91,8 +42,8 @@ namespace AAS_Services_Support.ADT_Support
                 file = UpdateSubmodelElementFromAdtSubmodelElement(file, adtFile);
                 file.Value = adtFile.Value;
                 file.SemanticId = GetSemanticIdForTwin(adtFile.dtId);
-                file.SupplementalSemanticIds = GetSupplementalSemanticIdsForTwin(adtFile.dtId);
-                file.EmbeddedDataSpecifications = GetEmbeddedDataSpecificationsForTwin(adtFile.dtId);
+                file.SupplementalSemanticIds = _definitionsAndSemanticsFactory.GetSupplementalSemanticIdsForTwin(adtFile.dtId);
+                file.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory.GetEmbeddedDataSpecificationsForTwin(adtFile.dtId);
                 submodelElements.Add(file);
             }
 
@@ -106,96 +57,7 @@ namespace AAS_Services_Support.ADT_Support
             return submodelElements;
         }
 
-        private List<EmbeddedDataSpecification> GetEmbeddedDataSpecificationsForTwin(string dtId)
-        {
-            if (information.definitionsAndSemantic.Relationships.ContainsKey(dtId) == false)
-            {
-                return null;
-            }
-            var twinRelationships = information.definitionsAndSemantic.Relationships[dtId];
-
-            var embeddedDataSpecifications = new List<EmbeddedDataSpecification>();
-
-            foreach (var twinRelationship in twinRelationships)
-            {
-                if (twinRelationship.Name == "semanticId")
-                {
-                    var semanticIdReference =
-                        information.definitionsAndSemantic.References[twinRelationship.TargetId];
-                    var conceptDescription = GetConceptDescription(semanticIdReference.dtId);
-
-                    if (conceptDescription != null)
-                    {
-                        var adtDataSpecificationIec61360 =
-                            GetDataSpecificationIec61360ForTwinWithId(conceptDescription.dtId);
-                        var dataSpecificationIec61360 =
-                            GetIec61360DataSpecificationContent(adtDataSpecificationIec61360);
-
-                        var keys = new List<Key>()
-                            { new Key(KeyTypes.GlobalReference, conceptDescription.Id) };
-                        var dataSpecification = new Reference(ReferenceTypes.GlobalReference, keys);
-                        embeddedDataSpecifications.Add(new EmbeddedDataSpecification(dataSpecification,
-                            dataSpecificationIec61360));
-                    }
-
-                }
-
-                else if (twinRelationship.Name == "dataSpecification")
-                {
-                    if (information.definitionsAndSemantic.Iec61360s.ContainsKey(twinRelationship.TargetId))
-                    {
-                        var adtDataSpecificationIec61360 = information.definitionsAndSemantic.Iec61360s[twinRelationship.TargetId];
-                        var dataSpecificationIec61360 = GetIec61360DataSpecificationContent(adtDataSpecificationIec61360);
-                        var keys = new List<Key>()
-                        { new Key(KeyTypes.GlobalReference, adtDataSpecificationIec61360.UnitIdValue) };
-                        var dataSpecification = new Reference(ReferenceTypes.GlobalReference, keys);
-                        embeddedDataSpecifications.Add(new EmbeddedDataSpecification(dataSpecification,
-                            dataSpecificationIec61360));
-                    }
-                }
-            }
-            return embeddedDataSpecifications.Count == 0 ? null : embeddedDataSpecifications;
-        }
-
-        private AdtConceptDescription GetConceptDescription(string dtId)
-        {
-            if (information.definitionsAndSemantic.Relationships.ContainsKey(dtId))
-            {
-
-                var twinRelationships = information.definitionsAndSemantic.Relationships[dtId];
-                foreach (var twinRelationship in twinRelationships)
-                {
-                    if (twinRelationship.Name == "referredElement")
-                    {
-                        if (information.definitionsAndSemantic.ConceptDescriptions.ContainsKey(twinRelationship.TargetId))
-
-                        {
-                            var conceptDescription =
-                                information.definitionsAndSemantic.ConceptDescriptions[twinRelationship.TargetId];
-                            return conceptDescription;
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
-        private AdtDataSpecificationIEC61360 GetDataSpecificationIec61360ForTwinWithId(string twinId)
-        {
-            var twinRelationships = this.information.definitionsAndSemantic.Relationships[twinId];
-            foreach (var twinRelationship in twinRelationships)
-            {
-                if (twinRelationship.Name == "referredElement")
-                {
-                    return GetDataSpecificationIec61360ForTwinWithId(twinRelationship.TargetId);
-                }
-                else if (twinRelationship.Name == "dataSpecification")
-                {
-                    return information.definitionsAndSemantic.Iec61360s[twinRelationship.TargetId];
-                }
-            }
-            throw new AdtException($"Could not find DataSpecificationIec61360 for twinId {twinId}");
-        }
+        
 
         protected Reference GetSemanticIdForTwin(string twinId)
         {
@@ -210,6 +72,22 @@ namespace AAS_Services_Support.ADT_Support
                 Console.WriteLine(e);
                 return null;
             }
+        }
+
+        private AdtReference GetAdtSemanticId(string twinId)
+        {
+            if (information.definitionsAndSemantics.Relationships.ContainsKey(twinId))
+            {
+                foreach (var relationship in information.definitionsAndSemantics.Relationships[twinId])
+                {
+                    if (relationship.Name == "semanticId")
+                    {
+                        return information.definitionsAndSemantics.References[relationship.TargetId];
+                    }
+                }
+            }
+
+            throw new NoSemanticIdFound($"No Semantic Id found for twin with dtId {twinId}");
         }
 
         protected TSme UpdateSubmodelElementFromAdtSubmodelElement<TSme>(TSme sme, AdtSubmodelElement adtSubmodelElement) where TSme : ISubmodelElement
@@ -230,9 +108,26 @@ namespace AAS_Services_Support.ADT_Support
         private SubmodelElementCollection CreateSubmodelElementCollectionFromSmeCollectionInformation(
             AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection> information)
         {
-            var factory = new AdtSmeCollectionModelFactory(information);
-            var smeCollection = factory.GetSmeCollection();
+            var factory = new AdtSmeCollectionModelFactory(_definitionsAndSemanticsFactory);
+            var smeCollection = factory.GetSmeCollection(information);
             return smeCollection;
         }
+
+        //protected DataSpecificationIec61360 GetIec61360DataSpecificationContent(AdtDataSpecificationIEC61360 adtIec61360)
+        //{
+        //    var preferredName = ConvertAdtLangStringToGeneraLangString(adtIec61360.PreferredName);
+        //    var definition = ConvertAdtLangStringToGeneraLangString(adtIec61360.Definition);
+        //    var shortName = ConvertAdtLangStringToGeneraLangString(adtIec61360.ShortName);
+
+        //    var iec61360 = new DataSpecificationIec61360(preferredName);
+        //    iec61360.ShortName = shortName;
+        //    iec61360.Definition = definition;
+        //    iec61360.Value = adtIec61360.Value;
+        //    iec61360.SourceOfDefinition = adtIec61360.SourceOfDefinition;
+        //    iec61360.Symbol = adtIec61360.Symbol;
+        //    iec61360.Unit = adtIec61360.Unit;
+        //    iec61360.ValueFormat = adtIec61360.ValueFormat;
+        //    return iec61360;
+        //}
     }
 }

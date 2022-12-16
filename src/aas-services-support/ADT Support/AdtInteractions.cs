@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using AAS.AASX.CmdLine.ADT;
-using AAS.API.Interfaces;
-using AAS.API.Models;
 using AAS.API.Services.ADT;
 using AdtModels.AdtModels;
 using Azure.DigitalTwins.Core;
@@ -26,7 +22,6 @@ namespace AAS_Services_Support.ADT_Support
 
         public List<string> GetAllAasIds()
         {
-
             string queryString =
                 "SELECT aas.id as aasId FROM digitaltwins aas where is_of_model('dtmi:digitaltwins:aas:AssetAdministrationShell;1')";
             var ids = _client.Query<JsonObject>(queryString);
@@ -50,6 +45,11 @@ namespace AAS_Services_Support.ADT_Support
             }
 
             throw new AdtException($"Could not find twinId for given aasId {aasId}");
+        }
+
+        public AdtGeneralAasInformation<AdtAas> GetAllInformationForAasWithTwinId(string aasTwinId)
+        {
+            throw new NotImplementedException();
         }
 
         public List<AdtResponseForAllAasInformation> GetAllInformationForAasWithId(string aasId)

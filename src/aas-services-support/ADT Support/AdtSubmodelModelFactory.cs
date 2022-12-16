@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AasCore.Aas3_0_RC02;
 using AdtModels.AdtModels;
-using Azure.DigitalTwins.Core;
 
 namespace AAS_Services_Support.ADT_Support
 {
-    public class AdtSubmodelModelFactory : AdtSubmodelAndSmeCollectionBaseFactory<AdtSubmodel>
+    public class AdtSubmodelModelFactory : AdtSubmodelAndSmeCollectionBaseFactory<AdtSubmodel>, IAdtSubmodelModelFactory
     {
-        //private AdtSubmodelAndSmcInformation<AdtSubmodel> information;
 
-        public AdtSubmodelModelFactory(AdtSubmodelAndSmcInformation<AdtSubmodel> information) : base(information)
+        public AdtSubmodelModelFactory(IAdtDefinitionsAndSemanticsModelFactory adtDefinitionsAndSemanticsModelFactory) : base(adtDefinitionsAndSemanticsModelFactory)
         {
         }
 
 
-        public async Task<Submodel> GetSubmodel()
+        public async Task<Submodel> GetSubmodel(AdtSubmodelAndSmcInformation<AdtSubmodel> information)
         {
+            Configure(information);
             var submodel = CreateSubmodelFromAdtSubmodel();
             submodel.SemanticId =
                 GetSemanticId(this.information.ConcreteAasInformation.semanticId);

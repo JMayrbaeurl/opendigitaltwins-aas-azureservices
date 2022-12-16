@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using AAS.API.Models;
 using AAS.API.Registry.Attributes;
 using AAS.API.Repository;
-using Microsoft.AspNetCore.Http;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
+using Submodel = AAS.API.Models.Submodel;
 
 namespace AAS.API.Registry.Controllers
 {
@@ -19,14 +18,17 @@ namespace AAS.API.Registry.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly ISubmodelRepository _repository;
+        private readonly IMapper _mapper;
 
-        public SubmodelRepositoryApi(IConfiguration config, ISubmodelRepository repository)
+
+        public SubmodelRepositoryApi(IConfiguration config, ISubmodelRepository repository, IMapper mapper)
         {
             _configuration = config ??
                              throw new ArgumentNullException(nameof(config));
 
             _repository = repository ??
                           throw new ArgumentNullException(nameof(repository));
+            _mapper = mapper;
         }
 
         /// <summary>
