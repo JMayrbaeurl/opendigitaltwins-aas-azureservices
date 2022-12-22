@@ -21,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 using AAS.API.Repository;
 using AAS_Services_Support.ADT_Support;
 using AasCore.Aas3_0_RC02;
+using AutoMapper;
 
 namespace AAS.API.WebApp.Controllers
 {
@@ -39,11 +40,11 @@ namespace AAS.API.WebApp.Controllers
         /// <summary>
         /// 
         /// </summary>
-        public AssetAdministrationShellRepositoryInterfaceApiController(IConfiguration config, IAdtInteractions adtInteractions) : base()
+        public AssetAdministrationShellRepositoryInterfaceApiController(IConfiguration config, IAdtInteractions adtInteractions,IMapper mapper) : base()
         {
             _configuration = config;
 
-            repository = new AASRepositoryFactory(adtInteractions).CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]);
+            repository = new AASRepositoryFactory(adtInteractions,mapper).CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]);
         }
 
         /// <summary>

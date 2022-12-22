@@ -6,10 +6,10 @@ namespace AdtModels.AdtModels
     public class AdtAas : AdtIdentifiable
     {
         [JsonPropertyName("assetInformationShort")]
-        public AssetInformationShortAdt AssetInformation { get; set; }
+        public AdtAssetInformationShort AssetInformation { get; set; }
     }
 
-    public class AssetInformationShortAdt
+    public class AdtAssetInformationShort
     {
         [JsonPropertyName("assetKind")]
         public string? AssetKind { get; set; }

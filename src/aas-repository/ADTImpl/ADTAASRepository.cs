@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using System.Net.Sockets;
 using AAS_Services_Support.ADT_Support;
 using AasCore.Aas3_0_RC02;
+using AutoMapper;
 
 
 namespace AAS.API.Repository
@@ -22,9 +23,9 @@ namespace AAS.API.Repository
         private readonly ADTAASModelFactory _modelFactory;
         private readonly IAdtInteractions _adtInteractions;
 
-        public ADTAASRepository(DigitalTwinsClient client, IAdtInteractions adtInteractions) //: base(client)
+        public ADTAASRepository(DigitalTwinsClient client, IAdtInteractions adtInteractions, IMapper mapper) //: base(client)
         {
-            _modelFactory = new ADTAASModelFactory(adtInteractions);
+            _modelFactory = new ADTAASModelFactory(mapper);
             _adtInteractions = adtInteractions;
         }
 
@@ -35,7 +36,10 @@ namespace AAS.API.Repository
             var shells = new List<AssetAdministrationShell>();
             foreach (var id in ids)
             {
-                shells.Add(_modelFactory.GetAasWithId(id));
+                var information = _adtInteractions.GetAllInformationForAasWithId(id);
+                information.RootElement = _adtInteractions.GetAdtAasForAasWithId(id);
+                
+                shells.Add(_modelFactory.GetAas(information));
             }
             return shells;
         }
@@ -52,7 +56,12 @@ namespace AAS.API.Repository
 
         public async Task<AssetAdministrationShell> GetAssetAdministrationShellWithId(string aasIdentifier)
         {
-            return _modelFactory.GetAasWithId(aasIdentifier);
+            var information = _adtInteractions.GetAllInformationForAasWithId(aasIdentifier);
+            information.RootElement = _adtInteractions.GetAdtAasForAasWithId(aasIdentifier);
+
+            
+
+            return _modelFactory.GetAas(information);
         }
 
         public List<string> GetAllAasIds()
@@ -64,8 +73,8 @@ namespace AAS.API.Repository
         {
             throw new NotImplementedException();
         }
+
+        
+
     }
-
-    
-
 }

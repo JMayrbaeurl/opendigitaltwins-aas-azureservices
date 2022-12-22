@@ -8,16 +8,9 @@ using System.Threading.Tasks;
 
 namespace AdtModels.AdtModels
 {
-    public class AdtAssetInformation
+    public class AdtAssetInformation : AdtBase
     {
-        [JsonPropertyName(DigitalTwinsJsonPropertyNames.DigitalTwinId)]
-        public string dtId { get; set; }
-
-        [JsonPropertyName(DigitalTwinsJsonPropertyNames.DigitalTwinETag)]
-        public string ETag { get; set; }
-
-        [JsonPropertyName(DigitalTwinsJsonPropertyNames.DigitalTwinMetadata)]
-        public DigitalTwinMetadata Metadata { get; set; }
+        
         [JsonPropertyName("globalAssetIdValue")]
         public string? GlobalAssetId { get; set; }
 

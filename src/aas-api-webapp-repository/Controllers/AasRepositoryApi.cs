@@ -13,6 +13,7 @@ using AAS.API.Models;
 using Microsoft.Extensions.Configuration;
 using AAS.API.Repository;
 using AAS_Services_Support.ADT_Support;
+using AutoMapper;
 
 namespace AAS.API.Registry.Controllers
 {
@@ -25,17 +26,19 @@ namespace AAS.API.Registry.Controllers
         private IConfiguration _configuration;
 
         private AASRepository repository;
-
+        private IMapper _mapper;
 
         /// <summary>
         /// 
         /// </summary>
-        public AasRepositoryApi(IConfiguration config, IAdtInteractions adtInteractions) : base()
+        public AasRepositoryApi(IConfiguration config, IAdtInteractions adtInteractions, IMapper mapper) : base()
         {
             _configuration = config ??
                              throw new ArgumentNullException(nameof(config));
+            _mapper = mapper ??
+                      throw new ArgumentNullException(nameof(mapper));
 
-            repository = new AASRepositoryFactory(adtInteractions).CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
+            repository = new AASRepositoryFactory(adtInteractions,mapper).CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
                          throw new ArgumentNullException(); ;
         }
 
