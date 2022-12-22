@@ -1,16 +1,8 @@
 ﻿using System;
 using AAS.API.Services.ADT;
-using Azure;
 using Azure.DigitalTwins.Core;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using AdtModels.AdtModels;
-using System.Text.Json.Serialization;
-using System.Xml.Linq;
-using System.Net.Sockets;
 using AAS_Services_Support.ADT_Support;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;

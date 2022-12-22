@@ -48,12 +48,10 @@ namespace AAS_Services_Support.ADT_Support
         public List<AdtFile> files = new List<AdtFile>();
     }
 
-    //public class AdtSubmodelInformation : AdtSubmodelAndSmcInformation<AdtSubmodel>
-    //{
-    //}
-
-    //public class AdtSubmodelElementCollectionInformation :
-    //    AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>
-    //{
-    //}
+    public class AdtAssetAdministrationShellInformation : AdtGeneralAasInformation<AdtAas>
+    {
+        public List<AdtSubmodel> Submodels = new List<AdtSubmodel>();
+        public AdtAas DerivedFrom = null;
+        public AdtAssetInformation AssetInformation = null;
+    }
 }

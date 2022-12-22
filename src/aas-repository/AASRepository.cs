@@ -2,9 +2,6 @@
 using AAS.API.Services;
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using AasCore.Aas3_0_RC02;
 
 namespace AAS.API.Repository

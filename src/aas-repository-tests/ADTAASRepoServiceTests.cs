@@ -8,9 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 
 namespace AAS.API.Repository.Tests
 {

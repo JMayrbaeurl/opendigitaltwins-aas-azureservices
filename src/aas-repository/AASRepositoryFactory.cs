@@ -2,9 +2,7 @@
 using Azure.DigitalTwins.Core;
 using Azure.Identity;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using AAS_Services_Support.ADT_Support;
 using AutoMapper;
 
