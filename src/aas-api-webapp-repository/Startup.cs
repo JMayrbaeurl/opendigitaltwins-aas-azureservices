@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authorization;
 using AAS_Services_Support.ADT_Support;
+using AdtModels.AdtModels;
 using AutoMapper;
 using Newtonsoft.Json;
 
@@ -64,6 +65,7 @@ namespace AAS.API.Registry
             {
                 cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies());
                 cfg.DisableConstructorMapping();
+                cfg.AllowNullCollections = true;
             }); 
             IMapper mapper = configuration.CreateMapper();
             services.AddSingleton(mapper);
@@ -94,7 +96,10 @@ namespace AAS.API.Registry
             services.AddTransient<IAdtSubmodelInteractions, AdtSubmodelInteractions>();
             services.AddTransient<IAdtDefinitionsAndSemanticsModelFactory, AdtDefinitionsAndSemanticsModelFactory>();
             services.AddTransient<IAdtSubmodelModelFactory, AdtSubmodelModelFactory>();
-            
+            services.AddTransient<AdtSubmodelElementFactory<AdtSubmodel>>();
+            services.AddTransient<AdtSubmodelElementFactory<AdtSubmodelElementCollection>>();
+
+
             services
                 .AddSwaggerGen(c =>
                 {

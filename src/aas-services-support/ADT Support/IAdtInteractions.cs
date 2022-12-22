@@ -9,7 +9,7 @@ public interface IAdtInteractions
 {
     List<string> GetAllAasIds();
     AdtAas GetAdtAasForAasWithId(string aasId);
-    List<AdtResponseForAllAasInformation> GetAllInformationForAasWithId(string aasId);
+    AdtAssetAdministrationShellInformation GetAllInformationForAasWithId(string aasId);
     Task<List<string>> GetAllSubmodelTwinIds();
     AdtSubmodel GetAdtSubmodelWithSubmodelId(string submodelId);
     List<AdtSubmodelElement> GetAdtSubmodelElementsFromParentTwinWithId(string adtTwinId);

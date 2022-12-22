@@ -52,7 +52,7 @@ namespace AAS_Services_Support.ADT_Support
             throw new NotImplementedException();
         }
 
-        public List<AdtResponseForAllAasInformation> GetAllInformationForAasWithId(string aasId)
+        public AdtAssetAdministrationShellInformation GetAllInformationForAasWithId(string aasId)
         {
             var dtId = getDtidFromAasId(aasId);
             string queryString =
@@ -64,9 +64,34 @@ namespace AAS_Services_Support.ADT_Support
                 allAasInformation.Add(aasInformation);
             }
 
-            return allAasInformation;
+            return GetAasInformationFromAdtResponse(allAasInformation);
         }
 
+        private AdtAssetAdministrationShellInformation GetAasInformationFromAdtResponse(List<AdtResponseForAllAasInformation> response)
+        {
+            var information = new AdtAssetAdministrationShellInformation();
+            foreach (var aasInformation in response)
+            {
+                if (aasInformation.RelationshipName == "assetInformation")
+                {
+                    information.AssetInformation = JsonSerializer.Deserialize<AdtAssetInformation>(aasInformation.TwinJsonObject.ToString());
+                }
+
+                else if (aasInformation.RelationshipName == "submodel")
+                {
+                    information.Submodels.Add(
+                        JsonSerializer.Deserialize<AdtSubmodel>(aasInformation.TwinJsonObject.ToString()));
+                }
+                else if (aasInformation.RelationshipName == "derivedFrom")
+                {
+                    information.DerivedFrom =
+                        JsonSerializer.Deserialize<AdtAas>(aasInformation.TwinJsonObject.ToString());
+
+                }
+            }
+
+            return information;
+        }
 
         private string getDtidFromAasId(string aasId)
         {

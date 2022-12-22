@@ -5,20 +5,23 @@ using AdtModels.AdtModels;
 
 namespace AAS_Services_Support.ADT_Support
 {
-    public class AdtSubmodelModelFactory : AdtSubmodelAndSmeCollectionBaseFactory<AdtSubmodel>, IAdtSubmodelModelFactory
+    public class AdtSubmodelModelFactory : AdtGeneralModelFactory, IAdtSubmodelModelFactory
     {
+        private readonly AdtSubmodelElementFactory<AdtSubmodel> adtSubmodelElementFactory;
 
-        public AdtSubmodelModelFactory(IAdtDefinitionsAndSemanticsModelFactory adtDefinitionsAndSemanticsModelFactory) : base(adtDefinitionsAndSemanticsModelFactory)
+        public AdtSubmodelModelFactory(IAdtDefinitionsAndSemanticsModelFactory adtDefinitionsAndSemanticsModelFactory,
+            AdtSubmodelElementFactory<AdtSubmodel> adtSubmodelElementFactory)
         {
+            this.adtSubmodelElementFactory = adtSubmodelElementFactory;
         }
 
 
         public async Task<Submodel> GetSubmodel(AdtSubmodelAndSmcInformation<AdtSubmodel> information)
         {
-            Configure(information);
-            var submodel = CreateSubmodelFromAdtSubmodel();
+            adtSubmodelElementFactory.Configure(information);
+            var submodel = CreateSubmodelFromAdtSubmodel(information.RootElement);
             submodel.SemanticId =
-                GetSemanticId(this.information.ConcreteAasInformation.semanticId);
+                adtSubmodelElementFactory.GetSemanticId(information.ConcreteAasInformation.semanticId);
             foreach (var dataSpecification in information.ConcreteAasInformation.dataSpecifications)
             {
                 submodel.EmbeddedDataSpecifications.Add(
@@ -27,17 +30,16 @@ namespace AAS_Services_Support.ADT_Support
 
             foreach (var supplementalSemanticId in information.ConcreteAasInformation.supplementalSemanticId)
             {
-                submodel.SupplementalSemanticIds.Add(GetSemanticId(supplementalSemanticId));
+                submodel.SupplementalSemanticIds.Add(adtSubmodelElementFactory.GetSemanticId(supplementalSemanticId));
             }
 
-            submodel.SubmodelElements = GetSubmodelElementsFromAdtSubmodelAndSMCInformation();
+            submodel.SubmodelElements = adtSubmodelElementFactory.GetSubmodelElementsFromAdtSubmodelAndSMCInformation();
 
             return submodel;
         }
 
-        private Submodel CreateSubmodelFromAdtSubmodel()
+        private Submodel CreateSubmodelFromAdtSubmodel(AdtSubmodel adtSubmodel)
         {
-            var adtSubmodel = this.information.RootElement;
             Submodel submodel = new Submodel(adtSubmodel.Id);
             submodel.Category = adtSubmodel.Category;
             submodel.Checksum = adtSubmodel.Checksum;
@@ -48,6 +50,8 @@ namespace AAS_Services_Support.ADT_Support
             submodel.EmbeddedDataSpecifications = new List<EmbeddedDataSpecification>();
             submodel.SubmodelElements = new List<ISubmodelElement>();
             submodel.SupplementalSemanticIds = new List<Reference>();
+            submodel.Administration = new AdministrativeInformation(
+                null, adtSubmodel.Administration.Version, adtSubmodel.Administration.Revision);
             return submodel;
         }
     }
