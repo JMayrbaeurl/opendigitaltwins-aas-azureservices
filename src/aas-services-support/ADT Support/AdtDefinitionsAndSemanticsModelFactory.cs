@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
-using AAS.ADT.Exceptions;
 
 namespace AAS_Services_Support.ADT_Support
 {
@@ -21,17 +20,9 @@ namespace AAS_Services_Support.ADT_Support
                       throw new ArgumentNullException(nameof(mapper));
         }
 
-        public void Configure(DefinitionsAndSemantics definitionsAndSemantics)
+        public List<Reference> GetSupplementalSemanticIdsForTwin(string twinId, DefinitionsAndSemantics definitionsAndSemantics)
         {
             _definitionsAndSemantics = definitionsAndSemantics;
-        }
-
-        public List<Reference> GetSupplementalSemanticIdsForTwin(string twinId)
-        {
-            if (_definitionsAndSemantics == null)
-            {
-                throw new ConfigurationNotSetExceptions("definitionsAndSemantics are not present. Call Configure() first.");
-            }
             var supplementalSemanticIds = new List<Reference>();
 
             var adtSupplementalsSemanticIds = GetAdtSupplementalsSemanticIdsForTwin(twinId);
@@ -65,12 +56,9 @@ namespace AAS_Services_Support.ADT_Support
 
         }
 
-        public List<EmbeddedDataSpecification> GetEmbeddedDataSpecificationsForTwin(string dtId)
+        public List<EmbeddedDataSpecification> GetEmbeddedDataSpecificationsForTwin(string dtId, DefinitionsAndSemantics definitionsAndSemantics)
         {
-            if (_definitionsAndSemantics == null)
-            {
-                throw new ConfigurationNotSetExceptions("definitionsAndSemantics are not present. Call Configure() first.");
-            }
+            _definitionsAndSemantics = definitionsAndSemantics;
 
             if (_definitionsAndSemantics.Relationships.ContainsKey(dtId) == false)
             {

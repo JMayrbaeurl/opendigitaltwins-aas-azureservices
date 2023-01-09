@@ -14,15 +14,4 @@ public interface IAdtInteractions
     AdtSubmodel GetAdtSubmodelWithSubmodelId(string submodelId);
     List<AdtSubmodelElement> GetAdtSubmodelElementsFromParentTwinWithId(string adtTwinId);
     string GetTwinIdForElementWithId(string Id);
-
-    public class AdtException : Exception
-    {
-        public AdtException(string message) : base(message)
-        {
-        }
-
-        public AdtException(string message, Exception? innerException) : base(message, innerException)
-        {
-        }
-    }
 }

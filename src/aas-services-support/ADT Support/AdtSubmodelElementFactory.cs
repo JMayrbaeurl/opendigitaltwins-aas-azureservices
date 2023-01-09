@@ -22,7 +22,6 @@ namespace AAS_Services_Support.ADT_Support
         public void Configure(AdtSubmodelAndSmcInformation<T> information)
         {
             this.information = information;
-            _definitionsAndSemanticsFactory.Configure(information.definitionsAndSemantics);
         }
 
         public List<ISubmodelElement> GetSubmodelElementsFromAdtSubmodelAndSMCInformation()
@@ -33,8 +32,10 @@ namespace AAS_Services_Support.ADT_Support
                 var property = _mapper.Map<Property>(adtProperty);
                 property.Value = adtProperty.Value;
                 property.SemanticId = GetSemanticIdForTwin(adtProperty.dtId);
-                property.SupplementalSemanticIds = _definitionsAndSemanticsFactory.GetSupplementalSemanticIdsForTwin(adtProperty.dtId);
-                property.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory.GetEmbeddedDataSpecificationsForTwin(adtProperty.dtId);
+                property.SupplementalSemanticIds = _definitionsAndSemanticsFactory
+                    .GetSupplementalSemanticIdsForTwin(adtProperty.dtId,information.definitionsAndSemantics);
+                property.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory
+                    .GetEmbeddedDataSpecificationsForTwin(adtProperty.dtId,information.definitionsAndSemantics);
                 submodelElements.Add(property);
             }
 
@@ -43,8 +44,10 @@ namespace AAS_Services_Support.ADT_Support
                 var file = _mapper.Map<File>(adtFile);
                 file.Value = adtFile.Value;
                 file.SemanticId = GetSemanticIdForTwin(adtFile.dtId);
-                file.SupplementalSemanticIds = _definitionsAndSemanticsFactory.GetSupplementalSemanticIdsForTwin(adtFile.dtId);
-                file.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory.GetEmbeddedDataSpecificationsForTwin(adtFile.dtId);
+                file.SupplementalSemanticIds = _definitionsAndSemanticsFactory
+                    .GetSupplementalSemanticIdsForTwin(adtFile.dtId, information.definitionsAndSemantics);
+                file.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory
+                    .GetEmbeddedDataSpecificationsForTwin(adtFile.dtId, information.definitionsAndSemantics);
                 submodelElements.Add(file);
             }
 

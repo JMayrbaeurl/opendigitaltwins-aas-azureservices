@@ -92,16 +92,6 @@ namespace AAS_Services_Support_Tests
         }
 
         [TestMethod]
-        public void Configure_sets_adtInformation_and_configures_adtDefinitionsAndSemanticsFactory()
-        {
-            objectUnderTestSmeCollection.Configure(new AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>());
-            objectUnderTestSubmodel.Configure(new AdtSubmodelAndSmcInformation<AdtSubmodel>());
-
-            _adtDefinitionsAndSemantics.Verify(_ => _.Configure(It.IsAny<DefinitionsAndSemantics>()), Times.AtLeastOnce);
-            
-        }
-
-        [TestMethod]
         public void GetSubmodelElementsFromAdtSubmodelAndSMCInformation_adds_property_specific_Information()
         {
             informationSubmodel.properties = adtProperties;

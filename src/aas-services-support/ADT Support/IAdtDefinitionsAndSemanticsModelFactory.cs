@@ -5,7 +5,6 @@ namespace AAS_Services_Support.ADT_Support;
 
 public interface IAdtDefinitionsAndSemanticsModelFactory
 {
-    List<Reference> GetSupplementalSemanticIdsForTwin(string twinId);
-    List<EmbeddedDataSpecification> GetEmbeddedDataSpecificationsForTwin(string dtId);
-    public void Configure(DefinitionsAndSemantics definitionsAndSemantics);
+    List<Reference> GetSupplementalSemanticIdsForTwin(string twinId, DefinitionsAndSemantics definitionsAndSemantics);
+    List<EmbeddedDataSpecification> GetEmbeddedDataSpecificationsForTwin(string dtId, DefinitionsAndSemantics definitionsAndSemantics);
 }

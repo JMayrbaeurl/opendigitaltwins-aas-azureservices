@@ -64,8 +64,7 @@ namespace AAS_Services_Support_Tests
                     }
                 }
             };
-            _objectUnderTest.Configure(definitionsAndSemantics);
-            var actual = _objectUnderTest.GetSupplementalSemanticIdsForTwin("TestId");
+            var actual = _objectUnderTest.GetSupplementalSemanticIdsForTwin("TestId", definitionsAndSemantics);
             var expected = new List<Reference>
             {
                 new Reference(ReferenceTypes.GlobalReference, new List<Key>()
@@ -136,8 +135,7 @@ namespace AAS_Services_Support_Tests
             };
             
             
-            _objectUnderTest.Configure(definitionsAndSemantics);
-            var actual = _objectUnderTest.GetEmbeddedDataSpecificationsForTwin("TestId");
+            var actual = _objectUnderTest.GetEmbeddedDataSpecificationsForTwin("TestId",definitionsAndSemantics);
             var expected = new List<EmbeddedDataSpecification>
             {
                 new EmbeddedDataSpecification(
@@ -157,8 +155,7 @@ namespace AAS_Services_Support_Tests
         public void GetEmbeddedDataSpecifications_returns_null_when_there_are_no_relationships_for_that_twin()
         {
             var definitionsAndSemantics = new DefinitionsAndSemantics();
-            _objectUnderTest.Configure(definitionsAndSemantics);
-            var actual = _objectUnderTest.GetEmbeddedDataSpecificationsForTwin("NotExistingTwinId");
+            var actual = _objectUnderTest.GetEmbeddedDataSpecificationsForTwin("NotExistingTwinId",definitionsAndSemantics);
             actual.Should().BeNull();
         }
     }
