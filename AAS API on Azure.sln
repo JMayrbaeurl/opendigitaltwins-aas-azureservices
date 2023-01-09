@@ -33,9 +33,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AAS WebApp Registry", "src\aas-api-webapp-registry\AAS WebApp Registry.csproj", "{B3AA9231-9B5E-4A71-AE05-57A687CD9097}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AASX Package Command line", "tools\aasx-cmdline\AASX Package Command line.csproj", "{ECD5A9BE-8210-4BA6-A1FC-F23A3F0C7B84}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B28ED681-5E82-4DDF-9F0E-986383CA5036} = {B28ED681-5E82-4DDF-9F0E-986383CA5036}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AASX Package Command line Tests", "tools\aasx-cmdline-tests\AASX Package Command line Tests.csproj", "{5BBB7304-26FC-4690-BEF4-59782E720A68}"
 EndProject
@@ -65,8 +62,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Model Generator", "Model Generator", "{26579DD3-6E6F-4959-8289-9A23C2A57997}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aas-model-generator", "tools\aas-model-generator\aas-model-generator.csproj", "{620930EE-63A3-452B-B2DA-7E24B9100704}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AasxCsharpLibrary", "..\aasx-package-explorer\src\AasxCsharpLibrary\AasxCsharpLibrary.csproj", "{B28ED681-5E82-4DDF-9F0E-986383CA5036}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdtModels", "src\adt-models\AdtModels.csproj", "{6F6F5E00-E2D2-42D2-88FB-623E501553E2}"
 EndProject
@@ -189,12 +184,6 @@ Global
 		{620930EE-63A3-452B-B2DA-7E24B9100704}.DebugSlow|Any CPU.Build.0 = Debug|Any CPU
 		{620930EE-63A3-452B-B2DA-7E24B9100704}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{620930EE-63A3-452B-B2DA-7E24B9100704}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B28ED681-5E82-4DDF-9F0E-986383CA5036}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B28ED681-5E82-4DDF-9F0E-986383CA5036}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B28ED681-5E82-4DDF-9F0E-986383CA5036}.DebugSlow|Any CPU.ActiveCfg = Debug|Any CPU
-		{B28ED681-5E82-4DDF-9F0E-986383CA5036}.DebugSlow|Any CPU.Build.0 = Debug|Any CPU
-		{B28ED681-5E82-4DDF-9F0E-986383CA5036}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B28ED681-5E82-4DDF-9F0E-986383CA5036}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6F6F5E00-E2D2-42D2-88FB-623E501553E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6F6F5E00-E2D2-42D2-88FB-623E501553E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F6F5E00-E2D2-42D2-88FB-623E501553E2}.DebugSlow|Any CPU.ActiveCfg = Debug|Any CPU
