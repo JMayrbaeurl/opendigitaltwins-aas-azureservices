@@ -7,7 +7,7 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>AASWebAppRepository</AssemblyName>
     <PackageId>IO.Swagger</PackageId>
-    <RootNamespace>AAS.API.Registry</RootNamespace>
+    <RootNamespace>Aas.Api.Repository</RootNamespace>
     <UserSecretsId>93593822-14b3-46e2-abbf-d9ea7cdc447f</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>

@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
 
-namespace AAS.API.Registry
+namespace Aas.Api.Repository
 {
     /// <summary>
     /// Program

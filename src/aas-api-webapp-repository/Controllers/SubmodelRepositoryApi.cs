@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using AAS.API.Registry.Attributes;
 using AAS.API.Repository;
+using Aas.Api.Repository.Attributes;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Swashbuckle.AspNetCore.Annotations;
 using Submodel = AAS.API.Models.Submodel;
 
-namespace AAS.API.Registry.Controllers
+namespace Aas.Api.Repository.Controllers
 {
     [Route("api/v1/submodels")]
     [ApiController]

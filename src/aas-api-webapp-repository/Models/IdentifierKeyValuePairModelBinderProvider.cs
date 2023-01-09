@@ -1,7 +1,7 @@
 ﻿using AAS.API.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace AAS.API.Registry.Models
+namespace Aas.Api.Repository.Models
 {
     /// <summary>
     /// 

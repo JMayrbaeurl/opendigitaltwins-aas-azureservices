@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace AAS.API.Registry.Filters
+namespace Aas.Api.Repository.Filters
 {
     /// <summary>
     /// Path Parameter Validation Rules Filter

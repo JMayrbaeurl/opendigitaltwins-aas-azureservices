@@ -1,10 +1,10 @@
-﻿using AAS.API.Models;
+﻿using System;
+using System.Threading.Tasks;
+using AAS.API.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
-using System;
-using System.Threading.Tasks;
 
-namespace AAS.API.Registry.Models
+namespace Aas.Api.Repository.Models
 {
     /// <summary>
     /// 

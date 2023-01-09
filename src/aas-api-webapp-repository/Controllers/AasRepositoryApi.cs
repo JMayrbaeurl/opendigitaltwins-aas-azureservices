@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using AAS.API.Registry.Attributes;
-
-using Microsoft.AspNetCore.Authorization;
 using AAS.API.Models;
-using Microsoft.Extensions.Configuration;
 using AAS.API.Repository;
+using Aas.Api.Repository.Attributes;
 using AAS_Services_Support.ADT_Support;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Swashbuckle.AspNetCore.Annotations;
 
-namespace AAS.API.Registry.Controllers
+namespace Aas.Api.Repository.Controllers
 {
     [Authorize]
     [ApiController]
