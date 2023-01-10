@@ -40,11 +40,12 @@ namespace AAS.API.WebApp.Controllers
         /// <summary>
         /// 
         /// </summary>
-        public AssetAdministrationShellRepositoryInterfaceApiController(IConfiguration config, IAdtInteractions adtInteractions,IMapper mapper) : base()
+        public AssetAdministrationShellRepositoryInterfaceApiController(IConfiguration config,
+            IAASRepositoryFactory aasRepositoryFactory)
         {
             _configuration = config;
-
-            repository = new AASRepositoryFactory(adtInteractions,mapper).CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]);
+            repository = aasRepositoryFactory.CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
+                         throw new ArgumentNullException();
         }
 
         /// <summary>

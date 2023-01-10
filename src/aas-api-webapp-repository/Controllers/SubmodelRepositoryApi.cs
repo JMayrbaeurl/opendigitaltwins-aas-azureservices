@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Swashbuckle.AspNetCore.Annotations;
 using Submodel = AAS.API.Models.Submodel;
+using AAS.API.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Aas.Api.Repository.Controllers
 {
@@ -19,16 +21,20 @@ namespace Aas.Api.Repository.Controllers
         private readonly IConfiguration _configuration;
         private readonly ISubmodelRepository _repository;
         private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
 
-        public SubmodelRepositoryApi(IConfiguration config, ISubmodelRepository repository, IMapper mapper)
+        public SubmodelRepositoryApi(IConfiguration config, ISubmodelRepository repository, IMapper mapper, ILogger logger)
         {
             _configuration = config ??
                              throw new ArgumentNullException(nameof(config));
 
             _repository = repository ??
                           throw new ArgumentNullException(nameof(repository));
-            _mapper = mapper;
+            _mapper = mapper ??
+                      throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ??
+                      throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -62,6 +68,8 @@ namespace Aas.Api.Repository.Controllers
         [SwaggerResponse(statusCode: 200, type: typeof(Submodel), description: "Requested Submodel")]
         public async Task<ActionResult<Submodel>> GetSubmodelSubmodelRepo([FromRoute][Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content, [FromQuery] string extent)
         {
+            var Message = $"About page visited at {DateTime.UtcNow.ToLongTimeString()}";
+            _logger.LogInformation(Message);
             submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
             return Ok(await _repository.GetSubmodelWithId(submodelIdentifier));
         }

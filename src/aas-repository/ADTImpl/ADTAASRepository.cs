@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AAS_Services_Support.ADT_Support;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 
 
 namespace AAS.API.Repository
@@ -14,11 +15,14 @@ namespace AAS.API.Repository
     {
         private readonly ADTAASModelFactory _modelFactory;
         private readonly IAdtInteractions _adtInteractions;
+        private readonly ILogger _logger;
 
-        public ADTAASRepository(DigitalTwinsClient client, IAdtInteractions adtInteractions, IMapper mapper) //: base(client)
+        public ADTAASRepository(DigitalTwinsClient client, IAdtInteractions adtInteractions, IMapper mapper,
+            ILogger logger)
         {
             _modelFactory = new ADTAASModelFactory(mapper);
             _adtInteractions = adtInteractions;
+            _logger = logger;
         }
 
 

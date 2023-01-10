@@ -20,22 +20,14 @@ namespace Aas.Api.Repository.Controllers
     public class AasRepositoryApi : Controller
     {
 
-        private IConfiguration _configuration;
-
         private AASRepository repository;
-        private IMapper _mapper;
 
         /// <summary>
         /// 
         /// </summary>
-        public AasRepositoryApi(IConfiguration config, IAdtInteractions adtInteractions, IMapper mapper) : base()
+        public AasRepositoryApi(IConfiguration config, IAASRepositoryFactory aasRepositoryFactory)
         {
-            _configuration = config ??
-                             throw new ArgumentNullException(nameof(config));
-            _mapper = mapper ??
-                      throw new ArgumentNullException(nameof(mapper));
-
-            repository = new AASRepositoryFactory(adtInteractions,mapper).CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
+            repository = aasRepositoryFactory.CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
                          throw new ArgumentNullException(); ;
         }
 

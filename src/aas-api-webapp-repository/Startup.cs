@@ -99,7 +99,7 @@ namespace Aas.Api.Repository
             services.AddTransient<IAdtSubmodelModelFactory, AdtSubmodelModelFactory>();
             services.AddTransient<AdtSubmodelElementFactory<AdtSubmodel>>();
             services.AddTransient<AdtSubmodelElementFactory<AdtSubmodelElementCollection>>();
-
+            services.AddTransient<IAASRepositoryFactory, AASRepositoryFactory>();
 
             services
                 .AddSwaggerGen(c =>

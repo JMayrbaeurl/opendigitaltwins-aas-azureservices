@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 
 namespace AAS_Repository_Tests
 {
@@ -12,9 +13,9 @@ namespace AAS_Repository_Tests
     public class ADTAASRepoStandardTests
     {
         [TestMethod]
-        public void TestGetAllAdministrationShells(IAdtInteractions adtInteractions, IMapper mapper)
+        public void TestGetAllAdministrationShells(IAdtInteractions adtInteractions, IMapper mapper, ILogger logger)
         {
-            AASRepository repo = new AASRepositoryFactory(adtInteractions,mapper).CreateAASRepositoryForADT("https://hack2021aasadt.api.weu.digitaltwins.azure.net");
+            AASRepository repo = new AASRepositoryFactory(adtInteractions,mapper,logger).CreateAASRepositoryForADT("https://hack2021aasadt.api.weu.digitaltwins.azure.net");
             List<AssetAdministrationShell> adminshells = repo.GetAllAdministrationShells().GetAwaiter().GetResult();
             Assert.IsNotNull(adminshells);
             Assert.IsFalse(adminshells.Count == 0);
