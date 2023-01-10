@@ -3,7 +3,7 @@ using Azure.DigitalTwins.Core;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using System;
-using AAS.API.Registry.Clients;
+using AAS.API.Services.Clients;
 
 namespace AAS.API.Services.ADT
 {

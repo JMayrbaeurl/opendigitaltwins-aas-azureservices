@@ -10,12 +10,12 @@
 
 using System;
 using System.IO;
-using AAS.API.Registry.Clients;
 using AAS.API.Repository;
 using AAS.API.Repository.ADTImpl;
 using Aas.Api.Repository.Filters;
 using Aas.Api.Repository.Models;
 using AAS.API.Services.ADT;
+using AAS.API.Services.Clients;
 using AAS_Services_Support.ADT_Support;
 using AdtModels.AdtModels;
 using AutoMapper;

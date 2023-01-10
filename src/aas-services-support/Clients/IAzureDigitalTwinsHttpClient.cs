@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 
-namespace AAS.API.Registry.Clients
+namespace AAS.API.Services.Clients
 {
     public interface IAzureDigitalTwinsHttpClient
     {

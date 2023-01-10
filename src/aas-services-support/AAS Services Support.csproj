@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>AAS_Services_Support</RootNamespace>
+    <RootNamespace>AAS.API.Services</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
