@@ -14,7 +14,6 @@ using System.ComponentModel.DataAnnotations;
 using AAS.API.Models;
 using AAS.API.Repository;
 using Aas.Api.Repository.Attributes;
-using AAS_Services_Support.ADT_Support;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
