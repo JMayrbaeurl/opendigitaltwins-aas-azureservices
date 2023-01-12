@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <Description>IO.Swagger</Description>
     <Copyright>IO.Swagger</Copyright>
@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
+    <ProjectReference Include="..\aas-api-repository-adt\AasRepositoryAdt.csproj" />
     <ProjectReference Include="..\aas-repository\AAS Repository.csproj" />
   </ItemGroup>
 </Project>

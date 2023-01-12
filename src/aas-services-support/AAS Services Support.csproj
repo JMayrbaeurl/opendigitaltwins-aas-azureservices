@@ -17,7 +17,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\tools\aasx-cmdline\AASX Package Command line.csproj" />
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
-    <ProjectReference Include="..\adt-models\AdtModels.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ADT Support\Exceptions\" />
   </ItemGroup>
 
 </Project>

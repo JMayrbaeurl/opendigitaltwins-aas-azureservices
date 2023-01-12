@@ -8,7 +8,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Swashbuckle.AspNetCore.Annotations;
-using Submodel = AAS.API.Models.Submodel;
 using AAS.API.Models;
 using Microsoft.Extensions.Logging;
 
@@ -24,7 +23,7 @@ namespace Aas.Api.Repository.Controllers
         private readonly ILogger _logger;
 
 
-        public SubmodelRepositoryApi(IConfiguration config, ISubmodelRepository repository, IMapper mapper, ILogger logger)
+        public SubmodelRepositoryApi(IConfiguration config, ISubmodelRepository repository, IMapper mapper, ILogger<SubmodelRepositoryApi> logger)
         {
             _configuration = config ??
                              throw new ArgumentNullException(nameof(config));

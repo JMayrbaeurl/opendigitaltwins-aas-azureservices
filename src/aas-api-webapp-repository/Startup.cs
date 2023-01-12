@@ -11,13 +11,11 @@
 using System;
 using System.IO;
 using AAS.API.Repository;
-using AAS.API.Repository.ADTImpl;
+using AAS.API.Repository.Adt;
+using AAS.API.Repository.Adt.Models;
 using Aas.Api.Repository.Filters;
 using Aas.Api.Repository.Models;
 using AAS.API.Services.ADT;
-using AAS.API.Services.Clients;
-using AAS_Services_Support.ADT_Support;
-using AdtModels.AdtModels;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -56,6 +54,7 @@ namespace Aas.Api.Repository
 
         }
 
+        
         /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
@@ -67,8 +66,9 @@ namespace Aas.Api.Repository
                 cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies());
                 cfg.DisableConstructorMapping();
                 cfg.AllowNullCollections = true;
-            }); 
+            });
             IMapper mapper = configuration.CreateMapper();
+            services.AddLogging();
             services.AddSingleton(mapper);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
@@ -93,8 +93,8 @@ namespace Aas.Api.Repository
                 client.BaseAddress = new Uri(Configuration["ADT_SERVICE_URL"]));
             services.AddTransient<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
             services.AddScoped<ISubmodelRepository, AdtSubmodelRepository>();
-            services.AddTransient<IAdtInteractions, AdtInteractions>();
-            services.AddTransient<IAdtSubmodelInteractions, AdtSubmodelInteractions>();
+            services.AddTransient<IAdtAasConnector, AdtAasConnector>();
+            services.AddTransient<IAdtSubmodelConnector, AdtSubmodelConnector>();
             services.AddTransient<IAdtDefinitionsAndSemanticsModelFactory, AdtDefinitionsAndSemanticsModelFactory>();
             services.AddTransient<IAdtSubmodelModelFactory, AdtSubmodelModelFactory>();
             services.AddTransient<AdtSubmodelElementFactory<AdtSubmodel>>();
@@ -158,6 +158,7 @@ namespace Aas.Api.Repository
         /// <param name="loggerFactory"></param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IMapper mapper)
         {
+            
             mapper.ConfigurationProvider.AssertConfigurationIsValid();
             app.UseRouting();
             //app.UseCors(builder => builder

@@ -19,7 +19,6 @@ using AAS.API.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using AAS.API.Repository;
-using AAS_Services_Support.ADT_Support;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 
