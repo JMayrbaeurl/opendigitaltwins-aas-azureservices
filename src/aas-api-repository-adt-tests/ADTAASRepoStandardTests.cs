@@ -14,9 +14,9 @@ namespace AAS_Repository_Tests
     {
         [TestMethod]
         public void TestGetAllAdministrationShells(
-            IAdtInteractions adtInteractions, IMapper mapper, ILogger<AASRepositoryFactory> logger)
+            IAdtAasConnector adtAasConnector, IMapper mapper, ILogger<AASRepositoryFactory> logger)
         {
-            AASRepository repo = new AASRepositoryFactory(adtInteractions,mapper,logger).CreateAASRepositoryForADT("https://hack2021aasadt.api.weu.digitaltwins.azure.net");
+            AASRepository repo = new AASRepositoryFactory(adtAasConnector,mapper,logger).CreateAASRepositoryForADT("https://hack2021aasadt.api.weu.digitaltwins.azure.net");
             List<AssetAdministrationShell> adminshells = repo.GetAllAdministrationShells().GetAwaiter().GetResult();
             Assert.IsNotNull(adminshells);
             Assert.IsFalse(adminshells.Count == 0);

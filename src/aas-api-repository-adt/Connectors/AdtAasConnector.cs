@@ -9,11 +9,11 @@ using Azure.DigitalTwins.Core;
 
 namespace AAS.API.Repository.Adt
 {
-    public class AdtInteractions : IAdtInteractions
+    public class AdtAasConnector : IAdtAasConnector
     {
         public DigitalTwinsClient _client;
 
-        public AdtInteractions(DigitalTwinsClientFactory adtClientFactory)
+        public AdtAasConnector(DigitalTwinsClientFactory adtClientFactory)
         {
             _client = adtClientFactory.CreateClient();
         }

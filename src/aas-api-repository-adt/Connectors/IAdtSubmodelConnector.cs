@@ -3,7 +3,7 @@ using AAS.API.Repository.Adt.Models;
 
 namespace AAS.API.Repository.Adt;
 
-public interface IAdtSubmodelInteractions
+public interface IAdtSubmodelConnector
 {
     Task<AdtSubmodelAndSmcInformation<AdtSubmodel>> GetAllInformationForSubmodelWithTwinId(string twinId);
     AdtConcreteAasInformation DeserializeAdtResponse(string relationship, JsonNode dataTwin, AdtConcreteAasInformation information);

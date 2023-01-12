@@ -6,7 +6,7 @@ namespace AAS.API.Repository.Adt
 {
     public class ADTAASModelFactory : AdtGeneralModelFactory
     {
-        private readonly IAdtInteractions _adtInteractions;
+        private readonly IAdtAasConnector _adtAasConnector;
         private readonly IMapper _mapper;
 
         public ADTAASModelFactory(IMapper mapper)

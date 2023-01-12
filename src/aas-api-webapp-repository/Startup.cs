@@ -93,8 +93,8 @@ namespace Aas.Api.Repository
                 client.BaseAddress = new Uri(Configuration["ADT_SERVICE_URL"]));
             services.AddTransient<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
             services.AddScoped<ISubmodelRepository, AdtSubmodelRepository>();
-            services.AddTransient<IAdtInteractions, AdtInteractions>();
-            services.AddTransient<IAdtSubmodelInteractions, AdtSubmodelInteractions>();
+            services.AddTransient<IAdtAasConnector, AdtAasConnector>();
+            services.AddTransient<IAdtSubmodelConnector, AdtSubmodelConnector>();
             services.AddTransient<IAdtDefinitionsAndSemanticsModelFactory, AdtDefinitionsAndSemanticsModelFactory>();
             services.AddTransient<IAdtSubmodelModelFactory, AdtSubmodelModelFactory>();
             services.AddTransient<AdtSubmodelElementFactory<AdtSubmodel>>();

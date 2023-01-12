@@ -2,7 +2,7 @@
 
 namespace AAS.API.Repository.Adt;
 
-public interface IAdtInteractions
+public interface IAdtAasConnector
 {
     List<string> GetAllAasIds();
     AdtAas GetAdtAasForAasWithId(string aasId);

@@ -8,14 +8,14 @@ namespace AAS.API.Repository.Adt
     public class ADTAASRepository : AASRepository
     {
         private readonly ADTAASModelFactory _modelFactory;
-        private readonly IAdtInteractions _adtInteractions;
+        private readonly IAdtAasConnector _adtAasConnector;
         private readonly ILogger _logger;
 
-        public ADTAASRepository(DigitalTwinsClient client, IAdtInteractions adtInteractions, IMapper mapper,
+        public ADTAASRepository(DigitalTwinsClient client, IAdtAasConnector adtAasConnector, IMapper mapper,
             ILogger logger)
         {
             _modelFactory = new ADTAASModelFactory(mapper);
-            _adtInteractions = adtInteractions;
+            _adtAasConnector = adtAasConnector;
             _logger = logger;
         }
 
@@ -26,8 +26,8 @@ namespace AAS.API.Repository.Adt
             var shells = new List<AssetAdministrationShell>();
             foreach (var id in ids)
             {
-                var information = _adtInteractions.GetAllInformationForAasWithId(id);
-                information.RootElement = _adtInteractions.GetAdtAasForAasWithId(id);
+                var information = _adtAasConnector.GetAllInformationForAasWithId(id);
+                information.RootElement = _adtAasConnector.GetAdtAasForAasWithId(id);
                 
                 shells.Add(_modelFactory.GetAas(information));
             }
@@ -46,8 +46,8 @@ namespace AAS.API.Repository.Adt
 
         public async Task<AssetAdministrationShell> GetAssetAdministrationShellWithId(string aasIdentifier)
         {
-            var information = _adtInteractions.GetAllInformationForAasWithId(aasIdentifier);
-            information.RootElement = _adtInteractions.GetAdtAasForAasWithId(aasIdentifier);
+            var information = _adtAasConnector.GetAllInformationForAasWithId(aasIdentifier);
+            information.RootElement = _adtAasConnector.GetAdtAasForAasWithId(aasIdentifier);
 
             
 
@@ -56,7 +56,7 @@ namespace AAS.API.Repository.Adt
 
         public List<string> GetAllAasIds()
         {
-            return _adtInteractions.GetAllAasIds();
+            return _adtAasConnector.GetAllAasIds();
         }
 
         public AssetAdministrationShell GetAdministrationShellForAasId(string aasId)

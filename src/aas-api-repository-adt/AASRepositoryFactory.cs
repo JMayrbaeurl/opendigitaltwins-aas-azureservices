@@ -8,13 +8,13 @@ namespace AAS.API.Repository.Adt
 {
     public class AASRepositoryFactory : IAASRepositoryFactory
     {
-        private readonly IAdtInteractions _adtInteractions;
+        private readonly IAdtAasConnector _adtAasConnector;
         private readonly IMapper _mapper;
         private readonly ILogger _logger;
 
-        public AASRepositoryFactory(IAdtInteractions adtInteractions, IMapper mapper, ILogger<AASRepositoryFactory> logger)
+        public AASRepositoryFactory(IAdtAasConnector adtAasConnector, IMapper mapper, ILogger<AASRepositoryFactory> logger)
         {
-            _adtInteractions = adtInteractions;
+            _adtAasConnector = adtAasConnector;
             _mapper = mapper;
             _logger = logger;
         }
@@ -25,7 +25,7 @@ namespace AAS.API.Repository.Adt
             DigitalTwinsClient client = new DigitalTwinsClient(new Uri(adtInstanceURL),
                         credentials, new DigitalTwinsClientOptions { Transport = new HttpClientTransport(new HttpClient()) });
 
-            return new ADTAASRepository(client, _adtInteractions,_mapper, _logger);
+            return new ADTAASRepository(client, _adtAasConnector,_mapper, _logger);
         }
     }
 }

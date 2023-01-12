@@ -9,12 +9,12 @@ using Azure.DigitalTwins.Core;
 
 namespace AAS.API.Repository.Adt
 {
-    public class AdtSubmodelInteractions : IAdtSubmodelInteractions
+    public class AdtSubmodelConnector : IAdtSubmodelConnector
     {
         private readonly DigitalTwinsClient _client;
 
 
-        public AdtSubmodelInteractions(DigitalTwinsClientFactory adtClientFactory)
+        public AdtSubmodelConnector(DigitalTwinsClientFactory adtClientFactory)
         {
             _client = adtClientFactory.CreateClient();
         }
