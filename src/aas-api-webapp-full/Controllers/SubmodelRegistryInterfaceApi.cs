@@ -145,7 +145,7 @@ namespace AAS.API.WebApp.Controllers
                 throw new AASRegistryException("Invalid setup. No Registry service configured. Check DI setup");
             }
 
-            registryService.UpdateSubmodelDescriptorById(body).GetAwaiter().GetResult();
+            registryService.UpdateSubmodelDescriptorById(HttpUtility.UrlDecode(submodelIdentifier), body).GetAwaiter().GetResult();
 
             return StatusCode(204);
         }
