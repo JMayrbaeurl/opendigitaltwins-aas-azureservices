@@ -34,5 +34,9 @@ namespace AAS.API.Repository.Adt
             return await _adtSubmodelModelFactory.GetSubmodel(information);
         }
 
+        public void CreateSubmodelElement(string submodelIdentifier, ISubmodelElement submodelElement)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

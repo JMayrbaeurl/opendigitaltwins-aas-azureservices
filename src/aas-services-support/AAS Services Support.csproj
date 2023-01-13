@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ADT Support\Exceptions\**" />
+    <EmbeddedResource Remove="ADT Support\Exceptions\**" />
+    <None Remove="ADT Support\Exceptions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AasCore.Aas3_0_RC02" Version="1.1.0" />
     <PackageReference Include="AutoMapper" Version="12.0.0" />
     <PackageReference Include="Azure.DigitalTwins.Core" Version="1.4.0" />
@@ -17,10 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\tools\aasx-cmdline\AASX Package Command line.csproj" />
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ADT Support\Exceptions\" />
   </ItemGroup>
 
 </Project>

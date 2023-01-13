@@ -10,7 +10,7 @@ namespace AAS.API.Repository.Adt
     {
         private readonly IAdtAasConnector _adtAasConnector;
         private readonly IMapper _mapper;
-        private readonly ILogger _logger;
+        private readonly ILogger<AASRepositoryFactory> _logger;
 
         public AASRepositoryFactory(IAdtAasConnector adtAasConnector, IMapper mapper, ILogger<AASRepositoryFactory> logger)
         {

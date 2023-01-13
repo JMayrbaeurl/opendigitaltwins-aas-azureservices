@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace Aas.Api.Repository.Controllers
+namespace AAS.API.Repository.Controllers
 {
     [Authorize]
     [ApiController]

@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using Aas.Api.Repository.Mapper.AutoMapper;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 using Newtonsoft.Json.Linq;
 
-namespace Aas.Api.Repository.Mapper
+namespace AAS.API.Repository
 {
-    public class PropertyMapper  : ObjectMapperStrategy<Property>
+    public class JObjectToPropertyMapper  : ObjectMapperStrategy<Property>
     {
         private readonly IMapper _autoMapper;
-        public PropertyMapper(IMapper autoMapper)
+        public JObjectToPropertyMapper(IMapper autoMapper)
         {
             _autoMapper = autoMapper ??
                           throw new ArgumentNullException(nameof(autoMapper));

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using AAS.API.Repository.Adt.Models;
+using AasCore.Aas3_0_RC02;
 
 namespace AAS.API.Repository.Adt;
 
@@ -12,4 +13,5 @@ public interface IAdtSubmodelConnector
         string twinId);
 
     public Task<DefinitionsAndSemantics> GetAllDescriptionsForSubmodelElements(string rootTwinId);
+    public void CreateProperty(string submodelIdentifier, Property property);
 }

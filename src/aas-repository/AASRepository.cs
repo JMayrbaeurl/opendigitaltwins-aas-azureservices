@@ -3,14 +3,15 @@ using AAS.API.Services;
 using System;
 using System.Collections.Generic;
 using AasCore.Aas3_0_RC02;
+using System.Threading.Tasks;
 
 namespace AAS.API.Repository
 {
     public interface AASRepository : ShellRepository
     {
         public List<string> GetAllAasIds();
-        public AssetAdministrationShell GetAdministrationShellForAasId(string aasId);
-
+        public Task<AssetAdministrationShell> GetAssetAdministrationShellWithId(string aasId);
+        public Task<List<AssetAdministrationShell>> GetAllAdministrationShells();
     }
 
     public class AASRepositoryException : AASServiceException

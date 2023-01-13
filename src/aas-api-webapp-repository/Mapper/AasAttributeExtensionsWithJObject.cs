@@ -1,8 +1,8 @@
-﻿using AasCore.Aas3_0_RC02;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AasCore.Aas3_0_RC02;
 using Newtonsoft.Json.Linq;
 
-namespace Aas.Api.Repository.Mapper
+namespace AAS.API.Repository
 {
     public static class AasAttributeExtensionsWithJObject
     {

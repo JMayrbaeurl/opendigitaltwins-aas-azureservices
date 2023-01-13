@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 
-namespace Aas.Api.Repository.Mapper
+namespace AAS.API.Repository
 {
     public interface ObjectMapperStrategy<T>
     {

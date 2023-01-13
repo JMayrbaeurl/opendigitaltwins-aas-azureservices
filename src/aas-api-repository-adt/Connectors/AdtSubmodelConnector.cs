@@ -4,6 +4,7 @@ using AAS.AASX.CmdLine.ADT;
 using AAS.API.Repository.Adt.Exceptions;
 using AAS.API.Repository.Adt.Models;
 using AAS.API.Services.ADT;
+using AasCore.Aas3_0_RC02;
 using Azure;
 using Azure.DigitalTwins.Core;
 
@@ -36,7 +37,7 @@ namespace AAS.API.Repository.Adt
 
                 var rel = item["rel"]["$relationshipName"].ToString();
                 DeserializeAdtResponse(rel, dataTwin1, adtGeneralInformation.ConcreteAasInformation);
-                adtGeneralInformation.relatedTwins.Add((dataTwin1,rel));
+                adtGeneralInformation.relatedTwins.Add((dataTwin1, rel));
             }
 
             if (adtGeneralInformation.RootElement.Id == null)
@@ -62,7 +63,7 @@ namespace AAS.API.Repository.Adt
             adtSubmodelInformation.definitionsAndSemantics = generalInformation.definitionsAndSemantics;
             adtSubmodelInformation.ConcreteAasInformation = generalInformation.ConcreteAasInformation;
             adtSubmodelInformation.RootElement = generalInformation.RootElement;
-            foreach (var (relatedTwin,rel) in generalInformation.relatedTwins)
+            foreach (var (relatedTwin, rel) in generalInformation.relatedTwins)
             {
                 adtSubmodelInformation = await DeserializeAdtResponseForSubmodelOrSmeCollection(rel, relatedTwin, adtSubmodelInformation);
             }
@@ -102,197 +103,198 @@ namespace AAS.API.Repository.Adt
         //    adtSubmodelInformation.definitionsAndSemantic = await
         //        GetAllDescriptionsForSubmodelElements(twinId);
         //    return adtSubmodelInformation;
-    //}
+        //}
 
 
 
-    private AsyncPageable<JsonObject> GetAllTwinsDirectlyRelatedToTwinWithId(string twinId)
-    {
-        string queryString = "Select twin0, rel, twin1 from digitaltwins match (twin0)-[rel]->(twin1) " +
-                             $"where twin0.$dtId='{twinId}'";
-        return _client.QueryAsync<JsonObject>(queryString);
-    }
-
-    public AdtConcreteAasInformation DeserializeAdtResponse(string relationship, JsonNode dataTwin, AdtConcreteAasInformation information)
-    {
-
-        if (relationship == "dataSpecification")
+        private AsyncPageable<JsonObject> GetAllTwinsDirectlyRelatedToTwinWithId(string twinId)
         {
-            information.dataSpecifications.Add(
-                JsonSerializer.Deserialize<AdtDataSpecification>(dataTwin));
-        }
-        else if (relationship == "semanticId")
-        {
-            information.semanticId = JsonSerializer.Deserialize<AdtReference>(dataTwin);
-        }
-        else if (relationship == "supplementalSemanticId")
-            information.supplementalSemanticId.Add(JsonSerializer.Deserialize<AdtReference>(dataTwin));
-
-        return information;
-    }
-
-    private async Task<AdtSubmodelAndSmcInformation<T>>
-        DeserializeAdtResponseForSubmodelOrSmeCollection<T>(
-        string relationship, JsonNode dataTwin, AdtSubmodelAndSmcInformation<T> information) where T : AdtBase, new()
-    {
-
-        if (relationship == "submodelElement" || relationship == "value")
-        {
-            var model = dataTwin["$metadata"]["$model"].ToString();
-            var sme = JsonSerializer.Deserialize<AdtSubmodelElement>(dataTwin);
-
-            if (model == ADTAASOntology.MODEL_SUBMODELELEMENTCOLLECTION)
-                information.smeCollections.Add(await GetAllSubmodelElementCollectionInformation(dataTwin["$dtId"].ToString()));
-            else if (model == ADTAASOntology.MODEL_PROPERTY)
-                information.properties.Add(JsonSerializer.Deserialize<AdtProperty>(dataTwin));
-            else if (model == ADTAASOntology.MODEL_FILE)
-                information.files.Add(JsonSerializer.Deserialize<AdtFile>(dataTwin));
-            else
-                throw new AdtModelNotSupported($"Unsupported AdtModel of Type {model}");
+            string queryString = "Select twin0, rel, twin1 from digitaltwins match (twin0)-[rel]->(twin1) " +
+                                 $"where twin0.$dtId='{twinId}'";
+            return _client.QueryAsync<JsonObject>(queryString);
         }
 
-        return information;
-    }
-
-
-    public async Task<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> GetAllSubmodelElementCollectionInformation(
-        string twinId)
-    {
-        var adtSmeCollectionInformation = new AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>();
-
-        var items = GetAllTwinsDirectlyRelatedToTwinWithId(twinId);
-
-        await foreach (var item in items)
+        public AdtConcreteAasInformation DeserializeAdtResponse(string relationship, JsonNode dataTwin, AdtConcreteAasInformation information)
         {
-            if (adtSmeCollectionInformation.RootElement.IdShort == null)
+
+            if (relationship == "dataSpecification")
             {
-                adtSmeCollectionInformation.RootElement = JsonSerializer.Deserialize<AdtSubmodelElementCollection>(item["twin0"].ToString());
+                information.dataSpecifications.Add(
+                    JsonSerializer.Deserialize<AdtDataSpecification>(dataTwin));
             }
-            var rel = item["rel"]["$relationshipName"].ToString();
-            var dataTwin1 = item["twin1"];
+            else if (relationship == "semanticId")
+            {
+                information.semanticId = JsonSerializer.Deserialize<AdtReference>(dataTwin);
+            }
+            else if (relationship == "supplementalSemanticId")
+                information.supplementalSemanticId.Add(JsonSerializer.Deserialize<AdtReference>(dataTwin));
 
-            DeserializeAdtResponse(rel, dataTwin1, adtSmeCollectionInformation.ConcreteAasInformation);
-            await DeserializeAdtResponseForSubmodelOrSmeCollection(rel, dataTwin1, adtSmeCollectionInformation);
+            return information;
         }
 
-        if (adtSmeCollectionInformation.RootElement.IdShort == null)
+        private async Task<AdtSubmodelAndSmcInformation<T>>
+            DeserializeAdtResponseForSubmodelOrSmeCollection<T>(
+            string relationship, JsonNode dataTwin, AdtSubmodelAndSmcInformation<T> information) where T : AdtBase, new()
         {
-            // no Twins related to this Submodel -> the Query Response was Empty
-            items = _client.QueryAsync<JsonObject>($"Select twin from digitaltwins twin where twin.$dtId = '{twinId}'");
+
+            if (relationship == "submodelElement" || relationship == "value")
+            {
+                var model = dataTwin["$metadata"]["$model"].ToString();
+                var sme = JsonSerializer.Deserialize<AdtSubmodelElement>(dataTwin);
+
+                if (model == ADTAASOntology.MODEL_SUBMODELELEMENTCOLLECTION)
+                    information.smeCollections.Add(await GetAllSubmodelElementCollectionInformation(dataTwin["$dtId"].ToString()));
+                else if (model == ADTAASOntology.MODEL_PROPERTY)
+                    information.properties.Add(JsonSerializer.Deserialize<AdtProperty>(dataTwin));
+                else if (model == ADTAASOntology.MODEL_FILE)
+                    information.files.Add(JsonSerializer.Deserialize<AdtFile>(dataTwin));
+                else
+                    throw new AdtModelNotSupported($"Unsupported AdtModel of Type {model}");
+            }
+
+            return information;
+        }
+
+
+        public async Task<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> GetAllSubmodelElementCollectionInformation(
+            string twinId)
+        {
+            var adtSmeCollectionInformation = new AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>();
+
+            var items = GetAllTwinsDirectlyRelatedToTwinWithId(twinId);
+
             await foreach (var item in items)
             {
-                adtSmeCollectionInformation.RootElement = JsonSerializer.Deserialize<AdtSubmodelElementCollection>(item["twin"].ToString());
+                if (adtSmeCollectionInformation.RootElement.IdShort == null)
+                {
+                    adtSmeCollectionInformation.RootElement = JsonSerializer.Deserialize<AdtSubmodelElementCollection>(item["twin0"].ToString());
+                }
+                var rel = item["rel"]["$relationshipName"].ToString();
+                var dataTwin1 = item["twin1"];
+
+                DeserializeAdtResponse(rel, dataTwin1, adtSmeCollectionInformation.ConcreteAasInformation);
+                await DeserializeAdtResponseForSubmodelOrSmeCollection(rel, dataTwin1, adtSmeCollectionInformation);
             }
+
+            if (adtSmeCollectionInformation.RootElement.IdShort == null)
+            {
+                // no Twins related to this Submodel -> the Query Response was Empty
+                items = _client.QueryAsync<JsonObject>($"Select twin from digitaltwins twin where twin.$dtId = '{twinId}'");
+                await foreach (var item in items)
+                {
+                    adtSmeCollectionInformation.RootElement = JsonSerializer.Deserialize<AdtSubmodelElementCollection>(item["twin"].ToString());
+                }
+            }
+
+            adtSmeCollectionInformation.definitionsAndSemantics = await
+                GetAllDescriptionsForSubmodelElements(twinId);
+
+            return adtSmeCollectionInformation;
+
         }
 
-        adtSmeCollectionInformation.definitionsAndSemantics = await
-            GetAllDescriptionsForSubmodelElements(twinId);
-
-        return adtSmeCollectionInformation;
-
-    }
-
-    public async Task<DefinitionsAndSemantics> GetAllDescriptionsForSubmodelElements(string rootTwinId)
-    {
-        var definitionsAndSemantik = new DefinitionsAndSemantics();
-        string queryString = "Select sme.$dtId as smeTwinId, twin2 from digitaltwins match (twin0)-[rel1]->(sme)-[*..9]->(twin2) " +
-                             $"where twin0.$dtId='{rootTwinId}' and " +
-                             "rel1.$relationshipName in ['submodelElement','value']  and " +
-                             "not sme.$metadata.$model='dtmi:digitaltwins:aas:SubmodelElementCollection;1'";
-        var twinIds = new List<string>();
-        var tempDictToCheckDuplicates = new Dictionary<string, string>();
-
-        var items = _client.QueryAsync<JsonObject>(queryString);
-        await foreach (var item in items)
+        public async Task<DefinitionsAndSemantics> GetAllDescriptionsForSubmodelElements(string rootTwinId)
         {
-            var type = item["twin2"]["$metadata"]["$model"].ToString();
-            var twinId = item["twin2"]["$dtId"].ToString();
-            var smeTwinId = item["smeTwinId"].ToString();
-            twinIds.Add(twinId);
-            if (!tempDictToCheckDuplicates.ContainsKey(smeTwinId))
-            {
-                twinIds.Add(smeTwinId);
-                tempDictToCheckDuplicates.Add(smeTwinId, "");
-            }
+            var definitionsAndSemantik = new DefinitionsAndSemantics();
+            string queryString = "Select sme.$dtId as smeTwinId, twin2 from digitaltwins match (twin0)-[rel1]->(sme)-[*..9]->(twin2) " +
+                                 $"where twin0.$dtId='{rootTwinId}' and " +
+                                 "rel1.$relationshipName in ['submodelElement','value']  and " +
+                                 "not sme.$metadata.$model='dtmi:digitaltwins:aas:SubmodelElementCollection;1'";
+            var twinIds = new List<string>();
+            var tempDictToCheckDuplicates = new Dictionary<string, string>();
 
-            var data = item["twin2"].ToString();
-            if (type == ADTAASOntology.MODEL_REFERENCE)
+            var items = _client.QueryAsync<JsonObject>(queryString);
+            await foreach (var item in items)
             {
-                if (definitionsAndSemantik.References.ContainsKey(twinId) == false)
+                var type = item["twin2"]["$metadata"]["$model"].ToString();
+                var twinId = item["twin2"]["$dtId"].ToString();
+                var smeTwinId = item["smeTwinId"].ToString();
+                twinIds.Add(twinId);
+                if (!tempDictToCheckDuplicates.ContainsKey(smeTwinId))
                 {
-                    var adtModel = JsonSerializer.Deserialize<AdtReference>(data);
-                    definitionsAndSemantik.References.Add(twinId, adtModel);
-                }
-            }
-            else if (type == ADTAASOntology.MODEL_DATASPECIEC61360)
-            {
-                if (definitionsAndSemantik.Iec61360s.ContainsKey(twinId) == false)
-                {
-
-                    definitionsAndSemantik.Iec61360s.Add(twinId,
-                        JsonSerializer.Deserialize<AdtDataSpecificationIEC61360>(data));
-                }
-            }
-            else if (type == ADTAASOntology.MODEL_CONCEPTDESCRIPTION)
-            {
-                if (definitionsAndSemantik.ConceptDescriptions.ContainsKey(twinId) == false)
-                {
-                    definitionsAndSemantik.ConceptDescriptions.Add(twinId,
-                        JsonSerializer.Deserialize<AdtConceptDescription>(data));
+                    twinIds.Add(smeTwinId);
+                    tempDictToCheckDuplicates.Add(smeTwinId, "");
                 }
 
+                var data = item["twin2"].ToString();
+                if (type == ADTAASOntology.MODEL_REFERENCE)
+                {
+                    if (definitionsAndSemantik.References.ContainsKey(twinId) == false)
+                    {
+                        var adtModel = JsonSerializer.Deserialize<AdtReference>(data);
+                        definitionsAndSemantik.References.Add(twinId, adtModel);
+                    }
+                }
+                else if (type == ADTAASOntology.MODEL_DATASPECIEC61360)
+                {
+                    if (definitionsAndSemantik.Iec61360s.ContainsKey(twinId) == false)
+                    {
+
+                        definitionsAndSemantik.Iec61360s.Add(twinId,
+                            JsonSerializer.Deserialize<AdtDataSpecificationIEC61360>(data));
+                    }
+                }
+                else if (type == ADTAASOntology.MODEL_CONCEPTDESCRIPTION)
+                {
+                    if (definitionsAndSemantik.ConceptDescriptions.ContainsKey(twinId) == false)
+                    {
+                        definitionsAndSemantik.ConceptDescriptions.Add(twinId,
+                            JsonSerializer.Deserialize<AdtConceptDescription>(data));
+                    }
+
+                }
+
             }
 
+            definitionsAndSemantik.Relationships = await GetAllRelationshipsForTwinIds(twinIds);
+
+            return definitionsAndSemantik;
         }
 
-        definitionsAndSemantik.Relationships = await GetAllRelationshipsForTwinIds(twinIds);
 
-        return definitionsAndSemantik;
-    }
-
-    public async Task<Dictionary<string, List<BasicRelationship>>> GetAllRelationshipsForTwinIds(List<string> twinIds)
-    {
-        var relationshipDict = new Dictionary<string, List<BasicRelationship>>();
-
-
-        int j = 0;
-        int FirstIndexOfThisIteration = 0;
-        while (j < twinIds.Count)
-
+        public async Task<Dictionary<string, List<BasicRelationship>>> GetAllRelationshipsForTwinIds(List<string> twinIds)
         {
-            FirstIndexOfThisIteration = j;
-            var relationshipIdsForAdt = "'" + twinIds[j] + "'";
-            for (j++; j < twinIds.Count && QueryContentWithinBoundaries(relationshipIdsForAdt, twinIds[j], j - FirstIndexOfThisIteration); j++)
-            {
-                relationshipIdsForAdt += ",'" + twinIds[j] + "'";
-            }
+            var relationshipDict = new Dictionary<string, List<BasicRelationship>>();
 
-            var queryString = $"Select * from Relationships r where r.$sourceId In [{relationshipIdsForAdt}]";
 
-            var relationships = _client.QueryAsync<BasicRelationship>(queryString);
-            await foreach (var relationship in relationships)
+            int j = 0;
+            int FirstIndexOfThisIteration = 0;
+            while (j < twinIds.Count)
+
             {
-                if (relationshipDict.ContainsKey(relationship.SourceId))
+                FirstIndexOfThisIteration = j;
+                var relationshipIdsForAdt = "'" + twinIds[j] + "'";
+                for (j++; j < twinIds.Count && QueryContentWithinBoundaries(relationshipIdsForAdt, twinIds[j], j - FirstIndexOfThisIteration); j++)
                 {
-                    relationshipDict[relationship.SourceId].Add(relationship);
+                    relationshipIdsForAdt += ",'" + twinIds[j] + "'";
                 }
-                else
+
+                var queryString = $"Select * from Relationships r where r.$sourceId In [{relationshipIdsForAdt}]";
+
+                var relationships = _client.QueryAsync<BasicRelationship>(queryString);
+                await foreach (var relationship in relationships)
                 {
-                    relationshipDict.Add(relationship.SourceId,
-                        new List<BasicRelationship> { relationship });
+                    if (relationshipDict.ContainsKey(relationship.SourceId))
+                    {
+                        relationshipDict[relationship.SourceId].Add(relationship);
+                    }
+                    else
+                    {
+                        relationshipDict.Add(relationship.SourceId,
+                            new List<BasicRelationship> { relationship });
+                    }
                 }
             }
+            return relationshipDict;
         }
-        return relationshipDict;
-    }
 
-    private bool QueryContentWithinBoundaries(string currentElements, string newElement, int index)
-    {
-        var MAX_STRING_LENGTH = 7500;
-        var MAX_NUMBER_OF_ELEMENTS_PER_IN_OPERATION = 100;
-        return index < 100 && currentElements.Length + newElement.Length < MAX_STRING_LENGTH;
+        private bool QueryContentWithinBoundaries(string currentElements, string newElement, int index)
+        {
+            var MAX_STRING_LENGTH = 7500;
+            var MAX_NUMBER_OF_ELEMENTS_PER_IN_OPERATION = 100;
+            return index < 100 && currentElements.Length + newElement.Length < MAX_STRING_LENGTH;
+        }
     }
-}
 
 
 

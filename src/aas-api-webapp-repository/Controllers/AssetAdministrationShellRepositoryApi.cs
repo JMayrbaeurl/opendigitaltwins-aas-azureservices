@@ -21,7 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace Aas.Api.Repository.Controllers
+namespace AAS.API.Repository.Controllers
 { 
     /// <summary>
     /// 
@@ -674,32 +674,7 @@ namespace Aas.Api.Repository.Controllers
             return new ObjectResult(example);
         }
 
-        /// <summary>
-        /// Creates a new submodel element
-        /// </summary>
-        /// <param name="body">Requested submodel element</param>
-        /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
-        /// <param name="level">Determines the structural depth of the respective resource content</param>
-        /// <param name="content">Determines the request or response kind of the resource</param>
-        /// <param name="extent">Determines to which extent the resource is being serialized</param>
-        /// <response code="201">Submodel element created successfully</response>
-        [HttpPost]
-        [Route("api/v1/submodels/{submodelIdentifier}/submodel/submodel-elements")]
-        [ValidateModelState]
-        [SwaggerOperation("PostSubmodelElementSubmodelRepo")]
-        [SwaggerResponse(statusCode: 201, type: typeof(SubmodelElement), description: "Submodel element created successfully")]
-        public virtual IActionResult PostSubmodelElementSubmodelRepo([FromBody]SubmodelElement body, [FromRoute][Required]string submodelIdentifier, [FromQuery]string level, [FromQuery]string content, [FromQuery]string extent)
-        { 
-            //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(201, default(SubmodelElement));
-            string exampleJson = null;
-            exampleJson = "\"\"";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<SubmodelElement>(exampleJson)
-                        : default(SubmodelElement);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        
 
         /// <summary>
         /// Creates a submodel reference at the Asset Administration Shell

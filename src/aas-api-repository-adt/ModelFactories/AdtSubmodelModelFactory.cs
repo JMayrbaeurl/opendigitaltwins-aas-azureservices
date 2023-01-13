@@ -1,4 +1,7 @@
-﻿using AAS.API.Repository.Adt.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AAS.API.Repository.Adt.Models;
 using AasCore.Aas3_0_RC02;
 
 namespace AAS.API.Repository.Adt
@@ -34,6 +37,18 @@ namespace AAS.API.Repository.Adt
             submodel.SubmodelElements = adtSubmodelElementFactory.GetSubmodelElementsFromAdtSubmodelAndSMCInformation();
 
             return submodel;
+        }
+
+        public void CreateSubmodelElement(ISubmodelElement submodelElement)
+        {
+            if (submodelElement.GetType()== typeof(Property))
+            {
+                Console.WriteLine("Property");
+            }
+            else
+            {
+                Console.WriteLine("no Property");
+            }
         }
 
         private Submodel CreateSubmodelFromAdtSubmodel(AdtSubmodel adtSubmodel)

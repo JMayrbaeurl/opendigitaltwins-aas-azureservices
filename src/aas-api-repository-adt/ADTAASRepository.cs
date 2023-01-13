@@ -59,12 +59,5 @@ namespace AAS.API.Repository.Adt
             return _adtAasConnector.GetAllAasIds();
         }
 
-        public AssetAdministrationShell GetAdministrationShellForAasId(string aasId)
-        {
-            throw new NotImplementedException();
-        }
-
-        
-
     }
 }
