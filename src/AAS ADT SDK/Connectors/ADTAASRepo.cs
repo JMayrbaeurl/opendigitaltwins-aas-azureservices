@@ -30,7 +30,7 @@ namespace AAS.ADT
             List<string> result = new List<string>();
 
             // Query for all Reference instances that are not global or a package fragment
-            string queryString = $"SELECT * FROM digitaltwins where is_of_model('{ADTAASOntology.MODEL_REFERENCE}')" +
+            string queryString = $"SELECT * FROM digitaltwins where is_of_model('{AdtAasOntology.MODEL_REFERENCE}')" +
                 $" and key1.type != '{KeyTypes.GlobalReference}' and key1.type != '{KeyTypes.FragmentReference}'";
 
             _logger.LogDebug($"Now querying for identifiable with {queryString}");
@@ -52,7 +52,7 @@ namespace AAS.ADT
             List<string> result = new List<string>();
 
             // Query for all ReferenceElement instances that are not global or a package fragment
-            string queryString = $"SELECT * FROM digitaltwins where is_of_model('{ADTAASOntology.MODEL_REFERENCEELEMENT}')" +
+            string queryString = $"SELECT * FROM digitaltwins where is_of_model('{AdtAasOntology.MODEL_REFERENCEELEMENT}')" +
                 $" and key1.type != '{KeyTypes.GlobalReference}' and key1.type != '{KeyTypes.FragmentReference}'";
 
             _logger.LogDebug($"Now querying for Reference elements with {queryString}");
@@ -108,7 +108,7 @@ namespace AAS.ADT
         {
             BasicDigitalTwin identifiableTwinData = null;
             string queryString =
-                $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL('{ADTAASOntology.MODEL_IDENTIFIABLE}') " +
+                $"SELECT * FROM digitaltwins dt WHERE IS_OF_MODEL('{AdtAasOntology.MODEL_IDENTIFIABLE}') " +
                 $"AND id = '{referenceKey.Value}'";
 
             _logger.LogDebug($"Now querying for identifiable with {queryString}");
@@ -173,7 +173,7 @@ namespace AAS.ADT
             for (int i = 1; i < reference.Keys.Count; i++)
             {
                 queryString +=
-                    $" AND {projections[i]}.idShort = '{reference.Keys[i].Value}' AND IS_OF_MODEL({projections[i]}, '{ADTAASOntology.KEYS[reference.Keys[i].Type.ToString()]}')";
+                    $" AND {projections[i]}.idShort = '{reference.Keys[i].Value}' AND IS_OF_MODEL({projections[i]}, '{AdtAasOntology.KEYS[reference.Keys[i].Type.ToString()]}')";
             }
 
             return queryString;

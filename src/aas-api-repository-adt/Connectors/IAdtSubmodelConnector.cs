@@ -13,5 +13,5 @@ public interface IAdtSubmodelConnector
         string twinId);
 
     public Task<DefinitionsAndSemantics> GetAllDescriptionsForSubmodelElements(string rootTwinId);
-    public void CreateProperty(string submodelIdentifier, Property property);
+    //public void CreateProperty(string submodelIdentifier, Property property);
 }

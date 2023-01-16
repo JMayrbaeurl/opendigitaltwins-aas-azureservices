@@ -217,7 +217,7 @@ namespace AAS.API.Repository.Adt
                 }
 
                 var data = item["twin2"].ToString();
-                if (type == ADTAASOntology.MODEL_REFERENCE)
+                if (type == AdtAasOntology.MODEL_REFERENCE)
                 {
                     if (definitionsAndSemantik.References.ContainsKey(twinId) == false)
                     {
@@ -225,7 +225,7 @@ namespace AAS.API.Repository.Adt
                         definitionsAndSemantik.References.Add(twinId, adtModel);
                     }
                 }
-                else if (type == ADTAASOntology.MODEL_DATASPECIEC61360)
+                else if (type == AdtAasOntology.MODEL_DATASPECIEC61360)
                 {
                     if (definitionsAndSemantik.Iec61360s.ContainsKey(twinId) == false)
                     {
@@ -234,7 +234,7 @@ namespace AAS.API.Repository.Adt
                             JsonSerializer.Deserialize<AdtDataSpecificationIEC61360>(data));
                     }
                 }
-                else if (type == ADTAASOntology.MODEL_CONCEPTDESCRIPTION)
+                else if (type == AdtAasOntology.MODEL_CONCEPTDESCRIPTION)
                 {
                     if (definitionsAndSemantik.ConceptDescriptions.ContainsKey(twinId) == false)
                     {
