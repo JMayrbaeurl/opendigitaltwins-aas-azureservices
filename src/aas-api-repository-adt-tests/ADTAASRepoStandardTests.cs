@@ -1,13 +1,9 @@
-using AAS.API.Repository;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using AAS.API.Repository.Adt;
 using AAS.API.Services.ADT;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 
-namespace AAS_Repository_Tests
+namespace AAS.API.Repository.Adt.Tests
 {
     [TestClass]
     public class ADTAASRepoStandardTests

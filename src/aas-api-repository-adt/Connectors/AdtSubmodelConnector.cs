@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
-using AAS.AASX.CmdLine.ADT;
+using AAS.ADT;
 using AAS.API.Repository.Adt.Exceptions;
 using AAS.API.Repository.Adt.Models;
 using AAS.API.Services.ADT;
