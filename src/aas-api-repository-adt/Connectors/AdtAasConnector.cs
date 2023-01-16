@@ -139,18 +139,18 @@ namespace AAS.API.Repository.Adt
                 var adtModel = twin["sme"]["$metadata"]["$model"].ToString();
                 var twinAsString = twin["sme"].ToString();
 
-                if (adtModel == ADTAASOntology.MODEL_PROPERTY)
+                if (adtModel == AdtaasOntology.MODEL_PROPERTY)
                 {
                     submodelElements.Add(JsonSerializer.Deserialize<AdtProperty>(twinAsString));
                 }
-                else if (adtModel == ADTAASOntology.MODEL_SUBMODELELEMENTCOLLECTION)
+                else if (adtModel == AdtaasOntology.MODEL_SUBMODELELEMENTCOLLECTION)
                 {
                     var smeCollection = JsonSerializer.Deserialize<AdtSubmodelElementCollection>(twinAsString);
                     var twinDtId = twin["sme"]["$dtId"].ToString();
                     smeCollection.submodelElements = GetAdtSubmodelElementsFromParentTwinWithId(twinDtId);
                     submodelElements.Add(smeCollection);
                 }
-                else if (adtModel == ADTAASOntology.MODEL_FILE)
+                else if (adtModel == AdtaasOntology.MODEL_FILE)
                 {
                     submodelElements.Add(JsonSerializer.Deserialize<AdtFile>(twinAsString));
                 }
