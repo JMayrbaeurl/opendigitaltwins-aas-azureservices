@@ -141,11 +141,11 @@ namespace AAS.API.Repository.Adt
             var model = dataTwin["$metadata"]["$model"].ToString();
             var sme = JsonSerializer.Deserialize<AdtSubmodelElement>(dataTwin);
 
-            if (model == AdtaasOntology.MODEL_SUBMODELELEMENTCOLLECTION)
+            if (model == AdtAasOntology.MODEL_SUBMODELELEMENTCOLLECTION)
                 information.smeCollections.Add(await GetAllSubmodelElementCollectionInformation(dataTwin["$dtId"].ToString()));
-            else if (model == AdtaasOntology.MODEL_PROPERTY)
+            else if (model == AdtAasOntology.MODEL_PROPERTY)
                 information.properties.Add(JsonSerializer.Deserialize<AdtProperty>(dataTwin));
-            else if (model == AdtaasOntology.MODEL_FILE)
+            else if (model == AdtAasOntology.MODEL_FILE)
                 information.files.Add(JsonSerializer.Deserialize<AdtFile>(dataTwin));
             else
                 throw new AdtModelNotSupported($"Unsupported AdtModel of Type {model}");
@@ -216,7 +216,7 @@ namespace AAS.API.Repository.Adt
             }
 
             var data = item["twin2"].ToString();
-            if (type == AdtaasOntology.MODEL_REFERENCE)
+            if (type == AdtAasOntology.MODEL_REFERENCE)
             {
                 if (definitionsAndSemantik.References.ContainsKey(twinId) == false)
                 {
@@ -224,7 +224,7 @@ namespace AAS.API.Repository.Adt
                     definitionsAndSemantik.References.Add(twinId, adtModel);
                 }
             }
-            else if (type == AdtaasOntology.MODEL_DATASPECIEC61360)
+            else if (type == AdtAasOntology.MODEL_DATASPECIEC61360)
             {
                 if (definitionsAndSemantik.Iec61360s.ContainsKey(twinId) == false)
                 {
@@ -233,7 +233,7 @@ namespace AAS.API.Repository.Adt
                         JsonSerializer.Deserialize<AdtDataSpecificationIEC61360>(data));
                 }
             }
-            else if (type == AdtaasOntology.MODEL_CONCEPTDESCRIPTION)
+            else if (type == AdtAasOntology.MODEL_CONCEPTDESCRIPTION)
             {
                 if (definitionsAndSemantik.ConceptDescriptions.ContainsKey(twinId) == false)
                 {
