@@ -2,7 +2,7 @@
 
 namespace AAS.ADT
 {
-    public class ADTAASOntology
+    public class AdtAasOntology
     {
         public static readonly string MODEL_CONCEPTDESCRIPTION = "dtmi:digitaltwins:aas:ConceptDescription;1";
         public static readonly string MODEL_DATASPECIEC61360 = "dtmi:digitaltwins:aas:DataSpecificationIEC61360;1";

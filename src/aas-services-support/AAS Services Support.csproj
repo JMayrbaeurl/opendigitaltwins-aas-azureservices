@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\tools\aasx-cmdline\AASX Package Command line.csproj" />
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
   </ItemGroup>
 

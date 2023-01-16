@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\tools\aasx-cmdline\AASX Package Command line.csproj" />
+    <ProjectReference Include="..\AAS ADT SDK\AAS ADT SDK.csproj" />
     <ProjectReference Include="..\aas-repository\AAS Repository.csproj" />
   </ItemGroup>
 

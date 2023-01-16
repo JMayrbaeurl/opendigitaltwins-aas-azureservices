@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
-using AAS.AASX.CmdLine.ADT;
+using AAS.ADT;
 using AAS.API.Repository.Adt.Exceptions;
 using AAS.API.Repository.Adt.Models;
 using AAS.API.Services.ADT;
@@ -142,11 +142,11 @@ namespace AAS.API.Repository.Adt
                 var model = dataTwin["$metadata"]["$model"].ToString();
                 var sme = JsonSerializer.Deserialize<AdtSubmodelElement>(dataTwin);
 
-                if (model == ADTAASOntology.MODEL_SUBMODELELEMENTCOLLECTION)
+                if (model == AdtAasOntology.MODEL_SUBMODELELEMENTCOLLECTION)
                     information.smeCollections.Add(await GetAllSubmodelElementCollectionInformation(dataTwin["$dtId"].ToString()));
-                else if (model == ADTAASOntology.MODEL_PROPERTY)
+                else if (model == AdtAasOntology.MODEL_PROPERTY)
                     information.properties.Add(JsonSerializer.Deserialize<AdtProperty>(dataTwin));
-                else if (model == ADTAASOntology.MODEL_FILE)
+                else if (model == AdtAasOntology.MODEL_FILE)
                     information.files.Add(JsonSerializer.Deserialize<AdtFile>(dataTwin));
                 else
                     throw new AdtModelNotSupported($"Unsupported AdtModel of Type {model}");
