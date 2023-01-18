@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Nodes;
-using AAS.API.Repository.Adt.Models;
+using AAS.ADT.Models;
 using Azure.DigitalTwins.Core;
 
 namespace AAS.API.Repository.Adt

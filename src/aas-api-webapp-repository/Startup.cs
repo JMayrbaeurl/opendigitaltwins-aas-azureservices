@@ -10,9 +10,9 @@
 
 using System;
 using System.IO;
+using AAS.ADT.Models;
 using AAS.API.Repository;
 using AAS.API.Repository.Adt;
-using AAS.API.Repository.Adt.Models;
 using Aas.Api.Repository.Filters;
 using Aas.Api.Repository.Models;
 using AAS.API.Services.ADT;

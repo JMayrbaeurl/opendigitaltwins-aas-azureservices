@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Nodes;
-using AAS.API.Repository.Adt.Models;
+using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
 
 namespace AAS.API.Repository.Adt;

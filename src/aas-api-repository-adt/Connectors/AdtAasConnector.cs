@@ -2,8 +2,8 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using AAS.ADT;
+using AAS.ADT.Models;
 using AAS.API.Repository.Adt.Exceptions;
-using AAS.API.Repository.Adt.Models;
 using AAS.API.Services.ADT;
 using Azure.DigitalTwins.Core;
 

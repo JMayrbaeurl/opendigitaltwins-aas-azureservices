@@ -1,5 +1,5 @@
-﻿using AAS.API.Repository.Adt.AutoMapper;
-using AAS.API.Repository.Adt.Models;
+﻿using AAS.ADT.Models;
+using AAS.API.Repository.Adt.AutoMapper;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 using FluentAssertions;

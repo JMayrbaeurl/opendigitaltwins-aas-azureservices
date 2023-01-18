@@ -1,4 +1,4 @@
-﻿using AAS.API.Repository.Adt.Models;
+﻿using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 

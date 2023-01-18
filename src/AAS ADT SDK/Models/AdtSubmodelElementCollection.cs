@@ -1,4 +1,6 @@
-﻿namespace AAS.API.Repository.Adt.Models
+﻿using System.Collections.Generic;
+
+namespace AAS.ADT.Models
 {
     public class AdtSubmodelElementCollection : AdtSubmodelElement
     {

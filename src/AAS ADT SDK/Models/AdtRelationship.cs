@@ -1,4 +1,4 @@
-﻿namespace AAS.API.Repository.Adt.Models
+﻿namespace AAS.ADT.Models
 {
     internal class AdtRelationship
     {

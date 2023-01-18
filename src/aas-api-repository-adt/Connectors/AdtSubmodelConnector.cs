@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using AAS.ADT;
+using AAS.ADT.Models;
 using AAS.API.Repository.Adt.Exceptions;
-using AAS.API.Repository.Adt.Models;
 using AAS.API.Services.ADT;
 using AasCore.Aas3_0_RC02;
 using Azure;

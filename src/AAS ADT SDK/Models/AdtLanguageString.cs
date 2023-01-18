@@ -1,7 +1,8 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Azure.DigitalTwins.Core;
 
-namespace AAS.API.Repository.Adt.Models;
+namespace AAS.ADT.Models;
 
 public class AdtLanguageString
 {

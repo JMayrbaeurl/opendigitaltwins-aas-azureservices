@@ -1,4 +1,4 @@
-﻿using AAS.API.Repository.Adt.Models;
+﻿using AAS.ADT.Models;
 
 namespace AAS.API.Repository.Adt;
 

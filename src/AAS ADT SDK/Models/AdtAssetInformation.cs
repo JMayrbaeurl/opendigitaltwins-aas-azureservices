@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AAS.API.Repository.Adt.Models
+namespace AAS.ADT.Models
 {
     public class AdtAssetInformation : AdtBase
     {
