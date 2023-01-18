@@ -1,10 +1,10 @@
-﻿using AAS.ADT.Models;
-using AAS.API.Repository.Adt.AutoMapper;
+﻿using AAS.ADT.AutoMapper;
+using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 using FluentAssertions;
 
-namespace AAS.API.Repository.Adt.Tests
+namespace AAS.ADT.Tests.AutoMapper
 {
     [TestClass]
     public class AdtAssetAdministrationShellProfileTests
@@ -75,7 +75,6 @@ namespace AAS.API.Repository.Adt.Tests
         [TestMethod]
         public void Map_constructs_new_general_Aas_from_AdtAas()
         {
-            var aasInformations = new List<AdtResponseForAllAasInformation>();
 
             var actual = _objectUnderTest.Map<AssetAdministrationShell>(_fullAdtAas);
             

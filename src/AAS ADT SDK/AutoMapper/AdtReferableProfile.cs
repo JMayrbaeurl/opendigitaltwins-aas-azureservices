@@ -1,7 +1,7 @@
 ﻿using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
 
-namespace AAS.API.Repository.Adt.AutoMapper
+namespace AAS.ADT.AutoMapper
 {
     public class AdtReferableProfile : AdtBaseProfile
     {

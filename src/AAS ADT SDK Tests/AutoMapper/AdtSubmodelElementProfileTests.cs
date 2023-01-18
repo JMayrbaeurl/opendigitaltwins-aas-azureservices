@@ -1,11 +1,11 @@
-﻿using AAS.ADT.Models;
-using AAS.API.Repository.Adt.AutoMapper;
+﻿using AAS.ADT.AutoMapper;
+using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 using FluentAssertions;
 using File = AasCore.Aas3_0_RC02.File;
 
-namespace AAS.API.Repository.Adt.Tests
+namespace AAS.ADT.Tests.AutoMapper
 {
     [TestClass]
     public class AdtSubmodelElementProfileTests

@@ -3,7 +3,7 @@ using AasCore.Aas3_0_RC02;
 using AutoMapper;
 using File = AasCore.Aas3_0_RC02.File;
 
-namespace AAS.API.Repository.Adt.AutoMapper
+namespace AAS.ADT.AutoMapper
 {
     public class AdtSubmodelElementProfile : Profile
     {

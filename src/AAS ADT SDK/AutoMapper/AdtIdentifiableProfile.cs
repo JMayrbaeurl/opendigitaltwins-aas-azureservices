@@ -1,8 +1,9 @@
-﻿using AAS.ADT.Models;
+﻿using System.Collections.Generic;
+using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 
-namespace AAS.API.Repository.Adt.AutoMapper
+namespace AAS.ADT.AutoMapper
 {
     public class AdtIdentifiableProfile : Profile
     {
