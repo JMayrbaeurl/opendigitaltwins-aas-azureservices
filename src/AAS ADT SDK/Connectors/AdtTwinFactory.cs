@@ -11,48 +11,61 @@ namespace AAS.ADT
     public class AdtTwinFactory : IAdtTwinFactory
     {
 
-        private BasicDigitalTwin twin;
+        private BasicDigitalTwin _twin;
 
         public AdtTwinFactory()
         {
-            twin = new BasicDigitalTwin();
+            _twin = new BasicDigitalTwin();
         }
 
-        public BasicDigitalTwin CreateTwin(ISubmodelElement submodelElement, string modelName)
+        public BasicDigitalTwin GetTwin(ISubmodelElement submodelElement, string modelName)
         {
             AddAdtModelAndId(modelName);
             AddSubmodelElementValues(submodelElement);
-            return twin;
+            return _twin;
         }
 
         private void AddAdtModelAndId(string modelName)
         {
-            twin.Metadata.ModelId = modelName;
+            _twin.Metadata.ModelId = modelName;
             // TODO: loosen coupling between AdtAasOntology and this Factory
-            twin.Id = $"{AdtAasOntology.DTIDMap[modelName]["dtId"]}{Guid.NewGuid()}";
+            _twin.Id = $"{AdtAasOntology.DTIDMap[modelName]["dtId"]}{Guid.NewGuid()}";
         }
 
         private void AddSubmodelElementValues(ISubmodelElement submodelElement)
         {
             AddReferableValues(submodelElement);
             AddKind(submodelElement);
+            if (submodelElement is SubmodelElementCollection)
+            {
+                // nothing to do
+            }
+
+            if (submodelElement is Property)
+            {
+                AddPropertyValues((Property)submodelElement);
+            }
+
+            if (submodelElement is File)
+            {
+                AddFileValues((File)submodelElement);
+            }
+
         }
 
         private void AddReferableValues(IReferable referable)
         {
             if (!string.IsNullOrEmpty(referable.IdShort))
-                twin.Contents.Add("idShort", referable.IdShort);
+                _twin.Contents.Add("idShort", referable.IdShort);
 
             if (!string.IsNullOrEmpty(referable.Category))
-                twin.Contents.Add("category", referable.Category);
+                _twin.Contents.Add("category", referable.Category);
 
             if (!string.IsNullOrEmpty(referable.Checksum))
-                twin.Contents.Add("checksum", referable.Checksum);
+                _twin.Contents.Add("checksum", referable.Checksum);
 
-            twin.Contents.Add("description", Convert(referable.Description));
-            twin.Contents.Add("displayName", Convert(referable.DisplayName));
-
-
+            _twin.Contents.Add("description", Convert(referable.Description));
+            _twin.Contents.Add("displayName", Convert(referable.DisplayName));
         }
 
         private BasicDigitalTwinComponent Convert(List<LangString> langStrings)
@@ -80,8 +93,28 @@ namespace AAS.ADT
                 kind.Contents.Add("kind", objectWithKind.Kind.ToString());
             }
 
-            twin.Contents.Add("kind", kind);
+            _twin.Contents.Add("kind", kind);
         }
+
+        private void AddPropertyValues(Property property)
+        {
+            _twin.Contents.Add("valueType", property.ValueType.ToString());
+            if (property.Value != null)
+            {
+                _twin.Contents.Add("value", property.Value);
+            }
+
+        }
+
+        private void AddFileValues(File file)
+        {
+            _twin.Contents.Add("contentType", file.ContentType);
+            if (file.Value != null)
+            {
+                _twin.Contents.Add("value", file.Value);
+            }
+        }
+
     }
 
 

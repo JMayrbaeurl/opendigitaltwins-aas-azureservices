@@ -5,5 +5,5 @@ namespace AAS.ADT;
 
 public interface IAdtTwinFactory
 {
-    public BasicDigitalTwin CreateTwin(ISubmodelElement submodelElement, string modelName);
+    public BasicDigitalTwin GetTwin(ISubmodelElement submodelElement, string modelName);
 }

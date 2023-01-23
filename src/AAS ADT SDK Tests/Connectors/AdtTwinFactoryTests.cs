@@ -8,6 +8,7 @@ using Azure.DigitalTwins.Core;
 using Castle.Components.DictionaryAdapter;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
+using File = AasCore.Aas3_0_RC02.File;
 
 namespace AAS.ADT.Tests.Connectors
 {
@@ -35,14 +36,14 @@ namespace AAS.ADT.Tests.Connectors
         [TestMethod]
         public void CreateTwin_adds_ModelId()
         {
-            _actualTwin = _objectUnderTest.CreateTwin(_exemplaryMinimalSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
             _actualTwin.Metadata.ModelId.Should().Be(AdtAasOntology.MODEL_PROPERTY);
         }
 
         [TestMethod]
         public void CreateTwin_adds_id()
         {
-            _actualTwin = _objectUnderTest.CreateTwin(_exemplaryMinimalSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
             _actualTwin.Id.Should().StartWith("Property");
         }
 
@@ -51,7 +52,7 @@ namespace AAS.ADT.Tests.Connectors
         public void AddSubmodelElementValues_adds_Referable_values_for_full_SubmodelElement()
         {
 
-            _actualTwin = _objectUnderTest.CreateTwin(_exemplaryFullSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
 
             _actualTwin.Contents["category"].Should().Be("testCategory");
             _actualTwin.Contents["idShort"].Should().Be("testIdShort");
@@ -68,7 +69,7 @@ namespace AAS.ADT.Tests.Connectors
         [TestMethod]
         public void AddSubmodelElementValues_adds_Referable_values_for_minimal_SubmodelElement()
         {
-            _actualTwin = _objectUnderTest.CreateTwin(_exemplaryMinimalSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
 
             _actualTwin.Contents.Should().NotContainKey("category");
             _actualTwin.Contents.Should().NotContainKey("idShort");
@@ -84,7 +85,7 @@ namespace AAS.ADT.Tests.Connectors
         [TestMethod]
         public void AddSubmodelElementValues_adds_Kind_for_full_SubmodelElement()
         {
-            _actualTwin = _objectUnderTest.CreateTwin(_exemplaryFullSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
             var kind = (BasicDigitalTwinComponent)_actualTwin.Contents["kind"];
             kind.Contents["kind"].Should().Be("Instance");
         }
@@ -92,10 +93,45 @@ namespace AAS.ADT.Tests.Connectors
         [TestMethod]
         public void AddSubmodelElementValues_does_not_add_Kind_for_minimal_SubmodelElement()
         {
-            _actualTwin = _objectUnderTest.CreateTwin(_exemplaryMinimalSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalSubmodelElement, AdtAasOntology.MODEL_PROPERTY);
             var kind = (BasicDigitalTwinComponent)_actualTwin.Contents["kind"];
             kind.Contents.Should().NotContainKey("kind");
         }
 
+        [TestMethod]
+        public void GetTwin_returns_correct_twin_for_full_Property()
+        {
+            var property = new Property(DataTypeDefXsd.Boolean, value: "testValue");
+            _actualTwin = _objectUnderTest.GetTwin(property, AdtAasOntology.MODEL_PROPERTY);
+            _actualTwin.Contents["valueType"].Should().Be("Boolean");
+            _actualTwin.Contents["value"].Should().Be("testValue");
+        }
+
+        [TestMethod]
+        public void GetTwin_returns_correct_twin_for_minimal_Property()
+        {
+            var property = new Property(DataTypeDefXsd.Boolean);
+            _actualTwin = _objectUnderTest.GetTwin(property, AdtAasOntology.MODEL_PROPERTY);
+            _actualTwin.Contents["valueType"].Should().Be("Boolean");
+            _actualTwin.Contents.Should().NotContainKey("value");
+        }
+
+        [TestMethod]
+        public void GetTwin_returns_correct_twin_for_full_File()
+        {
+            var file = new File("text/plain",value: "testValue");
+            _actualTwin = _objectUnderTest.GetTwin(file, AdtAasOntology.MODEL_FILE);
+            _actualTwin.Contents["contentType"].Should().Be("text/plain");
+            _actualTwin.Contents["value"].Should().Be("testValue");
+        }
+
+        [TestMethod]
+        public void GetTwin_returns_correct_twin_for_minimal_File()
+        {
+            var file = new File("text/plain");
+            _actualTwin = _objectUnderTest.GetTwin(file, AdtAasOntology.MODEL_FILE);
+            _actualTwin.Contents["contentType"].Should().Be("text/plain");
+            _actualTwin.Contents.Should().NotContainKey("value");
+        }
     }
 }
