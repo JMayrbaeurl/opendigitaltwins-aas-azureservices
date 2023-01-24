@@ -19,7 +19,11 @@ namespace AAS.ADT.Tests.Connectors
     {
         private AdtTwinFactory _objectUnderTest { get; set; }
         private ISubmodelElement _exemplaryMinimalSubmodelElement { get; set; }
+        private Submodel _exemplaryMinimalSubmodel { get; set; }
+
         private ISubmodelElement _exemplaryFullSubmodelElement { get; set; }
+        private Submodel _exemplaryFullSubmodel { get; set; }
+
         private BasicDigitalTwin _actualTwin { get; set; }
 
 
@@ -35,13 +39,19 @@ namespace AAS.ADT.Tests.Connectors
             _exemplaryFullSubmodelElement = new Property(DataTypeDefXsd.Boolean, new List<Extension>(),
                 "testCategory", "testIdShort", new List<LangString>() { new LangString("en", "testDisplayName") },
                 new List<LangString>() { new("en", "testDescription") }, "testChecksum", ModelingKind.Instance);
-        }
 
+            _exemplaryFullSubmodel = new Submodel("testId", new List<Extension>(), "testCategory", "testIdShort",
+                new List<LangString>() { new LangString("en", "testDisplayName") },
+                new List<LangString>() { new("en", "testDescription") }, "testChecksum",
+                new AdministrativeInformation(new List<EmbeddedDataSpecification>()), ModelingKind.Instance);
+            _exemplaryMinimalSubmodel = new Submodel("testId");
+        }
+        
         
 
 
         [TestMethod]
-        public void AddSubmodelElementValues_adds_Referable_values_for_full_SubmodelElement()
+        public void GetTwin_adds_Referable_values_for_full_SubmodelElement()
         {
 
             _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullSubmodelElement);
@@ -60,7 +70,7 @@ namespace AAS.ADT.Tests.Connectors
         }
 
         [TestMethod]
-        public void AddSubmodelElementValues_adds_Referable_values_for_minimal_SubmodelElement()
+        public void GetTwin_adds_Referable_values_for_minimal_SubmodelElement()
         {
             _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalSubmodelElement);
 
@@ -76,7 +86,7 @@ namespace AAS.ADT.Tests.Connectors
         }
 
         [TestMethod]
-        public void AddSubmodelElementValues_adds_Kind_for_full_SubmodelElement()
+        public void GetTwin_adds_Kind_for_full_SubmodelElement()
         {
             _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullSubmodelElement);
             var kind = (BasicDigitalTwinComponent)_actualTwin.Contents["kind"];
@@ -84,7 +94,7 @@ namespace AAS.ADT.Tests.Connectors
         }
 
         [TestMethod]
-        public void AddSubmodelElementValues_does_not_add_Kind_for_minimal_SubmodelElement()
+        public void GetTwin_does_not_add_Kind_for_minimal_SubmodelElement()
         {
             _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalSubmodelElement);
             var kind = (BasicDigitalTwinComponent)_actualTwin.Contents["kind"];
@@ -321,6 +331,45 @@ namespace AAS.ADT.Tests.Connectors
             _actualTwin.Contents["valueType"].Should().Be("Boolean");
             _actualTwin.Contents.Should().NotContainKey("value");
             _actualTwin.Contents.Should().NotContainKey("kind");
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_ModelId_for_Submodel()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalSubmodel);
+            _actualTwin.Metadata.ModelId.Should().Be(AdtAasOntology.MODEL_SUBMODEL);
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_id_for_Submodel()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalSubmodel);
+            _actualTwin.Id.Should().StartWith("Submodel");
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_Referable_values_for_full_Submodel()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullSubmodel);
+
+            _actualTwin.Contents["category"].Should().Be("testCategory");
+            _actualTwin.Contents["idShort"].Should().Be("testIdShort");
+            _actualTwin.Contents["checksum"].Should().Be("testChecksum");
+            var description = (BasicDigitalTwinComponent)_actualTwin.Contents["description"];
+            description.Contents["langString"].Should().BeEquivalentTo(new Dictionary<string, string>()
+                { { "en", "testDescription" } });
+
+            var displayName = (BasicDigitalTwinComponent)_actualTwin.Contents["displayName"];
+            displayName.Contents["langString"].Should().BeEquivalentTo(new Dictionary<string, string>()
+                { { "en", "testDisplayName" } });
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_Kind_for_full_Submodel()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullSubmodel);
+            var kind = (BasicDigitalTwinComponent)_actualTwin.Contents["kind"];
+            kind.Contents["kind"].Should().Be("Instance");
         }
     }
 }

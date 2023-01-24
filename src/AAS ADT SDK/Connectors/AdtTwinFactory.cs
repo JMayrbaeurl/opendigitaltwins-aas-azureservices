@@ -14,18 +14,18 @@ namespace AAS.ADT
     public class AdtTwinFactory : IAdtTwinFactory
     {
 
-        private readonly BasicDigitalTwin _twin;
+        private BasicDigitalTwin _twin;
         private readonly ILogger<AdtTwinFactory> _logger;
 
 
         public AdtTwinFactory(ILogger<AdtTwinFactory> logger)
         {
-            _twin = new BasicDigitalTwin();
             _logger = logger;
         }
 
         public BasicDigitalTwin GetTwin(ISubmodelElement submodelElement)
         {
+            _twin = new BasicDigitalTwin();
 
             AddReferableValues(submodelElement);
             AddKind(submodelElement);
@@ -54,6 +54,8 @@ namespace AAS.ADT
 
         public BasicDigitalTwin GetTwin(Reference reference)
         {
+            _twin = new BasicDigitalTwin();
+
             AddAdtModelAndId(AdtAasOntology.MODEL_REFERENCE);
             _twin.Contents.Add("type", reference.Type.ToString());
             if (reference.Keys.Count > 0)
@@ -94,7 +96,7 @@ namespace AAS.ADT
 
         public BasicDigitalTwin GetTwin(IDataSpecificationContent content)
         {
-            
+            _twin = new BasicDigitalTwin();
 
             if (content is DataSpecificationIec61360)
             {
@@ -111,6 +113,8 @@ namespace AAS.ADT
 
         public BasicDigitalTwin GetTwin(Qualifier qualifier)
         {
+            _twin = new BasicDigitalTwin();
+
             AddAdtModelAndId(AdtAasOntology.MODEL_QUALIFIER);
             _twin.Contents.Add("type", qualifier.Type);
             _twin.Contents.Add("valueType", qualifier.ValueType.ToString());
@@ -120,6 +124,18 @@ namespace AAS.ADT
             {
                 _twin.Contents.Add("kind",qualifier.Kind.ToString());
             }
+            return _twin;
+        }
+
+        public BasicDigitalTwin GetTwin(Submodel submodel)
+        {
+            _twin = new BasicDigitalTwin();
+
+            AddAdtModelAndId(AdtAasOntology.MODEL_SUBMODEL);
+
+            AddKind(submodel);
+            AddIdentifiableValues(submodel);
+
             return _twin;
         }
 
@@ -156,6 +172,27 @@ namespace AAS.ADT
             _twin.Metadata.ModelId = modelName;
             // TODO: loosen coupling between AdtAasOntology and this Factory
             _twin.Id = $"{AdtAasOntology.DTIDMap[modelName]["dtId"]}{Guid.NewGuid()}";
+        }
+
+        private void AddIdentifiableValues(IIdentifiable identifiable)
+        {
+            AddReferableValues(identifiable);
+            
+            if (identifiable.Id != null)
+            {
+                _twin.Contents.Add("id", identifiable.Id);
+            }
+            BasicDigitalTwinComponent admin = new BasicDigitalTwinComponent();
+            if (identifiable.Administration != null &&
+                (identifiable.Administration.Version != null || identifiable.Administration.Revision != null))
+            {
+                if (!string.IsNullOrEmpty(identifiable.Administration.Version))
+                    admin.Contents.Add("version", identifiable.Administration.Version);
+                if (!string.IsNullOrEmpty(identifiable.Administration.Revision))
+                    admin.Contents.Add("revision", identifiable.Administration.Revision);
+            }
+
+            _twin.Contents.Add("administration", admin);
         }
 
 

@@ -10,4 +10,5 @@ public interface IAdtTwinFactory
     public BasicDigitalTwin GetTwin(Reference reference);
     public BasicDigitalTwin GetTwin(IDataSpecificationContent content);
     public BasicDigitalTwin GetTwin(Qualifier qualifiers);
+    public BasicDigitalTwin GetTwin(Submodel submodel);
 }
