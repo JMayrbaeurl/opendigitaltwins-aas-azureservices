@@ -150,17 +150,9 @@ namespace AAS.ADT
 
         private async Task AddSubmodelElementRelationships(string sourceTwinId, ISubmodelElement submodelElement)
         {
-            // Create semantic Id
-            if (submodelElement.SemanticId != null)
-            {
-                await _writeBase.AddReference(sourceTwinId, submodelElement.SemanticId, "semanticId");
-            }
-
-            if (submodelElement.EmbeddedDataSpecifications != null)
-                await _writeBase.AddHasDataSpecification(sourceTwinId, submodelElement);
-
-            if (submodelElement.Qualifiers != null)
-                await _writeBase.AddQualifiableRelations(sourceTwinId, submodelElement.Qualifiers);
+            await _writeBase.AddReference(sourceTwinId, submodelElement.SemanticId, "semanticId");
+            await _writeBase.AddHasDataSpecification(sourceTwinId, submodelElement.EmbeddedDataSpecifications);
+            await _writeBase.AddQualifiableRelations(sourceTwinId, submodelElement.Qualifiers);
         }
     }
 }

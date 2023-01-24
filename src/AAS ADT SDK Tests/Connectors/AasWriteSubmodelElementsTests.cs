@@ -51,7 +51,7 @@ namespace AAS.ADT.Tests
             var minimalProperty = new Property(DataTypeDefXsd.Boolean);
             await _objectUnderTest.CreateSubmodelElement(minimalProperty);
 
-            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<IHasDataSpecification>()), Times.Never);
+            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<List<EmbeddedDataSpecification>>()), Times.Never);
             _writeBaseMock.Verify(_ => _.AddQualifiableRelations(It.IsAny<string>(), It.IsAny<List<Qualifier>>()),
                 Times.Never);
             _writeBaseMock.Verify(_ => _.AddReference(It.IsAny<string>(), It.IsAny<Reference>(), It.IsAny<string>()),
@@ -74,7 +74,7 @@ namespace AAS.ADT.Tests
 
             await _objectUnderTest.CreateSubmodelElement(fullProperty);
 
-            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<IHasDataSpecification>())
+            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<List<EmbeddedDataSpecification>>())
             , Times.Once);
             _writeBaseMock.Verify(_ => _.AddQualifiableRelations(It.IsAny<string>(), It.IsAny<List<Qualifier>>()),
             Times.Once);
@@ -108,7 +108,7 @@ namespace AAS.ADT.Tests
             var minimalSubmodelElementCollection = new SubmodelElementCollection();
             await _objectUnderTest.CreateSubmodelElement(minimalSubmodelElementCollection);
 
-            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<IHasDataSpecification>()),
+            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<List<EmbeddedDataSpecification>>()),
                 Times.Never);
             _writeBaseMock.Verify(_ => _.AddQualifiableRelations(It.IsAny<string>(), It.IsAny<List<Qualifier>>()),
                 Times.Never);
@@ -131,7 +131,7 @@ namespace AAS.ADT.Tests
 
             await _objectUnderTest.CreateSubmodelElement(fullSmeCollection);
 
-            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<IHasDataSpecification>())
+            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<List<EmbeddedDataSpecification>>())
                 , Times.Once);
             _writeBaseMock.Verify(_ => _.AddQualifiableRelations(It.IsAny<string>(), It.IsAny<List<Qualifier>>()),
                 Times.Once);
@@ -169,7 +169,7 @@ namespace AAS.ADT.Tests
             var minimalFile = new File("testContentType");
             await _objectUnderTest.CreateSubmodelElement(minimalFile);
 
-            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<IHasDataSpecification>()),
+            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<List<EmbeddedDataSpecification>>()),
                 Times.Never);
             _writeBaseMock.Verify(_ => _.AddQualifiableRelations(It.IsAny<string>(), It.IsAny<List<Qualifier>>()),
                 Times.Never);
@@ -195,13 +195,11 @@ namespace AAS.ADT.Tests
             
             await _objectUnderTest.CreateSubmodelElement(fullFile);
 
-            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<IHasDataSpecification>())
+            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<List<EmbeddedDataSpecification>>())
                 , Times.Once);
             _writeBaseMock.Verify(_ => _.AddQualifiableRelations(It.IsAny<string>(), It.IsAny<List<Qualifier>>()),
                 Times.Once);
-            _writeBaseMock.Verify(_ => _.AddReference(It.IsAny<string>(), It.IsAny<Reference>(), "semanticId"),
-                Times.Once);
-
+            _writeBaseMock.Verify(_ => _.AddReference(It.IsAny<string>(), It.IsAny<Reference>(), "semanticId"), Times.Once);
         }
 
 

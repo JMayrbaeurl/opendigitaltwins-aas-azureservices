@@ -9,7 +9,7 @@ public interface IAasWriteBase
     Task AddReference(string sourceTwinId, Reference reference, string relationshipName);
 
     Task AddHasDataSpecification(string sourceTwinId,
-        IHasDataSpecification embeddedDataSpecification);
+        List<EmbeddedDataSpecification> embeddedDataSpecifications);
 
     Task AddQualifiableRelations(string sourceTwinId, List<Qualifier> qualifiers);
 }

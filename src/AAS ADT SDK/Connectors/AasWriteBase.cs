@@ -38,11 +38,11 @@ namespace AAS.ADT
         }
 
         public async Task AddHasDataSpecification(string sourceTwinId,
-            IHasDataSpecification embeddedDataSpecification)
+            List<EmbeddedDataSpecification> embeddedDataSpecifications)
         {
-            if (embeddedDataSpecification.EmbeddedDataSpecifications != null)
+            if (embeddedDataSpecifications != null)
             {
-                foreach (var dataSpecification in embeddedDataSpecification.EmbeddedDataSpecifications)
+                foreach (var dataSpecification in embeddedDataSpecifications)
                 {
                     if (dataSpecification.DataSpecificationContent is DataSpecificationIec61360)
                     {

@@ -48,6 +48,15 @@ namespace AAS.ADT.Tests.Connectors
         }
 
         [TestMethod]
+        public async Task AddReference_does_nothing_when_reference_is_null()
+        {
+
+            await _objectUnderTest.AddReference("testSourceTwinId", null, "testRelationshipName");
+
+            _adtTwinFactoryMock.Verify(_ => _.GetTwin(It.IsAny<Reference>()), Times.Never);
+        }
+
+        [TestMethod]
         public async Task AddReference_creates_reference_when_keys_present()
         {
             var exemplaryReference = new Reference(ReferenceTypes.GlobalReference, new List<Key>()
@@ -63,7 +72,7 @@ namespace AAS.ADT.Tests.Connectors
         }
 
         [TestMethod]
-        public async Task AddReference_creates_reference_when_No_keys_present()
+        public async Task AddReference_does_nothing_when_No_keys_present()
         {
             var exemplaryReferenceWithoutKeys = new Reference(ReferenceTypes.GlobalReference, new List<Key>());
 
@@ -73,10 +82,18 @@ namespace AAS.ADT.Tests.Connectors
         }
 
         [TestMethod]
+        public async Task AddHasDataSpecification_does_nothing_if_embeddedDataSpecification_is_null()
+        {
+            await _objectUnderTest.AddHasDataSpecification("testSourceTwinId", null);
+
+            _adtTwinFactoryMock.Verify(_ => _.GetTwin(It.IsAny<Property>()), Times.Never);
+        }
+
+        [TestMethod]
         public async Task AddHasDataSpecification_does_nothing_if_no_embeddedDataSpecification_present()
         {
             var exemplaryInputWithoutEmbeddedDataSpec = new Property(DataTypeDefXsd.Boolean);
-            await _objectUnderTest.AddHasDataSpecification("testSourceTwinId", exemplaryInputWithoutEmbeddedDataSpec);
+            await _objectUnderTest.AddHasDataSpecification("testSourceTwinId", exemplaryInputWithoutEmbeddedDataSpec.EmbeddedDataSpecifications);
 
             _adtTwinFactoryMock.Verify(_ => _.GetTwin(It.IsAny<Property>()), Times.Never);
         }
@@ -94,7 +111,7 @@ namespace AAS.ADT.Tests.Connectors
 
                 });
 
-            await _objectUnderTest.AddHasDataSpecification("testSourceTwinId", exemplaryInputWithTwoEmbeddedDataSpecs);
+            await _objectUnderTest.AddHasDataSpecification("testSourceTwinId", exemplaryInputWithTwoEmbeddedDataSpecs.EmbeddedDataSpecifications);
 
             _adtTwinFactoryMock.Verify(_ => _.GetTwin(It.IsAny<IDataSpecificationContent>()), Times.Exactly(2));
             _adtTwinFactoryMock.Verify(_ => _.GetTwin(It.IsAny<Reference>()), Times.Never);
@@ -107,18 +124,26 @@ namespace AAS.ADT.Tests.Connectors
         [TestMethod]
         public async Task AddHasDataSpecification_creates_UnitId_if_present()
         {
-            var exemplaryInputWithUnitId = new Property(DataTypeDefXsd.Boolean,
-                embeddedDataSpecifications: new List<EmbeddedDataSpecification>()
+            var exemplaryInputWithUnitId = new List<EmbeddedDataSpecification>()
                 {
                     new EmbeddedDataSpecification(new Reference(ReferenceTypes.GlobalReference, new List<Key>()),
                         new DataSpecificationIec61360(new List<LangString>(),
                             unitId: new Reference(ReferenceTypes.GlobalReference,
                                 new List<Key>(){new Key(KeyTypes.Blob,"testValue")})))
 
-                });
+                };
             await _objectUnderTest.AddHasDataSpecification("testSourceTwinId", exemplaryInputWithUnitId);
 
             _adtTwinFactoryMock.Verify(_ => _.GetTwin(It.IsAny<Reference>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task AddQualifiableRelations_does_nothing_if_qualifiers_is_null()
+        {
+            await _objectUnderTest.AddQualifiableRelations("testSourceTwinId", null);
+
+            _writeConnectorMock.Verify(_ => _.DoCreateOrReplaceRelationshipAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>()), Times.Never);
         }
 
         [TestMethod]
