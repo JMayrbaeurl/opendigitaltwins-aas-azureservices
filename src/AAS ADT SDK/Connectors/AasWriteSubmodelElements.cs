@@ -28,17 +28,17 @@ namespace AAS.ADT
 
         public async Task<string> CreateSubmodelElement(ISubmodelElement submodelElement)
         {
-            if (submodelElement is SubmodelElementCollection)
+            if (submodelElement is SubmodelElementCollection smeCollection)
             {
-                return await CreateSubmodelElementCollection((SubmodelElementCollection)submodelElement);
+                return await CreateSubmodelElementCollection(smeCollection);
             }
-            else if (submodelElement is Property)
+            else if (submodelElement is Property element)
             {
-                return await CreateProperty((Property)submodelElement);
+                return await CreateProperty(element);
             }
-            else if (submodelElement is File)
+            else if (submodelElement is File file)
             {
-                return await CreateFile((File)submodelElement);
+                return await CreateFile(file);
             }
 
             //else if (submodelElement.submodelElement.GetType() == typeof(MultiLanguageProperty))

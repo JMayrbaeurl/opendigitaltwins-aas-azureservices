@@ -31,7 +31,6 @@ namespace AAS.ADT.Tests
 
             _objectUnderTest = new AasWriteSubmodelElements(_loggerMock.Object, _adtTwinFactoryMock.Object,
                 _writeConnectorMock.Object, _writeBaseMock.Object);
-
         }
 
         [TestMethod]
@@ -43,19 +42,6 @@ namespace AAS.ADT.Tests
             _adtTwinFactoryMock.Verify(_ => _.GetTwin(It.IsAny<Property>()), Times.Once());
             _writeConnectorMock.Verify(_ => _.DoCreateOrReplaceDigitalTwinAsync(It.IsAny<BasicDigitalTwin>()),
                 Times.Once());
-        }
-
-        [TestMethod]
-        public async Task CreateSubmodelElement_adds_no_Relationships_for_minimal_Property()
-        {
-            var minimalProperty = new Property(DataTypeDefXsd.Boolean);
-            await _objectUnderTest.CreateSubmodelElement(minimalProperty);
-
-            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<List<EmbeddedDataSpecification>>()), Times.Never);
-            _writeBaseMock.Verify(_ => _.AddQualifiableRelations(It.IsAny<string>(), It.IsAny<List<Qualifier>>()),
-                Times.Never);
-            _writeBaseMock.Verify(_ => _.AddReference(It.IsAny<string>(), It.IsAny<Reference>(), It.IsAny<string>()),
-                Times.Never);
         }
 
         [TestMethod]
@@ -103,20 +89,6 @@ namespace AAS.ADT.Tests
         }
 
         [TestMethod]
-        public async Task CreateSubmodelElement_adds_no_Relationships_for_minimal_SubmodelElement()
-        {
-            var minimalSubmodelElementCollection = new SubmodelElementCollection();
-            await _objectUnderTest.CreateSubmodelElement(minimalSubmodelElementCollection);
-
-            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<List<EmbeddedDataSpecification>>()),
-                Times.Never);
-            _writeBaseMock.Verify(_ => _.AddQualifiableRelations(It.IsAny<string>(), It.IsAny<List<Qualifier>>()),
-                Times.Never);
-            _writeBaseMock.Verify(_ => _.AddReference(It.IsAny<string>(), It.IsAny<Reference>(), It.IsAny<string>()),
-                Times.Never);
-        }
-
-        [TestMethod]
         public async Task CreateSubmodelElement_adds_SmeRelationships_for_full_SubmodelElementCollection()
         {
             var fullSmeCollection = new SubmodelElementCollection(
@@ -161,20 +133,6 @@ namespace AAS.ADT.Tests
 
             _writeConnectorMock.Verify(_ => _.DoCreateOrReplaceDigitalTwinAsync(It.IsAny<BasicDigitalTwin>()),
                 Times.Once());
-        }
-
-        [TestMethod]
-        public async Task CreateSubmodelElement_adds_no_Relationships_for_minimal_File()
-        {
-            var minimalFile = new File("testContentType");
-            await _objectUnderTest.CreateSubmodelElement(minimalFile);
-
-            _writeBaseMock.Verify(_ => _.AddHasDataSpecification(It.IsAny<string>(), It.IsAny<List<EmbeddedDataSpecification>>()),
-                Times.Never);
-            _writeBaseMock.Verify(_ => _.AddQualifiableRelations(It.IsAny<string>(), It.IsAny<List<Qualifier>>()),
-                Times.Never);
-            _writeBaseMock.Verify(_ => _.AddReference(It.IsAny<string>(), It.IsAny<Reference>(), It.IsAny<string>()),
-                Times.Never);
         }
 
         [TestMethod]

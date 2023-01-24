@@ -7,5 +7,8 @@ namespace AAS.ADT.Models
     {
         [JsonPropertyName(DigitalTwinsJsonPropertyNames.DigitalTwinId)]
         public string dtId { get; set; }
+
+        [JsonPropertyName(DigitalTwinsJsonPropertyNames.DigitalTwinMetadata)]
+        public DigitalTwinMetadata Metadata { get; set; }
     }
 }

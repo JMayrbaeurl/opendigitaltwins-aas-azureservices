@@ -23,7 +23,9 @@ namespace AAS.ADT
         public async Task AddReference(string sourceTwinId, Reference reference, string relationshipName)
         {
             if (reference != null && reference.Keys.Count > 0)
+            {
                 await CreateReferenceTwin(sourceTwinId, reference, relationshipName);
+            }
         }
 
         private async Task<BasicDigitalTwin> CreateReferenceTwin(string sourceTwinId, Reference reference,
@@ -31,7 +33,7 @@ namespace AAS.ADT
         {
             var refTwinData = _modelFactory.GetTwin(reference);
             await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(refTwinData);
-            
+
             await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(sourceTwinId, relationshipName, refTwinData.Id);
 
             return refTwinData;
@@ -40,29 +42,28 @@ namespace AAS.ADT
         public async Task AddHasDataSpecification(string sourceTwinId,
             List<EmbeddedDataSpecification> embeddedDataSpecifications)
         {
-            if (embeddedDataSpecifications != null)
+            if (embeddedDataSpecifications == null)
             {
-                foreach (var dataSpecification in embeddedDataSpecifications)
+                return;
+            }
+
+            foreach (var dataSpecification in embeddedDataSpecifications)
+            {
+                if (dataSpecification.DataSpecificationContent is DataSpecificationIec61360 contentIec61360)
                 {
-                    if (dataSpecification.DataSpecificationContent is DataSpecificationIec61360)
-                    {
-                        DataSpecificationIec61360 content = (DataSpecificationIec61360)dataSpecification.DataSpecificationContent;
+                    var dsTwinData = _modelFactory.GetTwin(contentIec61360);
 
-                        var dsTwinData = _modelFactory.GetTwin(content);
+                    await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(dsTwinData);
 
-                        await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(dsTwinData);
+                    await AddReference(dsTwinData.Id, contentIec61360.UnitId, "unitId");
 
-                        // Create related unitId
-                        if (content.UnitId != null)
-                            await AddReference(dsTwinData.Id, content.UnitId, "unitId");
-                        
-                        await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(sourceTwinId, "dataSpecification", dsTwinData.Id);
-                    }
-                    else
-                    {
-                        throw new ArgumentException(
-                            $"DataSpecificationContent of Type {dataSpecification.DataSpecificationContent.GetType()} is not supported ");
-                    }
+                    await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(sourceTwinId, "dataSpecification",
+                        dsTwinData.Id);
+                }
+                else
+                {
+                    throw new ArgumentException(
+                        $"DataSpecificationContent of Type {dataSpecification.DataSpecificationContent.GetType()} is not supported ");
                 }
             }
         }
@@ -73,26 +74,25 @@ namespace AAS.ADT
 
             _logger.LogInformation($"Adding qualifiers for twin '{sourceTwinId}'");
 
-            if (qualifiers != null)
+            if (qualifiers == null)
             {
-                foreach (var qualifier in qualifiers)
-                {
-                    _logger.LogInformation($"Now creating qualifier '{qualifier.ValueId}'");
+                return;
+            }
 
-                    var constraintTwinData = _modelFactory.GetTwin(qualifier);
-                    await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(constraintTwinData);
+            foreach (var qualifier in qualifiers)
+            {
+                _logger.LogInformation($"Now creating qualifier '{qualifier.ValueId}'");
 
-                    if (qualifier.ValueId != null)
-                        await AddReference(constraintTwinData.Id, qualifier.ValueId, "valueId");
+                var constraintTwinData = _modelFactory.GetTwin(qualifier);
+                await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(constraintTwinData);
 
-                    // Create semantic Id
-                    if (qualifier.SemanticId != null)
-                    {
-                        await AddReference(constraintTwinData.Id, qualifier.SemanticId, "semanticId");
-                    }
 
-                    await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(sourceTwinId, "qualifier", constraintTwinData.Id);
-                }
+                await AddReference(constraintTwinData.Id, qualifier.ValueId, "valueId");
+
+                await AddReference(constraintTwinData.Id, qualifier.SemanticId, "semanticId");
+
+                await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(sourceTwinId, "qualifier",
+                    constraintTwinData.Id);
             }
         }
     }
