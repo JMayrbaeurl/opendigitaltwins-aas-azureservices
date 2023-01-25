@@ -62,6 +62,14 @@ namespace AAS.ADT.Tests
         }
 
         [TestMethod]
+        public async Task DoCreateOrReplaceDigitalTwinAsync_does_not_try_to_create_twin_if_provided_with_null()
+        {
+            await objectUnderTest.DoCreateOrReplaceDigitalTwinAsync(null);
+            digitalTwinsClient.Verify(_ =>
+                _.CreateOrReplaceDigitalTwinAsync(It.IsAny<string>(), It.IsAny<BasicDigitalTwin>(), null, default(CancellationToken)),Times.Never);
+        }
+
+        [TestMethod]
         public async Task DoCreateOrReplaceDigitalTwinAsync_just_calls_adtApi()
         {
             var twinData = new BasicDigitalTwin();
@@ -71,7 +79,63 @@ namespace AAS.ADT.Tests
         }
 
         [TestMethod]
-        public async Task DoCreateOrReplaceRelationshipAsync_calls_AdtApi_to_create_Relationship()
+        public async Task DoCreateOrReplaceRelationshipAsync_does_not_try_to_create_relationship_if_sourceId_is_null()
+        {
+            await objectUnderTest.DoCreateOrReplaceRelationshipAsync(null, "testRelationshipName", "testTargetId");
+            digitalTwinsClient.Verify(_ => _.CreateOrReplaceRelationshipAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BasicRelationship>(), null, default(CancellationToken)),Times.Never);
+        }
+
+        [TestMethod]
+        public async Task DoCreateOrReplaceRelationshipAsync_does_not_try_to_create_relationship_if_sourceId_is_empty()
+        {
+            await objectUnderTest.DoCreateOrReplaceRelationshipAsync("", "testRelationshipName", "testTargetId");
+            digitalTwinsClient.Verify(_ => _.CreateOrReplaceRelationshipAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BasicRelationship>(), null,
+                default(CancellationToken)), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task
+            DoCreateOrReplaceRelationshipAsync_does_not_try_to_create_relationship_if_relationshipName_is_null()
+        {
+            await objectUnderTest.DoCreateOrReplaceRelationshipAsync("testSourceId", null, "testTargetId");
+            digitalTwinsClient.Verify(_ => _.CreateOrReplaceRelationshipAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BasicRelationship>(), null,
+                default(CancellationToken)), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task
+            DoCreateOrReplaceRelationshipAsync_does_not_try_to_create_relationship_if_relationshipName_is_empty()
+        {
+            await objectUnderTest.DoCreateOrReplaceRelationshipAsync("testSourceId", "", "testTargetId");
+            digitalTwinsClient.Verify(_ => _.CreateOrReplaceRelationshipAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BasicRelationship>(), null,
+                default(CancellationToken)), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task DoCreateOrReplaceRelationshipAsync_does_not_try_to_create_relationship_if_targetId_is_null()
+        {
+            await objectUnderTest.DoCreateOrReplaceRelationshipAsync("testSourceId", "testRelationshipName", null);
+            digitalTwinsClient.Verify(_ => _.CreateOrReplaceRelationshipAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BasicRelationship>(), null,
+                default(CancellationToken)), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task DoCreateOrReplaceRelationshipAsync_does_not_try_to_create_relationship_if_targetId_is_empty()
+        {
+            await objectUnderTest.DoCreateOrReplaceRelationshipAsync("testSourceId", "testRelationshipName", "");
+            digitalTwinsClient.Verify(_ => _.CreateOrReplaceRelationshipAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BasicRelationship>(), null,
+                default(CancellationToken)), Times.Never);
+        }
+
+
+        [TestMethod]
+        public async Task DoCreateOrReplaceRelationshipAsync_calls_AdtApi_to_create_Relationship_when_input_parameters_ok()
         {
             var testRelationshipName = "testRelName";
             var testTargetId = "testTargetId";
@@ -79,74 +143,6 @@ namespace AAS.ADT.Tests
             await objectUnderTest.DoCreateOrReplaceRelationshipAsync("TestId", testRelationshipName, testTargetId);
             digitalTwinsClient.Verify(_ => _.CreateOrReplaceRelationshipAsync(
                 "TestId", expectedRelationshipId, It.IsAny<BasicRelationship>(), null, default(CancellationToken)));
-        }
-
-        [TestMethod]
-        public async Task
-            DoCreateReferrableReferenceRelationships_throws_returns_empty_results_if_refList_is_null_or_empty()
-        {
-            var actual1 = await objectUnderTest.DoCreateReferrableReferenceRelationships(
-                null, null, new List<string>());
-            var actual2 = await objectUnderTest.DoCreateReferrableReferenceRelationships(
-                new List<string>(), null, new List<string>());
-            actual1.Should().BeEmpty();
-            actual2.Should().BeEmpty();
-        }
-
-        [TestMethod]
-        public async Task DoCreateReferrableReferenceRelationships_creates_Relationship_when_everything_ok()
-        {
-            digitalTwinsClient.Setup(_ => _.GetDigitalTwinAsync<AdtReference>("testId1", default(CancellationToken)))
-                .ReturnsAsync(azureResponseMock.Object);
-
-            repo.Setup(_ => _.FindTwinForReference(It.IsAny<Reference>())).Returns(Task.FromResult("testId2"));
-
-            var targetId = "testId2";
-            var relName = "testId1-referredElement->testId2";
-
-            digitalTwinsClient.Setup(_ => _.CreateOrReplaceRelationshipAsync(
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BasicRelationship>(), null,
-                default(CancellationToken))).ReturnsAsync(azureResponseMockRelationship.Object);
-
-            await objectUnderTest.DoCreateReferrableReferenceRelationships(
-                new List<string>() { "testId1" }, null, new List<string>());
-
-            digitalTwinsClient.Verify(_ =>
-                _.GetDigitalTwinAsync<AdtReference>("testId1", default(CancellationToken)));
-
-            digitalTwinsClient.Verify(_ => _.CreateOrReplaceRelationshipAsync("testId1", relName,
-                It.IsAny<BasicRelationship>(), null, default(CancellationToken)));
-
-        }
-
-        [TestMethod]
-        public async Task
-            DoCreateReferrableReferenceRelationships_creates_No_Relationship_when_filtered_twins_does_not_contain_entry_from_refList()
-        {
-            var actual = await objectUnderTest.DoCreateReferrableReferenceRelationships(
-                new List<string>() { "testId1" }, new HashSet<string>(), new List<string>());
-            actual.Should().BeEmpty();
-        }
-
-        [TestMethod]
-        public async Task
-            DoCreateReferrableReferenceRelationships_creates_Relationship_when_filtered_twins_contains_one_entry_from_refList()
-        {
-            digitalTwinsClient.Setup(_ => _.GetDigitalTwinAsync<AdtReference>("testId1", default(CancellationToken)))
-                .ReturnsAsync(azureResponseMock.Object);
-
-            repo.Setup(_ => _.FindTwinForReference(It.IsAny<Reference>())).Returns(Task.FromResult("testId2"));
-
-            var targetId = "testId2";
-            var relName = "testId1-referredElement->testId2";
-
-            digitalTwinsClient.Setup(_ => _.CreateOrReplaceRelationshipAsync(
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BasicRelationship>(), null,
-                default(CancellationToken))).ReturnsAsync(azureResponseMockRelationship.Object);
-
-            var actual = await objectUnderTest.DoCreateReferrableReferenceRelationships(
-                new List<string>() { "testId1" }, new HashSet<string>() { "testId1" }, new List<string>());
-            actual.Should().BeEquivalentTo(new List<string>() { "testId1" });
         }
     }
 }

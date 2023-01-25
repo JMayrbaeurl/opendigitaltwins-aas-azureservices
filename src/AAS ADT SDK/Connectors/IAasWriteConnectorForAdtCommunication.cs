@@ -7,10 +7,8 @@ namespace AAS.ADT;
 
 public interface IAasWriteConnector
 {
-    Task<Response<BasicDigitalTwin>> DoCreateOrReplaceDigitalTwinAsync(BasicDigitalTwin twinData);
+    Task DoCreateOrReplaceDigitalTwinAsync(BasicDigitalTwin twinData);
 
-    Task<Response<BasicRelationship>> DoCreateOrReplaceRelationshipAsync(string sourceId,
+    Task DoCreateOrReplaceRelationshipAsync(string sourceId,
         string relName, string targetId);
-
-    Task<List<string>> DoCreateReferrableReferenceRelationships(List<string> refList, ISet<string> filteredTwins, List<string> result);
 }
