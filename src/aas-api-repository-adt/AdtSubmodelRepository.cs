@@ -1,4 +1,5 @@
-﻿using AasCore.Aas3_0_RC02;
+﻿using AAS.ADT;
+using AasCore.Aas3_0_RC02;
 
 namespace AAS.API.Repository.Adt
 {
@@ -7,13 +8,16 @@ namespace AAS.API.Repository.Adt
         private readonly IAdtAasConnector _adtAasConnector;
         private readonly IAdtSubmodelConnector _adtSubmodelConnector;
         private readonly IAdtSubmodelModelFactory _adtSubmodelModelFactory;
+        private readonly IAasWriteSubmodel _writeSubmodel;
 
-        public AdtSubmodelRepository(IAdtSubmodelConnector adtSubmodelConnector, IAdtAasConnector adtAasConnector, IAdtSubmodelModelFactory adtSubmodelModelFactory)
+        public AdtSubmodelRepository(IAdtSubmodelConnector adtSubmodelConnector, IAdtAasConnector adtAasConnector, 
+            IAdtSubmodelModelFactory adtSubmodelModelFactory, IAasWriteSubmodel writeSubmodel)
         {
             _adtAasConnector = adtAasConnector;
             _adtSubmodelConnector = adtSubmodelConnector;
             _adtSubmodelModelFactory = adtSubmodelModelFactory ?? 
                                        throw new ArgumentNullException(nameof(adtSubmodelModelFactory));
+            _writeSubmodel = writeSubmodel;
         }
         public async Task<List<Submodel>> GetAllSubmodels()
         {
@@ -34,9 +38,15 @@ namespace AAS.API.Repository.Adt
             return await _adtSubmodelModelFactory.GetSubmodel(information);
         }
 
-        public void CreateSubmodelElement(string submodelIdentifier, ISubmodelElement submodelElement)
+        public async Task CreateSubmodelElement(string submodelIdentifier, ISubmodelElement submodelElement)
         {
-            throw new NotImplementedException();
+            var submodelTwinIdentifier = _adtAasConnector.GetTwinIdForElementWithId(submodelIdentifier);
+            await _writeSubmodel.CreateSubmodelElementForSubmodel(submodelElement, submodelTwinIdentifier);
+        }
+
+        public async Task CreateSubmodel(Submodel submodel)
+        {
+            await _writeSubmodel.CreateSubmodel(submodel);
         }
     }
 }

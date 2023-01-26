@@ -10,6 +10,7 @@
 
 using System;
 using System.IO;
+using AAS.ADT;
 using AAS.ADT.Models;
 using AAS.API.Repository;
 using AAS.API.Repository.Adt;
@@ -91,7 +92,7 @@ namespace Aas.Api.Repository
 
             services.AddHttpClient<IAzureDigitalTwinsHttpClient, AzureDigitalTwinsHttpClient>(client =>
                 client.BaseAddress = new Uri(Configuration["ADT_SERVICE_URL"]));
-            services.AddTransient<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
+            services.AddSingleton<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
             services.AddScoped<ISubmodelRepository, AdtSubmodelRepository>();
             services.AddTransient<IAdtAasConnector, AdtAasConnector>();
             services.AddTransient<IAdtSubmodelConnector, AdtSubmodelConnector>();
@@ -100,6 +101,16 @@ namespace Aas.Api.Repository
             services.AddTransient<AdtSubmodelElementFactory<AdtSubmodel>>();
             services.AddTransient<AdtSubmodelElementFactory<AdtSubmodelElementCollection>>();
             services.AddTransient<IAASRepositoryFactory, AASRepositoryFactory>();
+
+            services.AddTransient<IAasWriteSubmodelElements, AasWriteSubmodelElements>();
+            services.AddTransient<IAasWriteSubmodel, AasWriteSubmodel>();
+            services.AddTransient<IAasWriteAssetAdministrationShell, AasWriteAssetAdministrationShell>();
+            services.AddTransient<IAasWriteConnector, AasWriteConnectorForAdtCommunication>();
+            services.AddTransient<IAasWriteBase, AasWriteBase>();
+            services.AddTransient<IAdtTwinFactory, AdtTwinFactory>();
+
+
+
 
             services
                 .AddSwaggerGen(c =>

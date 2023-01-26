@@ -12,6 +12,7 @@ namespace AAS.API.Repository
         public List<string> GetAllAasIds();
         public Task<AssetAdministrationShell> GetAssetAdministrationShellWithId(string aasId);
         public Task<List<AssetAdministrationShell>> GetAllAdministrationShells();
+        //public Task CreateAdministrationShell(AssetAdministrationShell shell);
     }
 
     public class AASRepositoryException : AASServiceException

@@ -566,28 +566,7 @@ namespace AAS.API.Repository.Controllers
             return new ObjectResult(example);
         }
 
-        /// <summary>
-        /// Creates a new Submodel
-        /// </summary>
-        /// <param name="body">Submodel object</param>
-        /// <response code="201">Submodel created successfully</response>
-        [HttpPost]
-        [Route("api/v1/submodels")]
-        [ValidateModelState]
-        [SwaggerOperation("PostSubmodel")]
-        [SwaggerResponse(statusCode: 201, type: typeof(Submodel), description: "Submodel created successfully")]
-        public virtual IActionResult PostSubmodel([FromBody]Submodel body)
-        { 
-            //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(201, default(Submodel));
-            string exampleJson = null;
-            exampleJson = "\"\"";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Submodel>(exampleJson)
-                        : default(Submodel);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        
 
         /// <summary>
         /// Creates a new submodel element

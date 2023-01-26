@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AAS ADT SDK\AAS ADT SDK.csproj" />
     <ProjectReference Include="..\aas-repository\AAS Repository.csproj" />
+    <ProjectReference Include="..\aas-services-support\AAS Services Support.csproj" />
   </ItemGroup>
 
 </Project>

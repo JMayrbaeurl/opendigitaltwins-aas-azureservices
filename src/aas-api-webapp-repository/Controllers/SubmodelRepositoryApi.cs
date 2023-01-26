@@ -55,6 +55,21 @@ namespace AAS.API.Repository.Controllers
         }
 
         /// <summary>
+        /// Creates a new Submodel
+        /// </summary>
+        /// <param name="body">Submodel object</param>
+        /// <response code="201">Submodel created successfully</response>
+        [HttpPost]
+        [ValidateModelState]
+        [SwaggerOperation("PostSubmodel")]
+        [SwaggerResponse(statusCode: 201, type: typeof(Submodel), description: "Submodel created successfully")]
+        public async Task<IActionResult> PostSubmodel([FromBody] Submodel body)
+        {
+            await _repository.CreateSubmodel(body);
+            return Ok();
+        }
+
+        /// <summary>
         /// Returns the Submodel
         /// </summary>
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
@@ -95,6 +110,7 @@ namespace AAS.API.Repository.Controllers
             [FromRoute] [Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content,
             [FromQuery] string extent)
         {
+            submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
             if (body.modelType == "Property")
             {
                 Property property = new JObjectToPropertyMapper(_mapper).map(body);
