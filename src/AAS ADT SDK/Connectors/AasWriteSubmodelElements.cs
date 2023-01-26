@@ -122,11 +122,13 @@ namespace AAS.ADT
 
             // Start by creating a twin for the Property
             var twin = _modelFactory.GetTwin(property);
-            
+
+            await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(twin);
+
             if (property.ValueId != null)
                 await _writeBase.AddReference(twin.Id, property.ValueId, "valueId");
             
-            await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(twin);
+            
             
             await AddSubmodelElementRelationships(twin.Id, property);
 

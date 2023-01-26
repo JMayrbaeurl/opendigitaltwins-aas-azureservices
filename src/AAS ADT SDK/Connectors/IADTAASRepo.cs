@@ -4,6 +4,7 @@ using AasCore.Aas3_0_RC02;
 
 namespace AAS.ADT
 {
+    // Necessary for RelationshipElements
     public interface IAASRepo
     {
         public Task<string> FindTwinForReference(Reference reference);

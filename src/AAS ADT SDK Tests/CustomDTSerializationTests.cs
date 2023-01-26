@@ -105,7 +105,7 @@ namespace AAS.ADT.Tests
         {
             Assert.IsTrue(this.listOfAASDtIds.Count > 0);
             
-            AssetAdministrationShell aShell = this.dtClient.GetDigitalTwin<AssetAdministrationShell>(this.listOfAASDtIds[0]);
+            var aShell = this.dtClient.GetDigitalTwin<AdtAas>(this.listOfAASDtIds[0]);
             Assert.IsNotNull(aShell);
         }
 
@@ -114,7 +114,7 @@ namespace AAS.ADT.Tests
         {
             Assert.IsTrue(this.listOfAssetInfoIds.Count > 0);
 
-            AssetInformation anAsset = this.dtClient.GetDigitalTwin<AssetInformation>(this.listOfAssetInfoIds[0]);
+            AdtAssetInformation anAsset = this.dtClient.GetDigitalTwin<AdtAssetInformation>(this.listOfAssetInfoIds[0]);
             Assert.IsNotNull(anAsset);
         }
 

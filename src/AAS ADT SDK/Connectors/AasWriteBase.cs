@@ -22,21 +22,15 @@ namespace AAS.ADT
 
         public async Task AddReference(string sourceTwinId, Reference reference, string relationshipName)
         {
-            if (reference != null && reference.Keys.Count > 0)
+            if (reference == null || reference.Keys.Count == 0)
             {
-                await CreateReferenceTwin(sourceTwinId, reference, relationshipName);
+                return;
             }
-        }
 
-        private async Task<BasicDigitalTwin> CreateReferenceTwin(string sourceTwinId, Reference reference,
-            string relationshipName)
-        {
             var refTwinData = _modelFactory.GetTwin(reference);
             await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(refTwinData);
 
             await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(sourceTwinId, relationshipName, refTwinData.Id);
-
-            return refTwinData;
         }
 
         public async Task AddHasDataSpecification(string sourceTwinId,

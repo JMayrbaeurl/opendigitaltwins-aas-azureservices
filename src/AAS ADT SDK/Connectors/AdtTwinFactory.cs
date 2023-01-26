@@ -8,6 +8,7 @@ using AasCore.Aas3_0_RC02;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Reflection.Metadata;
+using System.Text.RegularExpressions;
 
 namespace AAS.ADT
 {
@@ -127,7 +128,7 @@ namespace AAS.ADT
                     {
                         string keyPropName = $"key{count}";
                         var keyTwinData = new BasicDigitalTwinComponent();
-                        keyTwinData.Contents.Add("type", key.Type);
+                        keyTwinData.Contents.Add("type", key.Type.ToString());
                         keyTwinData.Contents.Add("value", key.Value);
                         twin.Contents.Add(keyPropName, keyTwinData);
                     }
@@ -212,7 +213,7 @@ namespace AAS.ADT
             if (!string.IsNullOrEmpty(content.Symbol))
                 twin.Contents.Add("symbol", content.Symbol);
             if (content.DataType != null)
-                twin.Contents.Add("dataType", content.DataType.ToString());
+                twin.Contents.Add("dataType", GetDataTypeForIec61360Content(content.DataType));
             if (content.Definition != null)
                 twin.Contents.Add("definition", Convert(content.Definition));
             if (!string.IsNullOrEmpty(content.ValueFormat))
@@ -224,6 +225,17 @@ namespace AAS.ADT
                 twin.Contents.Add("value", content.Value);
             if (content.LevelType != null)
                 twin.Contents.Add("levelType", content.LevelType.ToString());
+        }
+
+        private string GetDataTypeForIec61360Content(DataTypeIec61360? dataType)
+        {
+            var dataTypeStrings = Regex.Split(dataType.ToString(), @"(?<!^)(?=[A-Z])");
+            var result = dataTypeStrings[0];
+            for (int i = 1; i < dataTypeStrings.Length; i++)
+            {
+                result += $"_{dataTypeStrings[i]}";
+            }
+            return result.ToUpper();
         }
 
         private void AddAdtModelAndId(BasicDigitalTwin twin,string modelName)
@@ -268,6 +280,10 @@ namespace AAS.ADT
 
             twin.Contents.Add("description", Convert(referable.Description));
             twin.Contents.Add("displayName", Convert(referable.DisplayName));
+            
+            // Tags are required by the ADT Models for better querying
+            twin.Contents.Add("tags", new BasicDigitalTwinComponent());
+
         }
 
         private BasicDigitalTwinComponent Convert(List<LangString> langStrings)

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using AAS.ADT.Models;
+using AAS.API.Services.ADT;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 using Azure.DigitalTwins.Core;
@@ -20,7 +21,6 @@ namespace AAS.ADT.Tests
         private AasWriteConnectorForAdtCommunication objectUnderTest { get; set; }
 
         private Mock<ILogger<AasWriteConnectorForAdtCommunication>> logger { get; set; }
-        private Mock<IAASRepo> repo { get; set; }
         private Mock<IMapper> mapper { get; set; }
         private Mock<Azure.Response<AdtReference>> azureResponseMock { get; set; }
         private Mock<Azure.Response<BasicRelationship>> azureResponseMockRelationship { get; set; }
@@ -30,13 +30,14 @@ namespace AAS.ADT.Tests
         {
             autoMocker = new AutoMocker();
             digitalTwinsClient = new Mock<DigitalTwinsClient>();
+            var digitalTwinsClientFactory = new Mock<DigitalTwinsClientFactory>();
+            digitalTwinsClientFactory.Setup(_ => _.CreateClient()).Returns(digitalTwinsClient.Object);
+            
             logger = new Mock<ILogger<AasWriteConnectorForAdtCommunication>>();
-            repo = new Mock<IAASRepo>();
             mapper = new Mock<IMapper>();
 
             objectUnderTest =
-                new AasWriteConnectorForAdtCommunication(digitalTwinsClient.Object, logger.Object, repo.Object,
-                    mapper.Object);
+                new AasWriteConnectorForAdtCommunication(digitalTwinsClientFactory.Object, logger.Object);
 
             azureResponseMock = new Mock<Azure.Response<AdtReference>>();
             azureResponseMock.Setup(_ => _.Value).Returns(new AdtReference()

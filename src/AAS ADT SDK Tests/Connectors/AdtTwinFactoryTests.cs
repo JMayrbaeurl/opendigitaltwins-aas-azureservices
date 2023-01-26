@@ -88,7 +88,8 @@ namespace AAS.ADT.Tests.Connectors
             var displayName = (BasicDigitalTwinComponent)_actualTwin.Contents["displayName"];
             displayName.Contents["langString"].Should().BeEquivalentTo(new Dictionary<string, string>()
                 { { "en", "testDisplayName" } });
-
+            var tags = (BasicDigitalTwinComponent)_actualTwin.Contents["tags"];
+            tags.Should().NotBeNull();
         }
 
         [TestMethod]
@@ -105,6 +106,8 @@ namespace AAS.ADT.Tests.Connectors
 
             var displayName = (BasicDigitalTwinComponent)_actualTwin.Contents["displayName"];
             displayName.Contents.Should().NotContainKey("displayName");
+            var tags = (BasicDigitalTwinComponent)_actualTwin.Contents["tags"];
+            tags.Should().NotBeNull();
         }
 
         [TestMethod]
@@ -230,14 +233,16 @@ namespace AAS.ADT.Tests.Connectors
             var reference = new Reference(ReferenceTypes.GlobalReference,
                 new List<Key>()
                 {
-                    new Key(KeyTypes.Blob, "testKeyValue1"),
+                    new Key(KeyTypes.GlobalReference, "testKeyValue1"),
                     new Key(KeyTypes.Blob, "testKeyValue2")
 
                 }, null);
             _actualTwin = _objectUnderTest.GetTwin(reference);
             var key1 = (BasicDigitalTwinComponent)_actualTwin.Contents["key1"];
+            key1.Contents["type"].Should().Be("GlobalReference");
             key1.Contents["value"].Should().Be("testKeyValue1");
             var key2 = (BasicDigitalTwinComponent)_actualTwin.Contents["key2"];
+            key2.Contents["type"].Should().Be("Blob");
             key2.Contents["value"].Should().Be("testKeyValue2");
         }
 
@@ -280,7 +285,7 @@ namespace AAS.ADT.Tests.Connectors
             _actualTwin.Contents["unit"].Should().Be("testUnit");
             _actualTwin.Contents["sourceOfDefinition"].Should().Be("testSourceOfDefinition");
             _actualTwin.Contents["symbol"].Should().Be("testSymbol");
-            _actualTwin.Contents["dataType"].Should().Be("Date");
+            _actualTwin.Contents["dataType"].Should().Be("DATE");
             _actualTwin.Contents["valueFormat"].Should().Be("testValueFormat");
             _actualTwin.Contents["value"].Should().Be("testValue");
             _actualTwin.Contents["levelType"].Should().Be("Max");
@@ -314,6 +319,18 @@ namespace AAS.ADT.Tests.Connectors
             _actualTwin.Contents.Should().NotContainKey("valueFormat");
             _actualTwin.Contents.Should().NotContainKey("value");
             _actualTwin.Contents.Should().NotContainKey("levelType");
+        }
+
+        [TestMethod]
+        public void GetTwin_returns_correct_formatted_complex_dataType_on_Iec61360_content()
+        {
+            var content =
+                new DataSpecificationIec61360(new List<LangString>()
+                {
+                    new LangString("en", "testPreferredName")
+                },dataType: DataTypeIec61360.IntegerCount);
+            _actualTwin = _objectUnderTest.GetTwin(content);
+            _actualTwin.Contents["dataType"].Should().Be("INTEGER_COUNT");
         }
 
         [TestMethod]
@@ -384,6 +401,26 @@ namespace AAS.ADT.Tests.Connectors
             var displayName = (BasicDigitalTwinComponent)_actualTwin.Contents["displayName"];
             displayName.Contents["langString"].Should().BeEquivalentTo(new Dictionary<string, string>()
                 { { "en", "testDisplayName" } });
+            var tags = (BasicDigitalTwinComponent)_actualTwin.Contents["tags"];
+            tags.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_Referable_values_for_minimal_Submodel()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalSubmodel);
+
+            _actualTwin.Contents.Should().NotContainKey("category");
+            _actualTwin.Contents.Should().NotContainKey("idShort");
+            _actualTwin.Contents.Should().NotContainKey("checksum");
+
+            var description = (BasicDigitalTwinComponent)_actualTwin.Contents["description"];
+            description.Contents.Should().NotContainKey("langString");
+
+            var displayName = (BasicDigitalTwinComponent)_actualTwin.Contents["displayName"];
+            displayName.Contents.Should().NotContainKey("displayName");
+            var tags = (BasicDigitalTwinComponent)_actualTwin.Contents["tags"];
+            tags.Should().NotBeNull();
         }
 
         [TestMethod]
@@ -434,6 +471,26 @@ namespace AAS.ADT.Tests.Connectors
             var displayName = (BasicDigitalTwinComponent)_actualTwin.Contents["displayName"];
             displayName.Contents["langString"].Should().BeEquivalentTo(new Dictionary<string, string>()
                 { { "en", "testDisplayName" } });
+            var tags = (BasicDigitalTwinComponent)_actualTwin.Contents["tags"];
+            tags.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_Referable_values_for_minimal_Shell()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalShell);
+
+            _actualTwin.Contents.Should().NotContainKey("category");
+            _actualTwin.Contents.Should().NotContainKey("idShort");
+            _actualTwin.Contents.Should().NotContainKey("checksum");
+
+            var description = (BasicDigitalTwinComponent)_actualTwin.Contents["description"];
+            description.Contents.Should().NotContainKey("langString");
+
+            var displayName = (BasicDigitalTwinComponent)_actualTwin.Contents["displayName"];
+            displayName.Contents.Should().NotContainKey("displayName");
+            var tags = (BasicDigitalTwinComponent)_actualTwin.Contents["tags"];
+            tags.Should().NotBeNull();
         }
 
         [TestMethod]

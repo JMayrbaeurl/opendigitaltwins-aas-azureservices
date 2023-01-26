@@ -13,4 +13,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\aas-services-support\AAS Services Support.csproj" />
+  </ItemGroup>
+
 </Project>

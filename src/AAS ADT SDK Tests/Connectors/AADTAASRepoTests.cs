@@ -1,15 +1,13 @@
 ﻿using AasCore.Aas3_0_RC02;
 using Azure;
-using Newtonsoft.Json.Linq;
+using Azure.DigitalTwins.Core;
+using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Moq.AutoMock;
 
-namespace AAS.ADT.Tests
+namespace AAS.ADT.Tests.Connectors
 {
-    using Azure.DigitalTwins.Core;
-    using Microsoft.Extensions.Logging;
-    using Moq;
-    using Moq.AutoMock;
-    using FluentAssertions;
-
     [TestClass]
     public class AADTAASRepoTests
     {

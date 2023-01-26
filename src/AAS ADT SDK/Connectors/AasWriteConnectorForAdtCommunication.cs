@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using AAS.ADT.Models;
+using AAS.API.Services.ADT;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 using Azure;
@@ -20,16 +21,11 @@ namespace AAS.ADT
     {
         private readonly DigitalTwinsClient _dtClient;
         private readonly ILogger<AasWriteConnectorForAdtCommunication> _logger;
-        private readonly IAASRepo _repo;
-        private readonly IMapper _mapper;
 
-        public AasWriteConnectorForAdtCommunication(DigitalTwinsClient dtClient, ILogger<AasWriteConnectorForAdtCommunication> logger,
-            IAASRepo repo, IMapper mapper)
+        public AasWriteConnectorForAdtCommunication(DigitalTwinsClientFactory adtClientFactory, ILogger<AasWriteConnectorForAdtCommunication> logger)
         {
-            _dtClient = dtClient;
+            _dtClient = adtClientFactory.CreateClient();
             _logger = logger;
-            _repo = repo;
-            _mapper = mapper;
         }
 
 
