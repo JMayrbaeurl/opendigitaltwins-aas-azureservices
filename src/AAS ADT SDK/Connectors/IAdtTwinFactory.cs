@@ -11,4 +11,7 @@ public interface IAdtTwinFactory
     public BasicDigitalTwin GetTwin(IDataSpecificationContent content);
     public BasicDigitalTwin GetTwin(Qualifier qualifiers);
     public BasicDigitalTwin GetTwin(Submodel submodel);
+    public BasicDigitalTwin GetTwin(AssetAdministrationShell shell);
+    public BasicDigitalTwin GetTwin(AssetInformation assetInformation);
+
 }

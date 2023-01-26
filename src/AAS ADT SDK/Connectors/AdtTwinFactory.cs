@@ -14,7 +14,6 @@ namespace AAS.ADT
     public class AdtTwinFactory : IAdtTwinFactory
     {
 
-        private BasicDigitalTwin _twin;
         private readonly ILogger<AdtTwinFactory> _logger;
 
 
@@ -23,41 +22,101 @@ namespace AAS.ADT
             _logger = logger;
         }
 
+        public BasicDigitalTwin GetTwin(AssetAdministrationShell shell)
+        {
+            var twin = new BasicDigitalTwin();
+            AddAdtModelAndId(twin, AdtAasOntology.MODEL_SHELL);
+            AddIdentifiableValues(twin, shell);
+
+            var assetInfoShort = new BasicDigitalTwinComponent();
+            assetInfoShort.Contents.Add("assetKind", shell.AssetInformation.AssetKind.ToString());
+            if (shell.AssetInformation.GlobalAssetId!= null)
+            {
+                assetInfoShort.Contents.Add("globalAssetId", Serialize(shell.AssetInformation.GlobalAssetId));
+            }
+            
+            var specificAssetIds = shell.AssetInformation.SpecificAssetIds;
+            if (specificAssetIds!= null && specificAssetIds.Count > 0)
+            {
+                assetInfoShort.Contents.Add("specificAssetId",
+                SerializeSpecificAssetIds(specificAssetIds));
+            }
+
+            if (shell.AssetInformation.DefaultThumbnail != null && shell.AssetInformation.DefaultThumbnail.Path != "")
+            {
+                assetInfoShort.Contents.Add("defaultThumbnailpath", shell.AssetInformation.DefaultThumbnail.Path);
+            }
+            
+
+            twin.Contents.Add("assetInformationShort", assetInfoShort);
+            return twin;
+        }
+
+        public BasicDigitalTwin GetTwin(AssetInformation assetInformation)
+        {
+            var twin = new BasicDigitalTwin();
+
+            AddAdtModelAndId(twin,AdtAasOntology.MODEL_ASSETINFORMATION);
+            
+            var assetKind = new BasicDigitalTwinComponent();
+            assetKind.Contents.Add("assetKind",assetInformation.AssetKind.ToString());
+            twin.Contents.Add("assetKind",assetKind);
+            return twin;
+        }
+
+        private string Serialize(Reference reference)
+        {
+            return reference.Type == ReferenceTypes.GlobalReference ? 
+                $"(GlobalReference){reference.Keys[0].Value}" : 
+                $"({reference.Keys[0].Type}){reference.Keys[0].Value}";
+        }
+
+        private string SerializeSpecificAssetIds(List<SpecificAssetId> specificAssetIds)
+        {
+            var result = "";
+            foreach (var specificAssetId in specificAssetIds)
+            {
+                result += $"({specificAssetId.Name}){specificAssetId.Value}, ";
+            }
+
+            return result.Remove(result.Length - 2);
+        }
+
         public BasicDigitalTwin GetTwin(ISubmodelElement submodelElement)
         {
-            _twin = new BasicDigitalTwin();
+            var twin = new BasicDigitalTwin();
 
-            AddReferableValues(submodelElement);
-            AddKind(submodelElement);
+            AddReferableValues(twin, submodelElement);
+            AddKind(twin, submodelElement);
             if (submodelElement is SubmodelElementCollection)
             {
-                AddAdtModelAndId(AdtAasOntology.MODEL_SUBMODELELEMENTCOLLECTION);
+                AddAdtModelAndId(twin, AdtAasOntology.MODEL_SUBMODELELEMENTCOLLECTION);
             }
 
-            else if (submodelElement is Property)
+            else if (submodelElement is Property element)
             {
-                AddAdtModelAndId(AdtAasOntology.MODEL_PROPERTY);
-                AddPropertyValues((Property)submodelElement);
+                AddAdtModelAndId(twin, AdtAasOntology.MODEL_PROPERTY);
+                AddPropertyValues(twin, element);
             }
 
-            else if (submodelElement is File)
+            else if (submodelElement is File file)
             {
-                AddAdtModelAndId(AdtAasOntology.MODEL_FILE);
-                AddFileValues((File)submodelElement);
+                AddAdtModelAndId(twin,AdtAasOntology.MODEL_FILE);
+                AddFileValues(twin, file);
             }
             else
             {
                 throw new ArgumentException($"SubmodelElement of type {submodelElement.GetType()} is not supported");
             }
-            return _twin;
+            return twin;
         }
 
         public BasicDigitalTwin GetTwin(Reference reference)
         {
-            _twin = new BasicDigitalTwin();
+            var twin = new BasicDigitalTwin();
 
-            AddAdtModelAndId(AdtAasOntology.MODEL_REFERENCE);
-            _twin.Contents.Add("type", reference.Type.ToString());
+            AddAdtModelAndId(twin, AdtAasOntology.MODEL_REFERENCE);
+            twin.Contents.Add("type", reference.Type.ToString());
             if (reference.Keys.Count > 0)
             {
                 int count = 0;
@@ -70,7 +129,7 @@ namespace AAS.ADT
                         var keyTwinData = new BasicDigitalTwinComponent();
                         keyTwinData.Contents.Add("type", key.Type);
                         keyTwinData.Contents.Add("value", key.Value);
-                        _twin.Contents.Add(keyPropName, keyTwinData);
+                        twin.Contents.Add(keyPropName, keyTwinData);
                     }
                     else
                     {
@@ -80,107 +139,107 @@ namespace AAS.ADT
 
                 for (int i = count + 1; i < 9; i++)
                 {
-                    _twin.Contents.Add($"key{i}", new BasicDigitalTwinComponent());
+                    twin.Contents.Add($"key{i}", new BasicDigitalTwinComponent());
                 }
             }
             else
             {
                 for (int i = 1; i <= 8; i++)
                 {
-                    _twin.Contents.Add($"key{i}", new BasicDigitalTwinComponent());
+                    twin.Contents.Add($"key{i}", new BasicDigitalTwinComponent());
                 }
             }
-            return _twin;
+            return twin;
         }
 
 
         public BasicDigitalTwin GetTwin(IDataSpecificationContent content)
         {
-            _twin = new BasicDigitalTwin();
+            var twin = new BasicDigitalTwin();
 
-            if (content is DataSpecificationIec61360)
+            if (content is DataSpecificationIec61360 dataSpecificationIec61360)
             {
-                AddAdtModelAndId(AdtAasOntology.MODEL_DATASPECIEC61360);
-                AddDataSpecificationContentIec61360Values((DataSpecificationIec61360)content);
+                AddAdtModelAndId(twin, AdtAasOntology.MODEL_DATASPECIEC61360);
+                AddDataSpecificationContentIec61360Values(twin, dataSpecificationIec61360);
             }
             else
             {
                 throw new ArgumentException("DataSpecificationContent of type '{typeof(content)}' is not supported");
             }
 
-            return _twin;
+            return twin;
         }
 
         public BasicDigitalTwin GetTwin(Qualifier qualifier)
         {
-            _twin = new BasicDigitalTwin();
+            var twin = new BasicDigitalTwin();
 
-            AddAdtModelAndId(AdtAasOntology.MODEL_QUALIFIER);
-            _twin.Contents.Add("type", qualifier.Type);
-            _twin.Contents.Add("valueType", qualifier.ValueType.ToString());
+            AddAdtModelAndId(twin, AdtAasOntology.MODEL_QUALIFIER);
+            twin.Contents.Add("type", qualifier.Type);
+            twin.Contents.Add("valueType", qualifier.ValueType.ToString());
             if (qualifier.Value != null)
-                _twin.Contents.Add("value", qualifier.Value);
-            if (qualifier.Kind != null )
+                twin.Contents.Add("value", qualifier.Value);
+            if (qualifier.Kind != null)
             {
-                _twin.Contents.Add("kind",qualifier.Kind.ToString());
+                twin.Contents.Add("kind", qualifier.Kind.ToString());
             }
-            return _twin;
+            return twin;
         }
 
         public BasicDigitalTwin GetTwin(Submodel submodel)
         {
-            _twin = new BasicDigitalTwin();
+            var twin = new BasicDigitalTwin();
 
-            AddAdtModelAndId(AdtAasOntology.MODEL_SUBMODEL);
+            AddAdtModelAndId(twin, AdtAasOntology.MODEL_SUBMODEL);
 
-            AddKind(submodel);
-            AddIdentifiableValues(submodel);
+            AddKind(twin, submodel);
+            AddIdentifiableValues(twin, submodel);
 
-            return _twin;
+            return twin;
         }
 
 
-        private void AddDataSpecificationContentIec61360Values(DataSpecificationIec61360 content)
+        private void AddDataSpecificationContentIec61360Values(BasicDigitalTwin twin, DataSpecificationIec61360 content)
         {
             if (content.PreferredName != null)
-                _twin.Contents.Add("preferredName", Convert(content.PreferredName));
+                twin.Contents.Add("preferredName", Convert(content.PreferredName));
             if (content.ShortName != null)
-                _twin.Contents.Add("shortName", Convert(content.ShortName));
+                twin.Contents.Add("shortName", Convert(content.ShortName));
             if (!string.IsNullOrEmpty(content.Unit))
-                _twin.Contents.Add("unit", content.Unit);
+                twin.Contents.Add("unit", content.Unit);
             if (!string.IsNullOrEmpty(content.SourceOfDefinition))
-                _twin.Contents.Add("sourceOfDefinition", content.SourceOfDefinition);
+                twin.Contents.Add("sourceOfDefinition", content.SourceOfDefinition);
             if (!string.IsNullOrEmpty(content.Symbol))
-                _twin.Contents.Add("symbol", content.Symbol);
+                twin.Contents.Add("symbol", content.Symbol);
             if (content.DataType != null)
-                _twin.Contents.Add("dataType", content.DataType.ToString());
+                twin.Contents.Add("dataType", content.DataType.ToString());
             if (content.Definition != null)
-                _twin.Contents.Add("definition", Convert(content.Definition));
+                twin.Contents.Add("definition", Convert(content.Definition));
             if (!string.IsNullOrEmpty(content.ValueFormat))
-                _twin.Contents.Add("valueFormat", content.ValueFormat);
+                twin.Contents.Add("valueFormat", content.ValueFormat);
             // TODO: Implement Value List
             //if (content.ValueList != null)
             //    _twin.Contents.Add("valueList", content.ValueList);
             if (content.Value != null)
-                _twin.Contents.Add("value", content.Value);
+                twin.Contents.Add("value", content.Value);
             if (content.LevelType != null)
-                _twin.Contents.Add("levelType", content.LevelType.ToString());
+                twin.Contents.Add("levelType", content.LevelType.ToString());
         }
 
-        private void AddAdtModelAndId(string modelName)
+        private void AddAdtModelAndId(BasicDigitalTwin twin,string modelName)
         {
-            _twin.Metadata.ModelId = modelName;
+            twin.Metadata.ModelId = modelName;
             // TODO: loosen coupling between AdtAasOntology and this Factory
-            _twin.Id = $"{AdtAasOntology.DTIDMap[modelName]["dtId"]}{Guid.NewGuid()}";
+            twin.Id = $"{AdtAasOntology.DTIDMap[modelName]["dtId"]}{Guid.NewGuid()}";
         }
 
-        private void AddIdentifiableValues(IIdentifiable identifiable)
+        private void AddIdentifiableValues(BasicDigitalTwin twin, IIdentifiable identifiable)
         {
-            AddReferableValues(identifiable);
-            
+            AddReferableValues(twin, identifiable);
+
             if (identifiable.Id != null)
             {
-                _twin.Contents.Add("id", identifiable.Id);
+                twin.Contents.Add("id", identifiable.Id);
             }
             BasicDigitalTwinComponent admin = new BasicDigitalTwinComponent();
             if (identifiable.Administration != null &&
@@ -192,23 +251,23 @@ namespace AAS.ADT
                     admin.Contents.Add("revision", identifiable.Administration.Revision);
             }
 
-            _twin.Contents.Add("administration", admin);
+            twin.Contents.Add("administration", admin);
         }
 
 
-        private void AddReferableValues(IReferable referable)
+        private void AddReferableValues(BasicDigitalTwin twin, IReferable referable)
         {
             if (!string.IsNullOrEmpty(referable.IdShort))
-                _twin.Contents.Add("idShort", referable.IdShort);
+                twin.Contents.Add("idShort", referable.IdShort);
 
             if (!string.IsNullOrEmpty(referable.Category))
-                _twin.Contents.Add("category", referable.Category);
+                twin.Contents.Add("category", referable.Category);
 
             if (!string.IsNullOrEmpty(referable.Checksum))
-                _twin.Contents.Add("checksum", referable.Checksum);
+                twin.Contents.Add("checksum", referable.Checksum);
 
-            _twin.Contents.Add("description", Convert(referable.Description));
-            _twin.Contents.Add("displayName", Convert(referable.DisplayName));
+            twin.Contents.Add("description", Convert(referable.Description));
+            twin.Contents.Add("displayName", Convert(referable.DisplayName));
         }
 
         private BasicDigitalTwinComponent Convert(List<LangString> langStrings)
@@ -228,7 +287,7 @@ namespace AAS.ADT
             return descTwinData;
         }
 
-        private void AddKind(IHasKind objectWithKind)
+        private void AddKind(BasicDigitalTwin twin, IHasKind objectWithKind)
         {
             BasicDigitalTwinComponent kind = new BasicDigitalTwinComponent();
             if (objectWithKind.Kind != null)
@@ -236,25 +295,25 @@ namespace AAS.ADT
                 kind.Contents.Add("kind", objectWithKind.Kind.ToString());
             }
 
-            _twin.Contents.Add("kind", kind);
+            twin.Contents.Add("kind", kind);
         }
 
-        private void AddPropertyValues(Property property)
+        private void AddPropertyValues(BasicDigitalTwin twin, Property property)
         {
-            _twin.Contents.Add("valueType", property.ValueType.ToString());
+            twin.Contents.Add("valueType", property.ValueType.ToString());
             if (property.Value != null)
             {
-                _twin.Contents.Add("value", property.Value);
+                twin.Contents.Add("value", property.Value);
             }
 
         }
 
-        private void AddFileValues(File file)
+        private void AddFileValues(BasicDigitalTwin twin, File file)
         {
-            _twin.Contents.Add("contentType", file.ContentType);
+            twin.Contents.Add("contentType", file.ContentType);
             if (file.Value != null)
             {
-                _twin.Contents.Add("value", file.Value);
+                twin.Contents.Add("value", file.Value);
             }
         }
 

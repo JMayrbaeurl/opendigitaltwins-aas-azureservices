@@ -19,10 +19,17 @@ namespace AAS.ADT.Tests.Connectors
     {
         private AdtTwinFactory _objectUnderTest { get; set; }
         private ISubmodelElement _exemplaryMinimalSubmodelElement { get; set; }
-        private Submodel _exemplaryMinimalSubmodel { get; set; }
-
         private ISubmodelElement _exemplaryFullSubmodelElement { get; set; }
+       
+        private Submodel _exemplaryMinimalSubmodel { get; set; }
         private Submodel _exemplaryFullSubmodel { get; set; }
+        
+        private AssetAdministrationShell _exemplaryMinimalShell { get; set; }
+        private AssetAdministrationShell _exemplaryFullShell { get; set; }
+
+        private AssetInformation _fullAssetInformation { get; set; }
+        private AssetInformation _minimalAssetInformation { get; set; }
+        
 
         private BasicDigitalTwin _actualTwin { get; set; }
 
@@ -43,17 +50,32 @@ namespace AAS.ADT.Tests.Connectors
             _exemplaryFullSubmodel = new Submodel("testId", new List<Extension>(), "testCategory", "testIdShort",
                 new List<LangString>() { new LangString("en", "testDisplayName") },
                 new List<LangString>() { new("en", "testDescription") }, "testChecksum",
-                new AdministrativeInformation(new List<EmbeddedDataSpecification>()), ModelingKind.Instance);
+                new AdministrativeInformation(null,"1","2"), ModelingKind.Instance);
             _exemplaryMinimalSubmodel = new Submodel("testId");
+
+            _fullAssetInformation = new AssetInformation(
+                AssetKind.Instance, new Reference(ReferenceTypes.GlobalReference,
+                    new List<Key>() { new Key(KeyTypes.GlobalReference, "testGlobalAssetId") }),
+                new List<SpecificAssetId>()
+                {
+                    new ("Serial number","1234",new Reference(ReferenceTypes.GlobalReference,new List<Key>())),
+                        new ("FID", "5678", new Reference(ReferenceTypes.GlobalReference, new List<Key>()))
+                },new Resource("testDefaultThumbnailPath"));
+
+            _minimalAssetInformation = new AssetInformation(AssetKind.Type);
+            
+            _exemplaryFullShell = new AssetAdministrationShell("testId", _fullAssetInformation,
+                new List<Extension>(), "testCategory", "testIdShort",
+                new List<LangString>() { new LangString("en", "testDisplayName") },
+                new List<LangString>() { new("en", "testDescription") }, "testChecksum",
+                new AdministrativeInformation(null, "1", "2"),new List<EmbeddedDataSpecification>());
+            _exemplaryMinimalShell = new AssetAdministrationShell("testId", new AssetInformation(AssetKind.Type));
         }
-        
-        
 
 
         [TestMethod]
         public void GetTwin_adds_Referable_values_for_full_SubmodelElement()
         {
-
             _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullSubmodelElement);
 
             _actualTwin.Contents["category"].Should().Be("testCategory");
@@ -365,11 +387,116 @@ namespace AAS.ADT.Tests.Connectors
         }
 
         [TestMethod]
+        public void GetTwin_adds_Identifiable_values_for_full_Submodel()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullSubmodel);
+            _actualTwin.Contents["id"].Should().Be("testId");
+            var administration = (BasicDigitalTwinComponent)_actualTwin.Contents["administration"];
+            administration.Contents["version"].Should().Be("1");
+            administration.Contents["revision"].Should().Be("2");
+
+        }
+
+        [TestMethod]
         public void GetTwin_adds_Kind_for_full_Submodel()
         {
             _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullSubmodel);
             var kind = (BasicDigitalTwinComponent)_actualTwin.Contents["kind"];
             kind.Contents["kind"].Should().Be("Instance");
         }
+
+        [TestMethod]
+        public void GetTwin_adds_ModelId_for_Shell()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalShell);
+            _actualTwin.Metadata.ModelId.Should().Be(AdtAasOntology.MODEL_SHELL);
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_id_for_Shell()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalShell);
+            _actualTwin.Id.Should().StartWith("Shell");
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_Referable_values_for_full_Shell()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullShell);
+
+            _actualTwin.Contents["category"].Should().Be("testCategory");
+            _actualTwin.Contents["idShort"].Should().Be("testIdShort");
+            _actualTwin.Contents["checksum"].Should().Be("testChecksum");
+            var description = (BasicDigitalTwinComponent)_actualTwin.Contents["description"];
+            description.Contents["langString"].Should().BeEquivalentTo(new Dictionary<string, string>()
+                { { "en", "testDescription" } });
+
+            var displayName = (BasicDigitalTwinComponent)_actualTwin.Contents["displayName"];
+            displayName.Contents["langString"].Should().BeEquivalentTo(new Dictionary<string, string>()
+                { { "en", "testDisplayName" } });
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_Identifiable_values_for_full_Shell()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullShell);
+            _actualTwin.Contents["id"].Should().Be("testId");
+            var administration = (BasicDigitalTwinComponent)_actualTwin.Contents["administration"];
+            administration.Contents["version"].Should().Be("1");
+            administration.Contents["revision"].Should().Be("2");
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_AssetInformationShort_for_full_Shell()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryFullShell);
+            var assetInfoShort = (BasicDigitalTwinComponent)_actualTwin.Contents["assetInformationShort"];
+            assetInfoShort.Contents["assetKind"].Should().Be("Instance");
+            assetInfoShort.Contents["globalAssetId"].Should().Be("(GlobalReference)testGlobalAssetId");
+            assetInfoShort.Contents["specificAssetId"].Should().Be("(Serial number)1234, (FID)5678");
+            assetInfoShort.Contents["defaultThumbnailpath"].Should().Be("testDefaultThumbnailPath");
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_AssetInformationShort_for_minimal_Shell()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_exemplaryMinimalShell);
+            var assetInfoShort = (BasicDigitalTwinComponent)_actualTwin.Contents["assetInformationShort"];
+            assetInfoShort.Contents["assetKind"].Should().Be("Type");
+            assetInfoShort.Contents.Should().NotContainKey("globalAssetId");
+            assetInfoShort.Contents.Should().NotContainKey("specificAssetId");
+            assetInfoShort.Contents.Should().NotContainKey("defaultThumbnailpath");
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_ModelId_for_AssetInformation()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_minimalAssetInformation);
+            _actualTwin.Metadata.ModelId.Should().Be(AdtAasOntology.MODEL_ASSETINFORMATION);
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_id_for_AssetInformation()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_minimalAssetInformation);
+            _actualTwin.Id.Should().StartWith("AssetInfo");
+        }
+
+        [TestMethod]
+        public void GetTwin_returns_correct_twin_for_full_AssetInformation()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_fullAssetInformation);
+            var assetKind = (BasicDigitalTwinComponent)_actualTwin.Contents["assetKind"];
+            assetKind.Contents["assetKind"].Should().Be("Instance");
+        }
+
+        [TestMethod]
+        public void GetTwin_returns_correct_twin_for_minimal_AssetInformation()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_minimalAssetInformation);
+            var assetKind = (BasicDigitalTwinComponent)_actualTwin.Contents["assetKind"];
+            assetKind.Contents["assetKind"].Should().Be("Type");
+        }
+
     }
 }
