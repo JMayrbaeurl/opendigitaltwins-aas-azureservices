@@ -520,28 +520,7 @@ namespace AAS.API.Repository.Controllers
             return new ObjectResult(example);
         }
 
-        /// <summary>
-        /// Creates a new Asset Administration Shell
-        /// </summary>
-        /// <param name="body">Asset Administration Shell object</param>
-        /// <response code="201">Asset Administration Shell created successfully</response>
-        [HttpPost]
-        [Route("api/v1/shells")]
-        [ValidateModelState]
-        [SwaggerOperation("PostAssetAdministrationShell")]
-        [SwaggerResponse(statusCode: 201, type: typeof(AssetAdministrationShell), description: "Asset Administration Shell created successfully")]
-        public virtual IActionResult PostAssetAdministrationShell([FromBody]AssetAdministrationShell body)
-        { 
-            //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(201, default(AssetAdministrationShell));
-            string exampleJson = null;
-            exampleJson = "\"\"";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<AssetAdministrationShell>(exampleJson)
-                        : default(AssetAdministrationShell);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        
 
         /// <summary>
         /// Creates a new Concept Description
@@ -655,29 +634,7 @@ namespace AAS.API.Repository.Controllers
 
         
 
-        /// <summary>
-        /// Creates a submodel reference at the Asset Administration Shell
-        /// </summary>
-        /// <param name="body">Reference to the Submodel</param>
-        /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
-        /// <response code="201">Submodel reference created successfully</response>
-        [HttpPost]
-        [Route("api/v1/shells/{aasIdentifier}/aas/submodels")]
-        [ValidateModelState]
-        [SwaggerOperation("PostSubmodelReference")]
-        [SwaggerResponse(statusCode: 201, type: typeof(Reference), description: "Submodel reference created successfully")]
-        public virtual IActionResult PostSubmodelReference([FromBody]Reference body, [FromRoute][Required]string aasIdentifier)
-        { 
-            //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(201, default(Reference));
-            string exampleJson = null;
-            exampleJson = "\"\"";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Reference>(exampleJson)
-                        : default(Reference);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        
 
         /// <summary>
         /// Updates the Asset Administration Shell

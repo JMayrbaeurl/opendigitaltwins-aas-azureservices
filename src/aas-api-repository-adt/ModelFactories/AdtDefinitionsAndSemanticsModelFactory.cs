@@ -22,20 +22,20 @@ namespace AAS.API.Repository.Adt
             _definitionsAndSemantics = definitionsAndSemantics;
             var supplementalSemanticIds = new List<Reference>();
 
-            var adtSupplementalsSemanticIds = GetAdtSupplementalsSemanticIdsForTwin(twinId);
-            if (adtSupplementalsSemanticIds.Count == 0)
+            var adtSupplementalSemanticIds = GetAdtSupplementalSemanticIdsForTwin(twinId);
+            if (adtSupplementalSemanticIds.Count == 0)
             {
                 return null;
             }
-            foreach (var adtSupplementalsSemanticId in adtSupplementalsSemanticIds)
+            foreach (var adtSupplementalSemanticId in adtSupplementalSemanticIds)
             {
-                supplementalSemanticIds.Add(_generalModelFactory.GetSemanticId(adtSupplementalsSemanticId));
+                supplementalSemanticIds.Add(_generalModelFactory.GetSemanticId(adtSupplementalSemanticId));
 
             }
             return supplementalSemanticIds;
         }
 
-        private List<AdtReference> GetAdtSupplementalsSemanticIdsForTwin(string twinId)
+        private List<AdtReference> GetAdtSupplementalSemanticIdsForTwin(string twinId)
         {
             var adtSupplementalSemanticIds = new List<AdtReference>();
             if (_definitionsAndSemantics.Relationships.ContainsKey(twinId))
@@ -67,36 +67,41 @@ namespace AAS.API.Repository.Adt
 
             foreach (var twinRelationship in twinRelationships)
             {
-                var reference = new AdtReference();
-                if (twinRelationship.Name == "semanticId" || twinRelationship.Name == "dataSpecification")
+                if (twinRelationship.Name != "semanticId" && twinRelationship.Name != "dataSpecification")
                 {
-                    reference = _definitionsAndSemantics.References[twinRelationship.TargetId];
-                    var conceptDescription = GetConceptDescription(reference.dtId);
-
-                    var adtDataSpecificationIec61360 = new AdtDataSpecificationIEC61360();
-
-                    if (conceptDescription != null)
-                    {
-                        adtDataSpecificationIec61360 =
-                            GetDataSpecificationIec61360ForTwinWithId(conceptDescription.dtId);
-                    }
-                    else if (_definitionsAndSemantics.Iec61360s.ContainsKey(reference.dtId))
-                    {
-                        adtDataSpecificationIec61360 = _definitionsAndSemantics.Iec61360s[reference.dtId];
-                    }
-
-
-                    if (adtDataSpecificationIec61360.PreferredName == null)
-                        continue;
-
-                    var dataSpecificationIec61360 = _mapper.Map<DataSpecificationIec61360>(adtDataSpecificationIec61360);
-
-                    var keys = new List<Key>()
-                        { new Key(KeyTypes.GlobalReference, conceptDescription.Id) };
-                    var dataSpecification = new Reference(ReferenceTypes.GlobalReference, keys);
-                    embeddedDataSpecifications.Add(new EmbeddedDataSpecification(dataSpecification,
-                        dataSpecificationIec61360));
+                    continue;
                 }
+
+                if (_definitionsAndSemantics.References.ContainsKey(twinRelationship.TargetId)==false)
+                {
+                    continue;
+                }
+                var reference = _definitionsAndSemantics.References[twinRelationship.TargetId];
+                var conceptDescription = GetConceptDescription(reference.dtId);
+
+                var adtDataSpecificationIec61360 = new AdtDataSpecificationIEC61360();
+
+                if (conceptDescription != null)
+                {
+                    adtDataSpecificationIec61360 =
+                        GetDataSpecificationIec61360ForTwinWithId(conceptDescription.dtId);
+                }
+                else if (_definitionsAndSemantics.Iec61360s.ContainsKey(reference.dtId))
+                {
+                    adtDataSpecificationIec61360 = _definitionsAndSemantics.Iec61360s[reference.dtId];
+                }
+
+
+                if (adtDataSpecificationIec61360.PreferredName == null)
+                    continue;
+
+                var dataSpecificationIec61360 = _mapper.Map<DataSpecificationIec61360>(adtDataSpecificationIec61360);
+
+                var keys = new List<Key>()
+                    { new Key(KeyTypes.GlobalReference, conceptDescription.Id) };
+                var dataSpecification = new Reference(ReferenceTypes.GlobalReference, keys);
+                embeddedDataSpecifications.Add(new EmbeddedDataSpecification(dataSpecification,
+                    dataSpecificationIec61360));
             }
             return embeddedDataSpecifications.Count == 0 ? null : embeddedDataSpecifications;
         }
@@ -130,7 +135,7 @@ namespace AAS.API.Repository.Adt
             {
                 return null;
             }
-            var twinRelationships = this._definitionsAndSemantics.Relationships[twinId];
+            var twinRelationships = _definitionsAndSemantics.Relationships[twinId];
             foreach (var twinRelationship in twinRelationships)
             {
                 if (twinRelationship.Name == "referredElement")

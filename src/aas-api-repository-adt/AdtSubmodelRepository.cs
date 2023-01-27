@@ -46,7 +46,24 @@ namespace AAS.API.Repository.Adt
 
         public async Task CreateSubmodel(Submodel submodel)
         {
-            await _writeSubmodel.CreateSubmodel(submodel);
+            if (IdentifiableAlreadyExist(submodel.Id)==false)
+            {
+                await _writeSubmodel.CreateSubmodel(submodel);
+            }
+            
+        }
+
+        private bool IdentifiableAlreadyExist(string id)
+        {
+            try
+            {
+                _adtAasConnector.GetTwinIdForElementWithId(id);
+                return true;
+            }
+            catch (AdtException e)
+            {
+                return false;
+            }
         }
     }
 }

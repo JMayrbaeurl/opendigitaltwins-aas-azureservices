@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
+using System.Net;
 using System.Threading.Tasks;
-using AAS.API.Repository;
 using Aas.Api.Repository.Attributes;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -11,8 +10,13 @@ using Microsoft.Extensions.Configuration;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.Extensions.Logging;
 using AasCore.Aas3_0_RC02;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace AAS.API.Repository.Controllers
 {
@@ -50,8 +54,24 @@ namespace AAS.API.Repository.Controllers
         [SwaggerResponse(statusCode: 200, type: typeof(List<Submodel>), description: "Requested Submodels")]
         public async Task<ActionResult<List<Submodel>>>GetAllSubmodels([FromQuery] string semanticId, [FromQuery] string idShort)
         {
-            var result = await _repository.GetAllSubmodels();
-            return Ok(result);
+            var submodels = await _repository.GetAllSubmodels();
+            var result = "[";
+            for (int i = 0; i < submodels.Count; i++)
+            {
+                var temp = Jsonization.Serialize.ToJsonObject(submodels[i]);
+                if (i>0)
+                {
+                    result += ",";
+                }
+                result += temp.ToJsonString();
+            }
+
+            result += "]";
+
+            // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
+            // .. That means that the string "result" that's already in JsonFormat will be formatted again..
+            // .. which leads to a wrong response containing escaped "-Character (\")
+            return Ok(JsonConvert.DeserializeObject(result));
         }
 
         /// <summary>
@@ -63,9 +83,12 @@ namespace AAS.API.Repository.Controllers
         [ValidateModelState]
         [SwaggerOperation("PostSubmodel")]
         [SwaggerResponse(statusCode: 201, type: typeof(Submodel), description: "Submodel created successfully")]
-        public async Task<IActionResult> PostSubmodel([FromBody] Submodel body)
+        public async Task<IActionResult> PostSubmodel([FromBody] JObject body)
         {
-            await _repository.CreateSubmodel(body);
+            var bodyParsed = JsonNode.Parse(body.ToString());
+            var submodel = Jsonization.Deserialize.SubmodelFrom(bodyParsed);
+
+            await _repository.CreateSubmodel(submodel);
             return Ok();
         }
 
@@ -82,12 +105,20 @@ namespace AAS.API.Repository.Controllers
         [ValidateModelState]
         [SwaggerOperation("GetSubmodelSubmodelRepo")]
         [SwaggerResponse(statusCode: 200, type: typeof(Submodel), description: "Requested Submodel")]
-        public async Task<ActionResult<Submodel>> GetSubmodelSubmodelRepo([FromRoute][Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content, [FromQuery] string extent)
+        public async Task<IActionResult> GetSubmodelSubmodelRepo([FromRoute][Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content, [FromQuery] string extent)
         {
-            var Message = $"About page visited at {DateTime.UtcNow.ToLongTimeString()}";
-            _logger.LogInformation(Message);
             submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
-            return Ok(await _repository.GetSubmodelWithId(submodelIdentifier));
+            var submodel = await _repository.GetSubmodelWithId(submodelIdentifier);
+            
+            // adds the "modelType" Attributes that are necessary for serialization
+            var jsonObject = Jsonization.Serialize.ToJsonObject(submodel);
+
+            // removes unwanted Properties like "_value" from the jsonObject
+            var result = jsonObject.ToJsonString();
+            // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
+            // .. That means that the string "result" that's already in JsonFormat will be formatted again..
+            // .. which leads to a wrong response containing escaped "-Character (\")
+            return Ok(JsonConvert.DeserializeObject(result));
         }
 
         /// <summary>
@@ -100,22 +131,23 @@ namespace AAS.API.Repository.Controllers
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
         /// <response code="201">Submodel element created successfully</response>
         [HttpPost]
-        [Consumes("application/json")]
         [Route("{submodelIdentifier}/submodel/submodel-elements")]
         [ValidateModelState]
         [SwaggerOperation("PostSubmodelElementSubmodelRepo")]
+        [Consumes("application/json")]
         [SwaggerResponse(statusCode: 201, type: typeof(ISubmodelElement),
             description: "Submodel element created successfully")]
-        public virtual IActionResult PostSubmodelElementSubmodelRepo([FromBody] dynamic body,
+        public virtual IActionResult PostSubmodelElementSubmodelRepo([FromBody] JObject body,
             [FromRoute] [Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content,
             [FromQuery] string extent)
         {
+            var bodyParsed = JsonNode.Parse(body.ToString());
+            var submodelElement = Jsonization.Deserialize.ISubmodelElementFrom(bodyParsed);
+
             submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
-            if (body.modelType == "Property")
-            {
-                Property property = new JObjectToPropertyMapper(_mapper).map(body);
-                _repository.CreateSubmodelElement(submodelIdentifier,property);
-            }
+
+            _repository.CreateSubmodelElement(submodelIdentifier, submodelElement);
+            
             return Ok();
         }
     }
