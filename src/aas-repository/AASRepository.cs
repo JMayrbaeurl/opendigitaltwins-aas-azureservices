@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 
 namespace AAS.API.Repository
 {
-    public interface AASRepository : ShellRepository
+    public interface AASRepository
     {
-        public List<string> GetAllAasIds();
+        public List<string> GetAllAssetAdministrationShellIds();
         public Task<AssetAdministrationShell> GetAssetAdministrationShellWithId(string aasId);
-        public Task<List<AssetAdministrationShell>> GetAllAdministrationShells();
-        //public Task CreateAdministrationShell(AssetAdministrationShell shell);
+        public Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShells();
+        public Task CreateAssetAdministrationShell(AssetAdministrationShell shell);
+        public Task CreateSubmodelReference(string aasId, Reference submodelRef);
     }
 
     public class AASRepositoryException : AASServiceException

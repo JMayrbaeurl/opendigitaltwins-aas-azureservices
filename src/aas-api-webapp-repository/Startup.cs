@@ -31,6 +31,8 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Aas.Api.Repository
 {
@@ -78,8 +80,9 @@ namespace Aas.Api.Repository
             services
                 .AddMvc(options =>
                 {
-                    options.InputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonInputFormatter>();
-                    options.OutputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonOutputFormatter>();
+                    options.Filters.Add(new ProducesAttribute("application/json"));
+                    options.InputFormatters.RemoveType<SystemTextJsonInputFormatter>();
+                    options.ReturnHttpNotAcceptable = true;
                     options.ModelBinderProviders.Insert(0, new IdentifierKeyValuePairModelBinderProvider());
                 })
                 .AddNewtonsoftJson(opts =>

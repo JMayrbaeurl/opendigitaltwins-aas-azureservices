@@ -90,14 +90,16 @@ namespace AAS.API.WebApp.Controllers
             */
             if (idShort != null && idShort.Length > 0)
             {
-                return new ObjectResult(repository.GetAllAssetAdministrationShellsByIdShort(idShort).GetAwaiter().GetResult());
+                return
+                    null; //return new ObjectResult(repository.GetAllAssetAdministrationShellsByIdShort(idShort).GetAwaiter().GetResult());
             }
             else
             {
                 if (assetIds != null && assetIds.Count > 0)
-                    return new ObjectResult(repository.GetAllAssetAdministrationShellsByAssetId(assetIds).GetAwaiter().GetResult());
+                    return
+                        null; //return new ObjectResult(repository.GetAllAssetAdministrationShellsByAssetId(assetIds).GetAwaiter().GetResult());
                 else
-                    return new ObjectResult(repository.GetAllAdministrationShells().GetAwaiter().GetResult());
+                    return new ObjectResult(repository.GetAllAssetAdministrationShells().GetAwaiter().GetResult());
             }
         }
 

@@ -39,6 +39,11 @@ namespace AAS.ADT
             await CreateAssetInformation(shell, twin.Id);
         }
 
+        public async Task CreateSubmodelReference(string shellTwinId, string submodelTwinId)
+        {
+            await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(shellTwinId, "submodel", submodelTwinId);
+        }
+
         private async Task CreateAssetInformation(AssetAdministrationShell shell, string shellTwinId)
         {
             var assetInfoTwinData = _modelFactory.GetTwin(shell.AssetInformation);

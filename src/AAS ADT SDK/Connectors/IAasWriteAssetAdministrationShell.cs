@@ -6,4 +6,5 @@ namespace AAS.ADT;
 public interface IAasWriteAssetAdministrationShell
 {
     Task CreateShell(AssetAdministrationShell shell);
+    Task CreateSubmodelReference(string shellTwinId, string submodelTwinId);
 }
