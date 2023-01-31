@@ -17,6 +17,7 @@ using System.Text.Json.Nodes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using Microsoft.AspNetCore.Http;
 
 namespace AAS.API.Repository.Controllers
 {
@@ -52,26 +53,35 @@ namespace AAS.API.Repository.Controllers
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodels")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<Submodel>), description: "Requested Submodels")]
-        public async Task<ActionResult<List<Submodel>>>GetAllSubmodels([FromQuery] string semanticId, [FromQuery] string idShort)
+        public async Task<ActionResult<List<Submodel>>> GetAllSubmodels([FromQuery] string semanticId, [FromQuery] string idShort)
         {
-            var submodels = await _repository.GetAllSubmodels();
-            var result = "[";
-            for (int i = 0; i < submodels.Count; i++)
+            try
             {
-                var temp = Jsonization.Serialize.ToJsonObject(submodels[i]);
-                if (i>0)
+                var submodels = await _repository.GetAllSubmodels();
+                var result = "[";
+                for (int i = 0; i < submodels.Count; i++)
                 {
-                    result += ",";
+                    var temp = Jsonization.Serialize.ToJsonObject(submodels[i]);
+                    if (i > 0)
+                    {
+                        result += ",";
+                    }
+                    result += temp.ToJsonString();
                 }
-                result += temp.ToJsonString();
+
+                result += "]";
+
+                // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
+                // .. That means that the string "result" that's already in JsonFormat will be formatted again..
+                // .. which leads to a wrong response containing escaped "-Character (\")
+                return Ok(JsonConvert.DeserializeObject(result));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
 
-            result += "]";
-
-            // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
-            // .. That means that the string "result" that's already in JsonFormat will be formatted again..
-            // .. which leads to a wrong response containing escaped "-Character (\")
-            return Ok(JsonConvert.DeserializeObject(result));
         }
 
         /// <summary>
@@ -85,11 +95,20 @@ namespace AAS.API.Repository.Controllers
         [SwaggerResponse(statusCode: 201, type: typeof(Submodel), description: "Submodel created successfully")]
         public async Task<IActionResult> PostSubmodel([FromBody] JObject body)
         {
-            var bodyParsed = JsonNode.Parse(body.ToString());
-            var submodel = Jsonization.Deserialize.SubmodelFrom(bodyParsed);
+            try
+            {
+                var bodyParsed = JsonNode.Parse(body.ToString());
+                var submodel = Jsonization.Deserialize.SubmodelFrom(bodyParsed);
 
-            await _repository.CreateSubmodel(submodel);
-            return Ok();
+                await _repository.CreateSubmodel(submodel);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+
         }
 
         /// <summary>
@@ -107,18 +126,27 @@ namespace AAS.API.Repository.Controllers
         [SwaggerResponse(statusCode: 200, type: typeof(Submodel), description: "Requested Submodel")]
         public async Task<IActionResult> GetSubmodelSubmodelRepo([FromRoute][Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content, [FromQuery] string extent)
         {
-            submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
-            var submodel = await _repository.GetSubmodelWithId(submodelIdentifier);
-            
-            // adds the "modelType" Attributes that are necessary for serialization
-            var jsonObject = Jsonization.Serialize.ToJsonObject(submodel);
+            try
+            {
+                submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
+                var submodel = await _repository.GetSubmodelWithId(submodelIdentifier);
 
-            // removes unwanted Properties like "_value" from the jsonObject
-            var result = jsonObject.ToJsonString();
-            // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
-            // .. That means that the string "result" that's already in JsonFormat will be formatted again..
-            // .. which leads to a wrong response containing escaped "-Character (\")
-            return Ok(JsonConvert.DeserializeObject(result));
+                // adds the "modelType" Attributes that are necessary for serialization
+                var jsonObject = Jsonization.Serialize.ToJsonObject(submodel);
+
+                // removes unwanted Properties like "_value" from the jsonObject
+                var result = jsonObject.ToJsonString();
+                // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
+                // .. That means that the string "result" that's already in JsonFormat will be formatted again..
+                // .. which leads to a wrong response containing escaped "-Character (\")
+                return Ok(JsonConvert.DeserializeObject(result));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+
         }
 
         /// <summary>
@@ -137,18 +165,27 @@ namespace AAS.API.Repository.Controllers
         [Consumes("application/json")]
         [SwaggerResponse(statusCode: 201, type: typeof(ISubmodelElement),
             description: "Submodel element created successfully")]
-        public virtual IActionResult PostSubmodelElementSubmodelRepo([FromBody] JObject body,
-            [FromRoute] [Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content,
+        public async Task<IActionResult> PostSubmodelElementSubmodelRepo([FromBody] JObject body,
+            [FromRoute][Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content,
             [FromQuery] string extent)
         {
-            var bodyParsed = JsonNode.Parse(body.ToString());
-            var submodelElement = Jsonization.Deserialize.ISubmodelElementFrom(bodyParsed);
+            try
+            {
+                var bodyParsed = JsonNode.Parse(body.ToString());
+                var submodelElement = Jsonization.Deserialize.ISubmodelElementFrom(bodyParsed);
 
-            submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
+                submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
 
-            _repository.CreateSubmodelElement(submodelIdentifier, submodelElement);
-            
-            return Ok();
+                await _repository.CreateSubmodelElement(submodelIdentifier, submodelElement);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+
         }
     }
 }

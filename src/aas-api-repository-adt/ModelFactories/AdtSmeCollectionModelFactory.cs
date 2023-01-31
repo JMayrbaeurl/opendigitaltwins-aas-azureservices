@@ -1,6 +1,7 @@
 ﻿using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 
 namespace AAS.API.Repository.Adt
 {
@@ -8,7 +9,9 @@ namespace AAS.API.Repository.Adt
     {
         private readonly IMapper _mapper;
 
-        public AdtSmeCollectionModelFactory(IAdtDefinitionsAndSemanticsModelFactory adtDefinitionsAndSemanticsModelFactory, IMapper mapper) : base(adtDefinitionsAndSemanticsModelFactory,mapper)
+        public AdtSmeCollectionModelFactory(IAdtDefinitionsAndSemanticsModelFactory adtDefinitionsAndSemanticsModelFactory, 
+            IMapper mapper, ILogger<AdtSmeCollectionModelFactory> logger) : 
+            base(adtDefinitionsAndSemanticsModelFactory,mapper, logger,logger)
         {
             _mapper = mapper;
         }

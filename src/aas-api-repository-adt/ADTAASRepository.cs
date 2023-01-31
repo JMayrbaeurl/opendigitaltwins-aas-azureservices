@@ -10,15 +10,16 @@ namespace AAS.API.Repository.Adt
     {
         private readonly ADTAASModelFactory _modelFactory;
         private readonly IAdtAasConnector _adtAasConnector;
-        private readonly ILogger _logger;
+        private readonly ILogger<ADTAASRepository> _logger;
         private readonly IAasWriteAssetAdministrationShell _writeShell;
 
         public ADTAASRepository(DigitalTwinsClient client, IAdtAasConnector adtAasConnector, IMapper mapper,
-            ILogger logger, IAasWriteAssetAdministrationShell writeShell)
+            ILogger<ADTAASRepository> logger, IAasWriteAssetAdministrationShell writeShell)
         {
             _modelFactory = new ADTAASModelFactory(mapper);
             _adtAasConnector = adtAasConnector;
-            _logger = logger;
+            _logger = logger ??
+                      throw new ArgumentNullException(nameof(logger));
             _writeShell = writeShell;
         }
 
@@ -41,31 +42,30 @@ namespace AAS.API.Repository.Adt
         {
 
 
-            if (IdentifiableAlreadyExist(shell.Id) == false)
+            if (IdentifiableAlreadyExist(shell.Id))
             {
-                await _writeShell.CreateShell(shell);
+                return;
+
+            }
+            var shellTwinId = await _writeShell.CreateShell(shell);
+
+            if (shellTwinId==null)
+            {
+                throw new AASRepositoryException($"Shell with Id {shell.Id} could not be created");
             }
 
-            if (shell.Submodels!= null)
+            if (shell.Submodels != null)
             {
                 foreach (var submodelRef in shell.Submodels)
                 {
-                    await CreateSubmodelReference(shell.Id, submodelRef);
+                    await CreateSubmodelReference(shellTwinId, submodelRef);
                 }
             }
         }
 
-        public async Task CreateSubmodelReference(string aasId, Reference submodelRef)
+        public async Task CreateSubmodelReference(string aasTwinId, Reference submodelRef)
         {
-            var shellTwinId = "";
-            try
-            {
-                shellTwinId = _adtAasConnector.GetTwinIdForElementWithId(aasId);
-            }
-            catch (AdtException e)
-            {
-                return;
-            }
+            
             if (submodelRef.Keys[0].Type == KeyTypes.Submodel)
             {
                 var submodelId = submodelRef.Keys[0].Value;
@@ -73,10 +73,11 @@ namespace AAS.API.Repository.Adt
                 try
                 {
                     var submodelTwinId = _adtAasConnector.GetTwinIdForElementWithId(submodelId);
-                    await _writeShell.CreateSubmodelReference(shellTwinId,submodelTwinId);
+                    await _writeShell.CreateSubmodelReference(aasTwinId, submodelTwinId);
                 }
                 catch (AdtException e)
                 {
+                    _logger.LogError(e, e.Message);
                 }
             }
         }

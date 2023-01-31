@@ -1,4 +1,5 @@
 ﻿using AAS.ADT;
+using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
 
 namespace AAS.API.Repository.Adt
@@ -10,12 +11,12 @@ namespace AAS.API.Repository.Adt
         private readonly IAdtSubmodelModelFactory _adtSubmodelModelFactory;
         private readonly IAasWriteSubmodel _writeSubmodel;
 
-        public AdtSubmodelRepository(IAdtSubmodelConnector adtSubmodelConnector, IAdtAasConnector adtAasConnector, 
+        public AdtSubmodelRepository(IAdtSubmodelConnector adtSubmodelConnector, IAdtAasConnector adtAasConnector,
             IAdtSubmodelModelFactory adtSubmodelModelFactory, IAasWriteSubmodel writeSubmodel)
         {
             _adtAasConnector = adtAasConnector;
             _adtSubmodelConnector = adtSubmodelConnector;
-            _adtSubmodelModelFactory = adtSubmodelModelFactory ?? 
+            _adtSubmodelModelFactory = adtSubmodelModelFactory ??
                                        throw new ArgumentNullException(nameof(adtSubmodelModelFactory));
             _writeSubmodel = writeSubmodel;
         }
@@ -23,11 +24,23 @@ namespace AAS.API.Repository.Adt
         {
             var submodels = new List<Submodel>();
             var twinIds = await _adtAasConnector.GetAllSubmodelTwinIds();
+            var submodelConnectorTasks = new List<Task<AdtSubmodelAndSmcInformation<AdtSubmodel>>>();
             foreach (var twinId in twinIds)
             {
-                var information = await _adtSubmodelConnector.GetAllInformationForSubmodelWithTwinId(twinId);
-                submodels.Add(await _adtSubmodelModelFactory.GetSubmodel(information));
+                submodelConnectorTasks.Add(_adtSubmodelConnector.GetAllInformationForSubmodelWithTwinId(twinId));
             }
+
+            while (submodelConnectorTasks.Count > 0)
+            {
+                Task<AdtSubmodelAndSmcInformation<AdtSubmodel>> finishedTask = await Task.WhenAny(submodelConnectorTasks);
+                AdtSubmodelAndSmcInformation<AdtSubmodel> information = await finishedTask;
+                submodels.Add(await _adtSubmodelModelFactory.GetSubmodel(information));
+                submodelConnectorTasks.Remove(finishedTask);
+            }
+
+
+
+
             return submodels;
         }
 
@@ -46,11 +59,11 @@ namespace AAS.API.Repository.Adt
 
         public async Task CreateSubmodel(Submodel submodel)
         {
-            if (IdentifiableAlreadyExist(submodel.Id)==false)
+            if (IdentifiableAlreadyExist(submodel.Id) == false)
             {
                 await _writeSubmodel.CreateSubmodel(submodel);
             }
-            
+
         }
 
         private bool IdentifiableAlreadyExist(string id)

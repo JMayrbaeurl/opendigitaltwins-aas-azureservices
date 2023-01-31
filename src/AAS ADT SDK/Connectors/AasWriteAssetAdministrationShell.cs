@@ -22,11 +22,11 @@ namespace AAS.ADT
             _writeBase = writeBase;
         }
 
-        public async Task CreateShell(AssetAdministrationShell shell)
+        public async Task<string> CreateShell(AssetAdministrationShell shell)
         {
             if (shell == null)
             {
-                return;
+                return null;
             }
 
             _logger.LogInformation($"Now importing Administration shell '{shell.IdShort}' into ADT instance");
@@ -37,6 +37,7 @@ namespace AAS.ADT
             await _writeBase.AddHasDataSpecification(twin.Id, shell.EmbeddedDataSpecifications);
 
             await CreateAssetInformation(shell, twin.Id);
+            return twin.Id;
         }
 
         public async Task CreateSubmodelReference(string shellTwinId, string submodelTwinId)

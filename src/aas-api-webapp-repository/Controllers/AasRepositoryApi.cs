@@ -11,8 +11,10 @@ using Microsoft.Extensions.Configuration;
 using Swashbuckle.AspNetCore.Annotations;
 using AasCore.Aas3_0_RC02;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace AAS.API.Repository.Controllers
 {
@@ -23,14 +25,18 @@ namespace AAS.API.Repository.Controllers
     {
 
         private readonly AASRepository _repository;
+        private readonly ILogger<AasRepositoryApi> _logger;
 
         /// <summary>
         /// 
         /// </summary>
-        public AasRepositoryApi(IConfiguration config, IAASRepositoryFactory aasRepositoryFactory)
+        public AasRepositoryApi(IConfiguration config, IAASRepositoryFactory aasRepositoryFactory, ILogger<AasRepositoryApi> logger)
         {
             _repository = aasRepositoryFactory.CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
                          throw new ArgumentNullException(); ;
+            _logger = logger ??
+                      throw new ArgumentNullException(nameof(logger));
+
         }
 
 
@@ -46,25 +52,34 @@ namespace AAS.API.Repository.Controllers
         [SwaggerResponse(statusCode: 200, type: typeof(List<AssetAdministrationShell>), description: "Requested Asset Administration Shells")]
         public async Task<ActionResult<List<AssetAdministrationShell>>> GetAllAssetAdministrationShells([FromQuery] string idShort)
         {
-            var assetAdministrationShells = await _repository.GetAllAssetAdministrationShells();
-            var result = "[";
-            for (int i = 0; i < assetAdministrationShells.Count; i++)
+            try
             {
-                var temp = Jsonization.Serialize.ToJsonObject(assetAdministrationShells[i]);
-                if (i > 0)
+                var assetAdministrationShells = await _repository.GetAllAssetAdministrationShells();
+                var result = "[";
+                for (int i = 0; i < assetAdministrationShells.Count; i++)
                 {
-                    result += ",";
+                    var temp = Jsonization.Serialize.ToJsonObject(assetAdministrationShells[i]);
+                    if (i > 0)
+                    {
+                        result += ",";
+                    }
+
+                    result += temp.ToJsonString();
                 }
 
-                result += temp.ToJsonString();
+                result += "]";
+
+                // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
+                // .. That means that the string "result" that's already in JsonFormat will be formatted again..
+                // .. which leads to a wrong response containing escaped "-Character (\")
+                return Ok(JsonConvert.DeserializeObject(result));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
 
-            result += "]";
-
-            // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
-            // .. That means that the string "result" that's already in JsonFormat will be formatted again..
-            // .. which leads to a wrong response containing escaped "-Character (\")
-            return Ok(JsonConvert.DeserializeObject(result));
         }
 
         /// <summary>
@@ -77,12 +92,21 @@ namespace AAS.API.Repository.Controllers
         [SwaggerOperation("PostAssetAdministrationShell")]
         [SwaggerResponse(statusCode: 201, type: typeof(AssetAdministrationShell),
             description: "Asset Administration Shell created successfully")]
-        public virtual IActionResult PostAssetAdministrationShell([FromBody] JObject body)
+        public async Task<IActionResult> PostAssetAdministrationShell([FromBody] JObject body)
         {
-            var bodyParsed = JsonNode.Parse(body.ToString());
-            var shell  = Jsonization.Deserialize.AssetAdministrationShellFrom(bodyParsed);
-            _repository.CreateAssetAdministrationShell(shell);
-            return Ok();
+            try
+            {
+                var bodyParsed = JsonNode.Parse(body.ToString());
+                var shell = Jsonization.Deserialize.AssetAdministrationShellFrom(bodyParsed);
+                await _repository.CreateAssetAdministrationShell(shell);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+
         }
 
 
@@ -98,18 +122,27 @@ namespace AAS.API.Repository.Controllers
         [SwaggerResponse(statusCode: 200, type: typeof(AssetAdministrationShell), description: "Requested Asset Administration Shell")]
         public async Task<ActionResult<AssetAdministrationShell>> GetAssetAdministrationShellById([FromRoute][Required] string aasIdentifier)
         {
-            aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
-            var aas = await _repository.GetAssetAdministrationShellWithId(aasIdentifier);
-            
-            // adds the "modelType" Attributes that are necessary for serialization
-            var jsonObject = Jsonization.Serialize.ToJsonObject(aas);
+            try
+            {
+                aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
+                var aas = await _repository.GetAssetAdministrationShellWithId(aasIdentifier);
 
-            // removes unwanted Properties like "_value" from the jsonObject
-            var result = jsonObject.ToJsonString();
-            // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
-            // .. That means that the string "result" that's already in JsonFormat will be formatted again..
-            // .. which leads to a wrong response containing escaped "-Character (\")
-            return Ok(JsonConvert.DeserializeObject(result));
+                // adds the "modelType" Attributes that are necessary for serialization
+                var jsonObject = Jsonization.Serialize.ToJsonObject(aas);
+
+                // removes unwanted Properties like "_value" from the jsonObject
+                var result = jsonObject.ToJsonString();
+                // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
+                // .. That means that the string "result" that's already in JsonFormat will be formatted again..
+                // .. which leads to a wrong response containing escaped "-Character (\")
+                return Ok(JsonConvert.DeserializeObject(result));
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+
         }
 
         /// <summary>
@@ -124,13 +157,21 @@ namespace AAS.API.Repository.Controllers
         [SwaggerOperation("PostSubmodelReference")]
         [SwaggerResponse(statusCode: 201, type: typeof(Reference),
             description: "Submodel reference created successfully")]
-        public virtual IActionResult PostSubmodelReference([FromBody] Reference body,
-            [FromRoute] [Required] string aasIdentifier)
+        public async Task<IActionResult> PostSubmodelReference([FromBody] Reference body,
+            [FromRoute][Required] string aasIdentifier)
         {
+            try
+            {
+                aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
+                await _repository.CreateSubmodelReference(aasIdentifier, body);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
 
-            aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
-            _repository.CreateSubmodelReference(aasIdentifier, body);
-            return Ok();
         }
 
     }
