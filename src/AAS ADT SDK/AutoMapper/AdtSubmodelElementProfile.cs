@@ -20,13 +20,17 @@ namespace AAS.ADT.AutoMapper
 
             CreateMap<AdtProperty, Property>()
                 .ForMember(d => d.ValueId,o=> o.Ignore())
-
                 .IncludeBase<AdtSubmodelElement, ISubmodelElement>()
                 .ConstructUsing(x => new Property(DataTypeDefXsd.Boolean,null,null,null,null, null, null, null, null, null, null, null, null,null));
+            
             CreateMap<AdtFile, File>()
                 .IncludeBase<AdtSubmodelElement, ISubmodelElement>()
                 .ConstructUsing(x => new File("FileType", null, null, null, null, null, null, null, null, null, null, null, null));
-
+            
+            CreateMap<AdtSubmodelElementCollection, SubmodelElementCollection>()
+                .IncludeBase<AdtSubmodelElement, ISubmodelElement>()
+                .ForMember(d => d.Value, o => o.Ignore())
+                .ConstructUsing(x => new SubmodelElementCollection(null, null, null, null, null, null, null, null, null, null, null, null));
         }
 
     }

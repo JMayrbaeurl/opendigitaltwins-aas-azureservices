@@ -13,6 +13,9 @@ namespace AAS.ADT.Tests.AutoMapper
         private IMapper? _objectUnderTest;
         private ISubmodelElement _fullSubmodelElement;
         private AdtSubmodelElement _fullAdtSubmodelElement;
+        private ISubmodelElement _fullSubmodelElementCollection;
+        private AdtSubmodelElement _fullAdtSubmodelElementCollection;
+
         private AdtFile _minimalAdtSubmodelElement;
         private File _minimalSubmodelElement;
 
@@ -53,6 +56,34 @@ namespace AAS.ADT.Tests.AutoMapper
                 "1234",
                 ModelingKind.Instance,
                 null,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+            _fullAdtSubmodelElementCollection = new AdtSubmodelElementCollection
+            {
+                dtId = "TestDtId",
+                Category = "TestCategory",
+                Description = new AdtLanguageString
+                    { LangStrings = new Dictionary<string, string>() { ["en"] = "TestDescription" } },
+                DisplayName = new AdtLanguageString
+                    { LangStrings = new Dictionary<string, string>() { ["en"] = "TestDisplayName" } },
+                Checksum = "1234",
+                IdShort = "TestIdShort",
+                Kind = new AdtHasKind { Kind = "Instance" },
+                SemanticIdValue = "TestSemanticIdValue"
+            };
+
+            _fullSubmodelElementCollection = new SubmodelElementCollection(
+                null,
+                "TestCategory",
+                "TestIdShort",
+                new List<LangString>() { new LangString("en", "TestDisplayName") },
+                new List<LangString>() { new LangString("en", "TestDescription") },
+                "1234",
+                ModelingKind.Instance,
                 null,
                 null,
                 null,
@@ -112,6 +143,14 @@ namespace AAS.ADT.Tests.AutoMapper
             
             actual1.Should().BeEquivalentTo(expected1);
             actual2.Should().BeEquivalentTo(expected2);
+        }
+
+        [TestMethod]
+        public void Map_creates_new_SubmodelElementCollection_with_Sme_basic_attributes()
+        {
+            var adtSmeCollection = _fullAdtSubmodelElementCollection;
+            var actualSmeCollection = _objectUnderTest.Map<SubmodelElementCollection>(adtSmeCollection);
+            actualSmeCollection.Should().BeEquivalentTo(_fullSubmodelElementCollection);
         }
     }
 }

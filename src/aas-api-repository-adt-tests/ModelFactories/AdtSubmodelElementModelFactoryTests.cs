@@ -12,14 +12,14 @@ namespace AAS.API.Repository.Adt.Tests
     public class AdtSubmodelElementModelFactoryTests
     {
         private Mock<IAdtDefinitionsAndSemanticsModelFactory> _adtDefinitionsAndSemantics;
-        private List<ISubmodelElement> properties;
         private Mock<IMapper> _mapperMock;
         private Mock<ILogger<AdtSubmodelElementFactory>> _loggerMock;
 
-        AdtSubmodelElementFactory objectUnderTestSubmodel { get; set; }
-        AdtSubmodelElementFactory objectUnderTestSmeCollection { get; set; }
-        private AdtSubmodelAndSmcInformation<AdtSubmodel> informationSubmodel { get; set; }
-        private AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection> informationSmeCollection { get; set; }
+        AdtSubmodelElementFactory _objectUnderTest { get; set; }
+        private AdtSubmodelAndSmcInformation<AdtSubmodel> _informationSubmodel { get; set; }
+        private List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> _informationSmeCollectionsWithoutSmes;
+        private List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> _informationSmeCollectionsWithSmes;
+
 
         private List<AdtProperty> adtProperties { get; set; }
 
@@ -28,22 +28,57 @@ namespace AAS.API.Repository.Adt.Tests
         public void Setup()
         {
             _mapperMock = new Mock<IMapper>();
-            var boolProperty = new Property(DataTypeDefXsd.Boolean);
+
             _mapperMock.Setup(_ => _.Map<Property>(It.IsAny<AdtSubmodelElement>()))
-                .Returns(boolProperty);
-            var decimalProperty = new Property(DataTypeDefXsd.Decimal);
-            _mapperMock.Setup(_ => _.Map(It.IsAny<AdtSubmodelElement>(), decimalProperty))
-                .Returns(decimalProperty);
-            _mapperMock.Setup(_ => _.Map(It.IsAny<AdtSubmodelElement>(), It.IsAny<File>()))
-                .Returns(new File("TestContentType"));
+                .Returns(new Property(DataTypeDefXsd.Boolean));
+
+            _mapperMock.Setup(_ => _.Map<File>(It.IsAny<AdtSubmodelElement>()))
+                .Returns(new File("testContentType"));
+
+            _mapperMock.Setup(_ => _.Map<SubmodelElementCollection>(It.IsAny<AdtSubmodelElement>()))
+                .Returns(new SubmodelElementCollection());
+
+            
 
             _loggerMock = new Mock<ILogger<AdtSubmodelElementFactory>>();
 
             _adtDefinitionsAndSemantics = new Mock<IAdtDefinitionsAndSemanticsModelFactory>();
-            objectUnderTestSubmodel = new AdtSubmodelElementFactory(_adtDefinitionsAndSemantics.Object, _mapperMock.Object, _loggerMock.Object);
-            objectUnderTestSmeCollection = new AdtSubmodelElementFactory(_adtDefinitionsAndSemantics.Object, _mapperMock.Object, _loggerMock.Object);
-            informationSubmodel = new AdtSubmodelAndSmcInformation<AdtSubmodel>();
-            informationSmeCollection = new AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>();
+            _objectUnderTest = new AdtSubmodelElementFactory(_adtDefinitionsAndSemantics.Object, _mapperMock.Object, _loggerMock.Object);
+            _informationSubmodel = new AdtSubmodelAndSmcInformation<AdtSubmodel>();
+
+            _informationSmeCollectionsWithoutSmes = new List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>>
+                {
+                    new AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>
+                    {
+                        GeneralAasInformation = new AdtGeneralAasInformation<AdtSubmodelElementCollection>
+                        {
+                            RootElement = new AdtSubmodelElementCollection(),
+                            ConcreteAasInformation = new AdtConcreteAasInformation(),
+                            definitionsAndSemantics = new DefinitionsAndSemantics(),
+                            relatedTwins = null
+                        },
+                        AdtSubmodelElements = new AdtSubmodelElements()
+                    }
+                };
+            _informationSmeCollectionsWithSmes = new List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>>
+            {
+                new AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>
+                {
+                    GeneralAasInformation = new AdtGeneralAasInformation<AdtSubmodelElementCollection>
+                    {
+                        RootElement = new AdtSubmodelElementCollection(),
+                        ConcreteAasInformation = new AdtConcreteAasInformation(),
+                        definitionsAndSemantics = new DefinitionsAndSemantics(),
+                        relatedTwins = null
+                    },
+                    AdtSubmodelElements = new AdtSubmodelElements
+                    {
+                        smeCollections = new List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>>(),
+                        properties = new List<AdtProperty>(){new AdtProperty()},
+                        files = new List<AdtFile>(){new AdtFile()}
+                    }
+                }
+            };
             adtProperties = new List<AdtProperty>()
             {
                 new AdtProperty
@@ -58,31 +93,83 @@ namespace AAS.API.Repository.Adt.Tests
                     Value = "TestValue2",
                 }
             };
-            properties = new List<ISubmodelElement>()
-            {
-                new Property(DataTypeDefXsd.Boolean,value:"TestValue2"),
-                new Property(DataTypeDefXsd.Boolean,value:"TestValue2")
-
-            };
-
         }
 
         [TestMethod]
         public void GetSubmodelElements_creates_property()
         {
-            informationSubmodel.AdtSubmodelElements.properties = adtProperties;
-            
-            var actual = objectUnderTestSubmodel.GetSubmodelElements(
-                informationSubmodel.AdtSubmodelElements, informationSubmodel.GeneralAasInformation.definitionsAndSemantics);
-            
+            _informationSubmodel.AdtSubmodelElements.properties = adtProperties;
+
+            var actualList = _objectUnderTest.GetSubmodelElements(
+                _informationSubmodel.AdtSubmodelElements, _informationSubmodel.GeneralAasInformation.definitionsAndSemantics);
+
+            actualList.Should().HaveCount(2);
             _mapperMock.Verify(_ => _.Map<Property>(It.IsAny<AdtProperty>()), Times.Exactly(2));
             _adtDefinitionsAndSemantics.Verify(_ => _.GetEmbeddedDataSpecificationsForTwin(
                 It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Exactly(2));
             _adtDefinitionsAndSemantics.Verify(_ => _.GetSupplementalSemanticIdsForTwin(
                 It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Exactly(2));
+            _adtDefinitionsAndSemantics.Verify(_ => _.GetSemanticIdForTwin(
+                It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Exactly(2));
         }
 
+        [TestMethod]
+        public void GetSubmodelElements_creates_files()
+        {
+            _informationSubmodel.AdtSubmodelElements.files = new List<AdtFile>() { new AdtFile(), new AdtFile() };
 
+            var actualList = _objectUnderTest.GetSubmodelElements(
+                _informationSubmodel.AdtSubmodelElements,
+                _informationSubmodel.GeneralAasInformation.definitionsAndSemantics);
 
+            actualList.Should().HaveCount(2);
+            _mapperMock.Verify(_ => _.Map<File>(It.IsAny<AdtFile>()), Times.Exactly(2));
+            _adtDefinitionsAndSemantics.Verify(_ => _.GetEmbeddedDataSpecificationsForTwin(
+                It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Exactly(2));
+            _adtDefinitionsAndSemantics.Verify(_ => _.GetSupplementalSemanticIdsForTwin(
+                It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Exactly(2));
+            _adtDefinitionsAndSemantics.Verify(_ => _.GetSemanticIdForTwin(
+                It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        public void GetSubmodelElements_creates_SubmodelElementCollection()
+        {
+            _informationSubmodel.AdtSubmodelElements.smeCollections = _informationSmeCollectionsWithoutSmes;
+
+            var actualList = _objectUnderTest.GetSubmodelElements(
+                _informationSubmodel.AdtSubmodelElements,
+                _informationSubmodel.GeneralAasInformation.definitionsAndSemantics);
+
+            actualList.Should().HaveCount(1);
+            _mapperMock.Verify(_ => _.Map<SubmodelElementCollection>(It.IsAny<AdtSubmodelElementCollection>()), Times.Once);
+            _adtDefinitionsAndSemantics.Verify(_ => _.GetEmbeddedDataSpecificationsForTwin(
+                It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Once);
+            _adtDefinitionsAndSemantics.Verify(_ => _.GetSupplementalSemanticIdsForTwin(
+                It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Once);
+            _adtDefinitionsAndSemantics.Verify(_ => _.GetSemanticIdForTwin(
+                It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Once);
+        }
+
+        [TestMethod]
+        public void GetSubmodelElements_creates_SubmodelElementCollection_with_SubmodelElements()
+        {
+            _informationSubmodel.AdtSubmodelElements.smeCollections = _informationSmeCollectionsWithSmes;
+
+            var actualList =_objectUnderTest.GetSubmodelElements(
+                _informationSubmodel.AdtSubmodelElements,
+                _informationSubmodel.GeneralAasInformation.definitionsAndSemantics);
+
+            actualList.Should().HaveCount(1);
+            ((SubmodelElementCollection)actualList[0]).Value.Should().HaveCount(2);
+            _mapperMock.Verify(_ => _.Map<SubmodelElementCollection>(It.IsAny<AdtSubmodelElementCollection>()),
+                Times.Once);
+            _adtDefinitionsAndSemantics.Verify(_ => _.GetEmbeddedDataSpecificationsForTwin(
+                It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Exactly(3));
+            _adtDefinitionsAndSemantics.Verify(_ => _.GetSupplementalSemanticIdsForTwin(
+                It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Exactly(3));
+            _adtDefinitionsAndSemantics.Verify(_ => _.GetSemanticIdForTwin(
+                It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Exactly(3));
+        }
     }
 }
