@@ -40,12 +40,29 @@ namespace AAS.API.Repository.Adt
         public Dictionary<string, List<BasicRelationship>> Relationships = new Dictionary<string, List<BasicRelationship>>();
     }
 
-    public class AdtSubmodelAndSmcInformation<T> : AdtGeneralAasInformation<T> where T : AdtBase, new()
+    public class AdtSubmodelElements
     {
         public List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> smeCollections = new List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>>();
         public List<AdtProperty> properties = new List<AdtProperty>();
         public List<AdtFile> files = new List<AdtFile>();
     }
+
+    public class AdtSubmodelElementCollectionInformation
+    {
+        public AdtGeneralAasInformation<AdtSubmodelElementCollection> GeneralAasInformation =
+            new AdtGeneralAasInformation<AdtSubmodelElementCollection>();
+
+        public AdtSubmodelElements AdtSubmodelElements = new AdtSubmodelElements();
+    }
+
+    
+    public class AdtSubmodelAndSmcInformation<T> where T : AdtBase, new()  
+    {
+        public AdtGeneralAasInformation<T> GeneralAasInformation =new AdtGeneralAasInformation<T>();
+        public AdtSubmodelElements AdtSubmodelElements = new AdtSubmodelElements();
+    }
+
+
 
     public class AdtAssetAdministrationShellInformation : AdtGeneralAasInformation<AdtAas>
     {

@@ -7,81 +7,47 @@ using File = AasCore.Aas3_0_RC02.File;
 
 namespace AAS.API.Repository.Adt
 {
-    public class AdtSubmodelElementFactory<T> : AdtGeneralModelFactory where T : AdtBase, new()
+    public class AdtSubmodelElementFactory : AdtGeneralModelFactory
     {
-        protected AdtSubmodelAndSmcInformation<T> information;
         private readonly IAdtDefinitionsAndSemanticsModelFactory _definitionsAndSemanticsFactory;
         private readonly IMapper _mapper;
-        private readonly ILogger<AdtSubmodelElementFactory<T>> _logger;
-        private readonly ILogger<AdtSmeCollectionModelFactory> _factoryLogger;
+        private readonly ILogger<AdtSubmodelElementFactory> _logger;
 
         public AdtSubmodelElementFactory(IAdtDefinitionsAndSemanticsModelFactory adtDefinitionsAndSemanticsModelFactory,
-            IMapper mapper, ILogger<AdtSubmodelElementFactory<T>> logger, ILogger<AdtSmeCollectionModelFactory> factoryLogger)
+            IMapper mapper, ILogger<AdtSubmodelElementFactory> logger)
         {
             _definitionsAndSemanticsFactory =
                 adtDefinitionsAndSemanticsModelFactory;
             _mapper = mapper;
             _logger = logger;
-            _factoryLogger = factoryLogger;
         }
 
-        public void Configure(AdtSubmodelAndSmcInformation<T> information)
-        {
-            this.information = information;
-        }
-
-        public List<ISubmodelElement> GetSubmodelElementsFromAdtSubmodelAndSMCInformation()
+        public List<ISubmodelElement> GetSubmodelElements(
+            AdtSubmodelElements adtSubmodelElements, DefinitionsAndSemantics definitionsAndSemantics)
         {
             var submodelElements = new List<ISubmodelElement>();
-            foreach (var adtProperty in information.properties)
+            foreach (var adtProperty in adtSubmodelElements.properties)
             {
-                try
+                var property = GetPropertyForTwin(adtProperty, definitionsAndSemantics);
+                if (property == null)
                 {
-                    var property = _mapper.Map<Property>(adtProperty);
-                    property.Value = adtProperty.Value;
-                    property.SemanticId = GetSemanticIdForTwin(adtProperty.dtId);
-                    property.SupplementalSemanticIds = _definitionsAndSemanticsFactory
-                        .GetSupplementalSemanticIdsForTwin(adtProperty.dtId, information.definitionsAndSemantics);
-                    property.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory
-                        .GetEmbeddedDataSpecificationsForTwin(adtProperty.dtId, information.definitionsAndSemantics);
-                    submodelElements.Add(property);
+                    continue;
                 }
-                catch (AutoMapperMappingException e)
-                {
-                    _logger.LogError(e, e.Message);
-                }
-                catch (Exception e)
-                {
-                    throw new AASRepositoryException(e.Message, e);
-                }
+                submodelElements.Add(property);
+            }
 
+            foreach (var adtFile in adtSubmodelElements.files)
+            {
+                var file = GetFileForTwin(adtFile, definitionsAndSemantics);
+                if (file == null)
+                {
+                    continue;
+                }
+                submodelElements.Add(file);
 
             }
 
-            foreach (var adtFile in information.files)
-            {
-                try
-                {
-                    var file = _mapper.Map<File>(adtFile);
-                    file.Value = adtFile.Value;
-                    file.SemanticId = GetSemanticIdForTwin(adtFile.dtId);
-                    file.SupplementalSemanticIds = _definitionsAndSemanticsFactory
-                        .GetSupplementalSemanticIdsForTwin(adtFile.dtId, information.definitionsAndSemantics);
-                    file.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory
-                        .GetEmbeddedDataSpecificationsForTwin(adtFile.dtId, information.definitionsAndSemantics);
-                    submodelElements.Add(file);
-                }
-                catch (AutoMapperMappingException e)
-                {
-                    _logger.LogError(e, e.Message);
-                }
-                catch (Exception e)
-                {
-                    throw new AASRepositoryException(e.Message, e);
-                }
-            }
-
-            foreach (var smeCollectionInformation in information.smeCollections)
+            foreach (var smeCollectionInformation in adtSubmodelElements.smeCollections)
             {
                 var smeC = CreateSubmodelElementCollectionFromSmeCollectionInformation(smeCollectionInformation);
                 submodelElements.Add(smeC);
@@ -90,44 +56,94 @@ namespace AAS.API.Repository.Adt
             return submodelElements;
         }
 
-
-
-        public Reference GetSemanticIdForTwin(string twinId)
+        private Property? GetPropertyForTwin(AdtProperty adtProperty, DefinitionsAndSemantics definitionsAndSemantics)
         {
+            Property property = new Property(DataTypeDefXsd.Boolean);
             try
             {
-                var adtSemanticId = GetAdtSemanticId(twinId);
-                return GetSemanticId(adtSemanticId);
+                property = _mapper.Map<Property>(adtProperty);
 
             }
-            catch (NoSemanticIdFound e)
+            catch (AutoMapperMappingException e)
             {
-                Console.WriteLine(e);
+                _logger.LogError(e, e.Message);
                 return null;
             }
-        }
-
-        private AdtReference GetAdtSemanticId(string twinId)
-        {
-            if (information.definitionsAndSemantics.Relationships.ContainsKey(twinId))
+            catch (Exception e)
             {
-                foreach (var relationship in information.definitionsAndSemantics.Relationships[twinId])
-                {
-                    if (relationship.Name == "semanticId")
-                    {
-                        return information.definitionsAndSemantics.References[relationship.TargetId];
-                    }
-                }
+                throw new AASRepositoryException(e.Message, e);
             }
 
-            throw new NoSemanticIdFound($"No Semantic Id found for twin with dtId {twinId}");
+            property.SemanticId = _definitionsAndSemanticsFactory.GetSemanticIdForTwin(adtProperty.dtId, definitionsAndSemantics);
+            property.SupplementalSemanticIds = _definitionsAndSemanticsFactory
+                .GetSupplementalSemanticIdsForTwin(adtProperty.dtId, definitionsAndSemantics);
+            property.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory
+                .GetEmbeddedDataSpecificationsForTwin(adtProperty.dtId, definitionsAndSemantics);
+            return property;
         }
+
+        private File? GetFileForTwin(AdtFile adtFile, DefinitionsAndSemantics definitionsAndSemantics)
+        {
+            File file = new File("dummyContentType");
+            try
+            {
+                file = _mapper.Map<File>(adtFile);
+            }
+            catch (AutoMapperMappingException e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            catch (Exception e)
+            {
+                throw new AASRepositoryException(e.Message, e);
+            }
+
+            file.SemanticId = _definitionsAndSemanticsFactory.GetSemanticIdForTwin(adtFile.dtId, definitionsAndSemantics);
+            file.SupplementalSemanticIds = _definitionsAndSemanticsFactory
+                .GetSupplementalSemanticIdsForTwin(adtFile.dtId, definitionsAndSemantics);
+            file.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory
+                .GetEmbeddedDataSpecificationsForTwin(adtFile.dtId, definitionsAndSemantics);
+            return file;
+        }
+
+
 
         private SubmodelElementCollection CreateSubmodelElementCollectionFromSmeCollectionInformation(
             AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection> information)
         {
-            var factory = new AdtSmeCollectionModelFactory(_definitionsAndSemanticsFactory, _mapper, _factoryLogger);
+            var factory = new AdtSubmodelElementFactory(_definitionsAndSemanticsFactory, _mapper, _logger);
             var smeCollection = factory.GetSmeCollection(information);
+            return smeCollection;
+        }
+
+        private SubmodelElementCollection GetSmeCollection(
+            AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection> information)
+        {
+            var smeDtId = information.GeneralAasInformation.RootElement.dtId;
+            var smeCollection = CreateSubmodelElementCollectionFromAdtSmeCollection(information);
+            
+            smeCollection.SemanticId =
+                _definitionsAndSemanticsFactory.GetSemanticId(information.GeneralAasInformation.ConcreteAasInformation.semanticId);
+
+            smeCollection.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory
+                .GetEmbeddedDataSpecificationsForTwin(smeDtId, information.GeneralAasInformation.definitionsAndSemantics);
+            
+            smeCollection.SupplementalSemanticIds = _definitionsAndSemanticsFactory.GetSupplementalSemanticIdsForTwin(
+                smeDtId,information.GeneralAasInformation.definitionsAndSemantics);
+            
+            smeCollection.Value = GetSubmodelElements(
+                information.AdtSubmodelElements, information.GeneralAasInformation.definitionsAndSemantics);
+
+            return smeCollection;
+        }
+
+        private SubmodelElementCollection CreateSubmodelElementCollectionFromAdtSmeCollection(
+            AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection> information)
+        {
+            var adtSmeCollection = information.GeneralAasInformation.RootElement;
+            var smeCollection = new SubmodelElementCollection();
+            smeCollection.SupplementalSemanticIds = new List<Reference>();
+            smeCollection = _mapper.Map(adtSmeCollection, smeCollection);
             return smeCollection;
         }
 

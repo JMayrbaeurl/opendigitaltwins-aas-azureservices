@@ -95,14 +95,14 @@ namespace Aas.Api.Repository
 
             services.AddHttpClient<IAzureDigitalTwinsHttpClient, AzureDigitalTwinsHttpClient>(client =>
                 client.BaseAddress = new Uri(Configuration["ADT_SERVICE_URL"]));
+            
             services.AddSingleton<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
             services.AddScoped<ISubmodelRepository, AdtSubmodelRepository>();
             services.AddTransient<IAdtAasConnector, AdtAasConnector>();
             services.AddTransient<IAdtSubmodelConnector, AdtSubmodelConnector>();
             services.AddTransient<IAdtDefinitionsAndSemanticsModelFactory, AdtDefinitionsAndSemanticsModelFactory>();
             services.AddTransient<IAdtSubmodelModelFactory, AdtSubmodelModelFactory>();
-            services.AddTransient<AdtSubmodelElementFactory<AdtSubmodel>>();
-            services.AddTransient<AdtSubmodelElementFactory<AdtSubmodelElementCollection>>();
+            services.AddTransient<AdtSubmodelElementFactory>();
             services.AddTransient<IAASRepositoryFactory, AASRepositoryFactory>();
 
             services.AddTransient<IAasWriteSubmodelElements, AasWriteSubmodelElements>();

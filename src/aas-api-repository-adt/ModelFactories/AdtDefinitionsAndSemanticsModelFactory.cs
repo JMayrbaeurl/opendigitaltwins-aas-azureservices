@@ -17,7 +17,68 @@ namespace AAS.API.Repository.Adt
                       throw new ArgumentNullException(nameof(mapper));
         }
 
-        public List<Reference> GetSupplementalSemanticIdsForTwin(string twinId, DefinitionsAndSemantics definitionsAndSemantics)
+        public Reference? GetSemanticIdForTwin(string twinId, DefinitionsAndSemantics definitionsAndSemantics)
+        {
+            var adtSemanticId = GetAdtSemanticId(twinId, definitionsAndSemantics);
+            return GetSemanticId(adtSemanticId);
+        }
+
+        private AdtReference? GetAdtSemanticId(string twinId, DefinitionsAndSemantics definitionsAndSemantics)
+        {
+            if (!definitionsAndSemantics.Relationships.ContainsKey(twinId))
+            {
+                return null;
+            }
+
+            foreach (var relationship in definitionsAndSemantics.Relationships[twinId])
+            {
+                if (relationship.Name == "semanticId")
+                {
+                    return definitionsAndSemantics.References[relationship.TargetId];
+                }
+            }
+
+            return null;
+        }
+
+        public Reference? GetSemanticId(AdtReference? adtReference)
+        {
+            if (adtReference==null || adtReference.Key1 == null)
+            {
+                return null;
+            }
+
+            var semanticId = ConvertAdtReferenceToGeneralReference(adtReference);
+            semanticId.Keys = new List<Key>() { semanticId.Keys[0] };
+            return semanticId;
+        }
+
+        private Reference ConvertAdtReferenceToGeneralReference(AdtReference adtReference)
+        {
+            var referenceType = adtReference.Type == "ModelReference"
+                ? ReferenceTypes.ModelReference
+                : ReferenceTypes.GlobalReference;
+            var reference = new Reference(referenceType, new List<Key>());
+            reference.Keys = new List<Key>();
+
+            for (int i = 0; i < 8; i++)
+            {
+                var adtKey = (AdtKey)adtReference.GetType().GetProperty($"Key{i + 1}")!.GetValue(adtReference);
+                if (adtKey != null && adtKey.Type != null)
+                {
+                    reference.Keys.Add(ConvertAdtKeyToGeneralKey(adtKey));
+                }
+            }
+
+            return reference;
+        }
+
+        private Key ConvertAdtKeyToGeneralKey(AdtKey adtKey)
+        {
+            return new Key((KeyTypes)Enum.Parse(typeof(KeyTypes), adtKey.Type), adtKey.Value);
+        }
+
+        public List<Reference>? GetSupplementalSemanticIdsForTwin(string twinId, DefinitionsAndSemantics definitionsAndSemantics)
         {
             _definitionsAndSemantics = definitionsAndSemantics;
             var supplementalSemanticIds = new List<Reference>();
@@ -29,8 +90,11 @@ namespace AAS.API.Repository.Adt
             }
             foreach (var adtSupplementalSemanticId in adtSupplementalSemanticIds)
             {
-                supplementalSemanticIds.Add(_generalModelFactory.GetSemanticId(adtSupplementalSemanticId));
-
+                var semanticId = GetSemanticId(adtSupplementalSemanticId);
+                if (semanticId!= null)
+                {
+                    supplementalSemanticIds.Add(semanticId);
+                }
             }
             return supplementalSemanticIds;
         }
@@ -53,7 +117,7 @@ namespace AAS.API.Repository.Adt
 
         }
 
-        public List<EmbeddedDataSpecification> GetEmbeddedDataSpecificationsForTwin(string dtId, DefinitionsAndSemantics definitionsAndSemantics)
+        public List<EmbeddedDataSpecification>? GetEmbeddedDataSpecificationsForTwin(string dtId, DefinitionsAndSemantics definitionsAndSemantics)
         {
             _definitionsAndSemantics = definitionsAndSemantics;
 
@@ -106,25 +170,27 @@ namespace AAS.API.Repository.Adt
             return embeddedDataSpecifications.Count == 0 ? null : embeddedDataSpecifications;
         }
 
-        private AdtConceptDescription GetConceptDescription(string dtId)
+        private AdtConceptDescription? GetConceptDescription(string dtId)
         {
-            if (_definitionsAndSemantics.Relationships.ContainsKey(dtId))
+            if (!_definitionsAndSemantics.Relationships.ContainsKey(dtId))
             {
-
-                var twinRelationships = _definitionsAndSemantics.Relationships[dtId];
-                foreach (var twinRelationship in twinRelationships)
+                return null;
+            }
+            var twinRelationships = _definitionsAndSemantics.Relationships[dtId];
+            foreach (var twinRelationship in twinRelationships)
+            {
+                if (twinRelationship.Name != "referredElement")
                 {
-                    if (twinRelationship.Name == "referredElement")
-                    {
-                        if (_definitionsAndSemantics.ConceptDescriptions.ContainsKey(twinRelationship.TargetId))
-
-                        {
-                            var conceptDescription =
-                                _definitionsAndSemantics.ConceptDescriptions[twinRelationship.TargetId];
-                            return conceptDescription;
-                        }
-                    }
+                    continue;
                 }
+
+                if (!_definitionsAndSemantics.ConceptDescriptions.ContainsKey(twinRelationship.TargetId))
+                {
+                    continue;
+                }
+                var conceptDescription =
+                    _definitionsAndSemantics.ConceptDescriptions[twinRelationship.TargetId];
+                return conceptDescription;
             }
             return null;
         }

@@ -60,9 +60,9 @@ namespace AAS.API.Repository.Adt
             var generalInformation = await GetAdtGeneralAasInformationForTwinWithId<AdtSubmodel>(twinId);
             var adtSubmodelInformation = new AdtSubmodelAndSmcInformation<AdtSubmodel>();
 
-            adtSubmodelInformation.definitionsAndSemantics = generalInformation.definitionsAndSemantics;
-            adtSubmodelInformation.ConcreteAasInformation = generalInformation.ConcreteAasInformation;
-            adtSubmodelInformation.RootElement = generalInformation.RootElement;
+            adtSubmodelInformation.GeneralAasInformation.definitionsAndSemantics = generalInformation.definitionsAndSemantics;
+            adtSubmodelInformation.GeneralAasInformation.ConcreteAasInformation = generalInformation.ConcreteAasInformation;
+            adtSubmodelInformation.GeneralAasInformation.RootElement = generalInformation.RootElement;
             foreach (var (relatedTwin, rel) in generalInformation.relatedTwins)
             {
                 adtSubmodelInformation = await DeserializeAdtResponseForSubmodelOrSmeCollection(rel, relatedTwin, adtSubmodelInformation);
@@ -143,11 +143,11 @@ namespace AAS.API.Repository.Adt
                 var sme = JsonSerializer.Deserialize<AdtSubmodelElement>(dataTwin);
 
                 if (model == AdtAasOntology.MODEL_SUBMODELELEMENTCOLLECTION)
-                    information.smeCollections.Add(await GetAllSubmodelElementCollectionInformation(dataTwin["$dtId"].ToString()));
+                    information.AdtSubmodelElements.smeCollections.Add(await GetAllSubmodelElementCollectionInformation(dataTwin["$dtId"].ToString()));
                 else if (model == AdtAasOntology.MODEL_PROPERTY)
-                    information.properties.Add(JsonSerializer.Deserialize<AdtProperty>(dataTwin));
+                    information.AdtSubmodelElements.properties.Add(JsonSerializer.Deserialize<AdtProperty>(dataTwin));
                 else if (model == AdtAasOntology.MODEL_FILE)
-                    information.files.Add(JsonSerializer.Deserialize<AdtFile>(dataTwin));
+                    information.AdtSubmodelElements.files.Add(JsonSerializer.Deserialize<AdtFile>(dataTwin));
                 else
                     throw new AdtModelNotSupported($"Unsupported AdtModel of Type {model}");
             }
@@ -165,28 +165,28 @@ namespace AAS.API.Repository.Adt
 
             await foreach (var item in items)
             {
-                if (adtSmeCollectionInformation.RootElement.IdShort == null)
+                if (adtSmeCollectionInformation.GeneralAasInformation.RootElement.IdShort == null)
                 {
-                    adtSmeCollectionInformation.RootElement = JsonSerializer.Deserialize<AdtSubmodelElementCollection>(item["twin0"].ToString());
+                    adtSmeCollectionInformation.GeneralAasInformation.RootElement = JsonSerializer.Deserialize<AdtSubmodelElementCollection>(item["twin0"].ToString());
                 }
                 var rel = item["rel"]["$relationshipName"].ToString();
                 var dataTwin1 = item["twin1"];
 
-                DeserializeAdtResponse(rel, dataTwin1, adtSmeCollectionInformation.ConcreteAasInformation);
+                DeserializeAdtResponse(rel, dataTwin1, adtSmeCollectionInformation.GeneralAasInformation.ConcreteAasInformation);
                 await DeserializeAdtResponseForSubmodelOrSmeCollection(rel, dataTwin1, adtSmeCollectionInformation);
             }
 
-            if (adtSmeCollectionInformation.RootElement.IdShort == null)
+            if (adtSmeCollectionInformation.GeneralAasInformation.RootElement.IdShort == null)
             {
                 // no Twins related to this Submodel -> the Query Response was Empty
                 items = _client.QueryAsync<JsonObject>($"Select twin from digitaltwins twin where twin.$dtId = '{twinId}'");
                 await foreach (var item in items)
                 {
-                    adtSmeCollectionInformation.RootElement = JsonSerializer.Deserialize<AdtSubmodelElementCollection>(item["twin"].ToString());
+                    adtSmeCollectionInformation.GeneralAasInformation.RootElement = JsonSerializer.Deserialize<AdtSubmodelElementCollection>(item["twin"].ToString());
                 }
             }
 
-            adtSmeCollectionInformation.definitionsAndSemantics = await
+            adtSmeCollectionInformation.GeneralAasInformation.definitionsAndSemantics = await
                 GetAllDescriptionsForSubmodelElements(twinId);
 
             return adtSmeCollectionInformation;

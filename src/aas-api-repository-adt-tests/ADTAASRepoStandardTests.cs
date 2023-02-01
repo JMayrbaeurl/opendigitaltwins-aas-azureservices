@@ -1,3 +1,4 @@
+using AAS.ADT;
 using AAS.API.Services.ADT;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
@@ -10,9 +11,9 @@ namespace AAS.API.Repository.Adt.Tests
     {
         [TestMethod]
         public void TestGetAllAdministrationShells(
-            IAdtAasConnector adtAasConnector, IMapper mapper, ILogger<AASRepositoryFactory> logger)
+            IAdtAasConnector adtAasConnector, IMapper mapper, IAasWriteAssetAdministrationShell writeShell, ILogger<ADTAASRepository> logger)
         {
-            AASRepository repo = new AASRepositoryFactory(adtAasConnector,mapper,logger).CreateAASRepositoryForADT("https://hack2021aasadt.api.weu.digitaltwins.azure.net");
+            AASRepository repo = new AASRepositoryFactory(adtAasConnector,mapper,writeShell,logger).CreateAASRepositoryForADT("https://hack2021aasadt.api.weu.digitaltwins.azure.net");
             List<AssetAdministrationShell> adminshells = repo.GetAllAssetAdministrationShells().GetAwaiter().GetResult();
             Assert.IsNotNull(adminshells);
             Assert.IsFalse(adminshells.Count == 0);

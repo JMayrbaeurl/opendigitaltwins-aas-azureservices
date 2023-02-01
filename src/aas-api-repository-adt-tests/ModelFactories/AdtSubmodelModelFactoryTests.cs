@@ -16,7 +16,7 @@ namespace AAS.API.Repository.Adt.Tests
 
         AdtSubmodelModelFactory objectUnderTest { get; set; }
         private AdtSubmodelAndSmcInformation<AdtSubmodel> information { get; set; }
-        public AdtSubmodel _adtSubmodel { get; set; }
+        private AdtSubmodel _adtSubmodel { get; set; }
 
         
         [TestInitialize]
@@ -24,7 +24,7 @@ namespace AAS.API.Repository.Adt.Tests
         {
             var _autoMocker = new AutoMocker();
             _adtDefinitionsAndSemantics = _autoMocker.GetMock<IAdtDefinitionsAndSemanticsModelFactory >();
-            var submodelElementFactoryMock = _autoMocker.GetMock<AdtSubmodelElementFactory<AdtSubmodel>>();
+            var submodelElementFactoryMock = _autoMocker.GetMock<AdtSubmodelElementFactory>();
             objectUnderTest = new AdtSubmodelModelFactory(_adtDefinitionsAndSemantics.Object,submodelElementFactoryMock.Object);
             _adtSubmodel = new AdtSubmodel
             {
@@ -38,10 +38,13 @@ namespace AAS.API.Repository.Adt.Tests
                 Administration = new AdtAdministration { Revision = "1", Version = "2", },
                 Kind = new AdtHasKind { Kind = "Instance" }
             };
-            _submodelFromAdtSubmodel = new Submodel("TestId", null, "TestCategory", "TestIdShort", new List<LangString>() { new LangString("en", "TestDisplayName") }, new List<LangString>() { new LangString("en", "TestDescription") }, "1234", new AdministrativeInformation(null, "2", "1"), ModelingKind.Instance, null, new List<Reference>(), null, new List<EmbeddedDataSpecification>(), new List<ISubmodelElement>());
-
-            }
-
+            _submodelFromAdtSubmodel = new Submodel(
+                "TestId", null, "TestCategory", "TestIdShort", 
+                new List<LangString>() { new LangString("en", "TestDisplayName") }, 
+                new List<LangString>() { new LangString("en", "TestDescription") }, 
+                "1234", new AdministrativeInformation(null, "2", "1"), ModelingKind.Instance, 
+                null, null, null, null, new List<ISubmodelElement>());
+        }
 
 
         [TestMethod]
@@ -49,7 +52,7 @@ namespace AAS.API.Repository.Adt.Tests
         {
             information = new()
             {
-                RootElement = _adtSubmodel
+                GeneralAasInformation = new AdtGeneralAasInformation<AdtSubmodel>(){ RootElement = _adtSubmodel}
             };
             var actual = await objectUnderTest.GetSubmodel(information);
             var expected = _submodelFromAdtSubmodel;
