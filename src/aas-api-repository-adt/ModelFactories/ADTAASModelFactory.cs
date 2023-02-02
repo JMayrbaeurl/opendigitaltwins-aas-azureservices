@@ -4,7 +4,7 @@ using AutoMapper;
 
 namespace AAS.API.Repository.Adt
 {
-    public class ADTAASModelFactory : AdtGeneralModelFactory
+    public class ADTAASModelFactory
     {
         private readonly IAdtAasConnector _adtAasConnector;
         private readonly IMapper _mapper;

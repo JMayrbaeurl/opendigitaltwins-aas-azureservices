@@ -7,12 +7,10 @@ namespace AAS.API.Repository.Adt
     public class AdtDefinitionsAndSemanticsModelFactory : IAdtDefinitionsAndSemanticsModelFactory
     {
         private DefinitionsAndSemantics _definitionsAndSemantics;
-        private readonly AdtGeneralModelFactory _generalModelFactory;
         private readonly IMapper _mapper;
 
         public AdtDefinitionsAndSemanticsModelFactory(IMapper mapper)
         {
-            _generalModelFactory = new AdtGeneralModelFactory();
             _mapper = mapper ??
                       throw new ArgumentNullException(nameof(mapper));
         }

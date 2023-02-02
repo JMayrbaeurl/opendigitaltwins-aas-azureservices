@@ -5,5 +5,5 @@ namespace AAS.API.Repository.Adt;
 
 public interface IAdtSubmodelModelFactory
 {
-    Task<Submodel> GetSubmodel(AdtSubmodelAndSmcInformation<AdtSubmodel> information);
+    Submodel GetSubmodel(AdtSubmodelAndSmcInformation<AdtSubmodel> information);
 }

@@ -6,7 +6,7 @@ using File = AasCore.Aas3_0_RC02.File;
 
 namespace AAS.API.Repository.Adt
 {
-    public class AdtSubmodelElementFactory : AdtGeneralModelFactory
+    public class AdtSubmodelElementFactory : IAdtSubmodelElementFactory
     {
         private readonly IAdtDefinitionsAndSemanticsModelFactory _definitionsAndSemanticsFactory;
         private readonly IMapper _mapper;

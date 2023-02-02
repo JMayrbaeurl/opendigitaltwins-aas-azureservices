@@ -34,12 +34,9 @@ namespace AAS.API.Repository.Adt
             {
                 Task<AdtSubmodelAndSmcInformation<AdtSubmodel>> finishedTask = await Task.WhenAny(submodelConnectorTasks);
                 AdtSubmodelAndSmcInformation<AdtSubmodel> information = await finishedTask;
-                submodels.Add(await _adtSubmodelModelFactory.GetSubmodel(information));
+                submodels.Add(_adtSubmodelModelFactory.GetSubmodel(information));
                 submodelConnectorTasks.Remove(finishedTask);
             }
-
-
-
 
             return submodels;
         }
@@ -48,7 +45,7 @@ namespace AAS.API.Repository.Adt
         {
             var twinId = _adtAasConnector.GetTwinIdForElementWithId(submodelId);
             var information = await _adtSubmodelConnector.GetAllInformationForSubmodelWithTwinId(twinId);
-            return await _adtSubmodelModelFactory.GetSubmodel(information);
+            return _adtSubmodelModelFactory.GetSubmodel(information);
         }
 
         public async Task CreateSubmodelElement(string submodelIdentifier, ISubmodelElement submodelElement)
@@ -63,7 +60,6 @@ namespace AAS.API.Repository.Adt
             {
                 await _writeSubmodel.CreateSubmodel(submodel);
             }
-
         }
 
         private bool IdentifiableAlreadyExist(string id)

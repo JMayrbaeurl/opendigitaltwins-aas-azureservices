@@ -102,7 +102,7 @@ namespace Aas.Api.Repository
             services.AddTransient<IAdtSubmodelConnector, AdtSubmodelConnector>();
             services.AddTransient<IAdtDefinitionsAndSemanticsModelFactory, AdtDefinitionsAndSemanticsModelFactory>();
             services.AddTransient<IAdtSubmodelModelFactory, AdtSubmodelModelFactory>();
-            services.AddTransient<AdtSubmodelElementFactory>();
+            services.AddTransient<IAdtSubmodelElementFactory,AdtSubmodelElementFactory>();
             services.AddTransient<IAASRepositoryFactory, AASRepositoryFactory>();
 
             services.AddTransient<IAasWriteSubmodelElements, AasWriteSubmodelElements>();

@@ -3,27 +3,31 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
+using AutoMapper;
 
 namespace AAS.API.Repository.Adt
 {
-    public class AdtSubmodelModelFactory : AdtGeneralModelFactory, IAdtSubmodelModelFactory
+    public class AdtSubmodelModelFactory : IAdtSubmodelModelFactory
     {
-        private readonly AdtSubmodelElementFactory _adtSubmodelElementFactory;
+        private readonly IAdtSubmodelElementFactory _adtSubmodelElementFactory;
         private readonly IAdtDefinitionsAndSemanticsModelFactory _definitionsAndSemanticsFactory;
+        private readonly IMapper _mapper;
 
         public AdtSubmodelModelFactory(IAdtDefinitionsAndSemanticsModelFactory definitionsAndSemanticsFactory,
-            AdtSubmodelElementFactory adtSubmodelElementFactory)
+            IAdtSubmodelElementFactory adtSubmodelElementFactory, IMapper mapper)
         {
             _adtSubmodelElementFactory = adtSubmodelElementFactory;
+            _mapper = mapper??
+                      throw new ArgumentNullException(nameof(mapper));
             _definitionsAndSemanticsFactory = definitionsAndSemanticsFactory;
         }
 
 
-        public async Task<Submodel> GetSubmodel(AdtSubmodelAndSmcInformation<AdtSubmodel> information)
+        public Submodel GetSubmodel(AdtSubmodelAndSmcInformation<AdtSubmodel> information)
         {
             var submodelTwinId = information.GeneralAasInformation.RootElement.dtId;
             
-            var submodel = CreateSubmodelFromAdtSubmodel(information.GeneralAasInformation.RootElement);
+            var submodel = _mapper.Map<Submodel>(information.GeneralAasInformation.RootElement);
             
             submodel.SemanticId =
                 _definitionsAndSemanticsFactory.GetSemanticId(information.GeneralAasInformation.ConcreteAasInformation.semanticId);
@@ -38,23 +42,6 @@ namespace AAS.API.Repository.Adt
             submodel.SubmodelElements = _adtSubmodelElementFactory.GetSubmodelElements(
                 information.AdtSubmodelElements,information.GeneralAasInformation.definitionsAndSemantics);
 
-            return submodel;
-        }
-
-        private Submodel CreateSubmodelFromAdtSubmodel(AdtSubmodel adtSubmodel)
-        {
-            var submodel = new Submodel(adtSubmodel.Id);
-            submodel.Category = adtSubmodel.Category;
-            submodel.Checksum = adtSubmodel.Checksum;
-            submodel.IdShort = adtSubmodel.IdShort;
-            submodel.Kind = adtSubmodel.Kind.Kind == "Instance" ? ModelingKind.Instance : ModelingKind.Template;
-            submodel.Description = ConvertAdtLangStringToGeneraLangString(adtSubmodel.Description);
-            submodel.DisplayName = ConvertAdtLangStringToGeneraLangString(adtSubmodel.DisplayName);
-            submodel.EmbeddedDataSpecifications = new List<EmbeddedDataSpecification>();
-            submodel.SubmodelElements = new List<ISubmodelElement>();
-            submodel.SupplementalSemanticIds = new List<Reference>();
-            submodel.Administration = new AdministrativeInformation(
-                null, adtSubmodel.Administration.Version, adtSubmodel.Administration.Revision);
             return submodel;
         }
     }
