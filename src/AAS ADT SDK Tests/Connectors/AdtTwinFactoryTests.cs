@@ -29,7 +29,10 @@ namespace AAS.ADT.Tests.Connectors
 
         private AssetInformation _fullAssetInformation { get; set; }
         private AssetInformation _minimalAssetInformation { get; set; }
-        
+
+        private EmbeddedDataSpecification _minimalEmbeddedDataSpecification { get; set; }
+        private EmbeddedDataSpecification _fullEmbeddedDataSpecification { get; set; }
+
 
         private BasicDigitalTwin _actualTwin { get; set; }
 
@@ -70,6 +73,10 @@ namespace AAS.ADT.Tests.Connectors
                 new List<LangString>() { new("en", "testDescription") }, "testChecksum",
                 new AdministrativeInformation(null, "1", "2"),new List<EmbeddedDataSpecification>());
             _exemplaryMinimalShell = new AssetAdministrationShell("testId", new AssetInformation(AssetKind.Type));
+
+            _minimalEmbeddedDataSpecification = new EmbeddedDataSpecification(
+                new Reference(ReferenceTypes.GlobalReference, new List<Key>(){new Key(KeyTypes.GlobalReference,"testDataSpecification")}),
+                new DataSpecificationIec61360(new List<LangString>()));
         }
 
 
@@ -553,6 +560,31 @@ namespace AAS.ADT.Tests.Connectors
             _actualTwin = _objectUnderTest.GetTwin(_minimalAssetInformation);
             var assetKind = (BasicDigitalTwinComponent)_actualTwin.Contents["assetKind"];
             assetKind.Contents["assetKind"].Should().Be("Type");
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_ModelId_for_EmbeddedDataSpecification()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_minimalEmbeddedDataSpecification);
+            _actualTwin.Metadata.ModelId.Should().Be(AdtAasOntology.MODEL_DATASPECIFICATION);
+        }
+
+        [TestMethod]
+        public void GetTwin_adds_dtId_for_EmbeddedDataSpecification()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_minimalEmbeddedDataSpecification);
+            _actualTwin.Id.Should().StartWith("DataSpecification");
+
+        }
+
+        [TestMethod]
+        public void GetTwin_returns_correct_twin_for_minimal_DataSpecification()
+        {
+            _actualTwin = _objectUnderTest.GetTwin(_minimalEmbeddedDataSpecification);
+            _actualTwin.Contents["id"].Should().Be("testDataSpecification");
+            _actualTwin.Contents.Should().ContainKey("administration");
+            _actualTwin.Contents.Should().ContainKey("description");
+
         }
 
     }

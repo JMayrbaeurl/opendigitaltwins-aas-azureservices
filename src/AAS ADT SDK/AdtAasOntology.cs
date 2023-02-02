@@ -31,6 +31,8 @@ namespace AAS.ADT
         public static readonly string MODEL_ENTITY = "dtmi:digitaltwins:aas:Entity;1";
         public static readonly string MODEL_SUBMODELELEMENT = "dtmi:digitaltwins:aas:SubmodelElement;1";
         public static readonly string MODEL_VIEW = "dtmi:digitaltwins:aas:View;1";
+        public static readonly string MODEL_DATASPECIFICATION = "dtmi:digitaltwins:aas:DataSpecification;1";
+
 
         public static readonly Dictionary<string, Dictionary<string, string>> DTIDMap = new()
         {
@@ -57,7 +59,8 @@ namespace AAS.ADT
             { $"{MODEL_BASICEVENTELEMENT}", new Dictionary<string, string>() { { "dtId", "BasicEventElement_" } } },
             { $"{MODEL_ENTITY}", new Dictionary<string, string>() { { "dtId", "Entity_" } } },
             { $"{MODEL_SUBMODELELEMENT}", new Dictionary<string, string>() { { "dtId", "SmElement_" } } },
-            { $"{MODEL_VIEW}", new Dictionary<string, string>() { { "dtId", "View_" } } }
+            { $"{MODEL_VIEW}", new Dictionary<string, string>() { { "dtId", "View_" } } },
+            { $"{MODEL_DATASPECIFICATION}", new Dictionary<string, string>() { { "dtId", "DataSpecification_" } } },
         };
 
         public static Dictionary<string, string> KEYS = new() 
@@ -81,7 +84,8 @@ namespace AAS.ADT
             { "Capability", MODEL_CAPABILITY },
             { "SubmodelElement", MODEL_SUBMODELELEMENT },
             { "SubmodelElementCollection", MODEL_SUBMODELELEMENTCOLLECTION },
-            { "View", MODEL_VIEW }
+            { "View", MODEL_VIEW },
+            { "DataSpecification", MODEL_DATASPECIFICATION}
         };
     }
 }

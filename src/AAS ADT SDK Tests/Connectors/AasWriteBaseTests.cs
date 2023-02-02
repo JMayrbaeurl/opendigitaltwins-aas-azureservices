@@ -43,6 +43,12 @@ namespace AAS.ADT.Tests.Connectors
                     Id = "testQualifierTwinId"
                 });
 
+            _adtTwinFactoryMock.Setup(_ => _.GetTwin(It.IsAny<EmbeddedDataSpecification>())).Returns(
+                new BasicDigitalTwin
+                {
+                    Id = "testDataSpecificationTwinId"
+                });
+
             _objectUnderTest =
                 new AasWriteBase(_loggerMock.Object, _adtTwinFactoryMock.Object, _writeConnectorMock.Object);
         }
@@ -114,11 +120,14 @@ namespace AAS.ADT.Tests.Connectors
             await _objectUnderTest.AddHasDataSpecification("testSourceTwinId", exemplaryInputWithTwoEmbeddedDataSpecs.EmbeddedDataSpecifications);
 
             _adtTwinFactoryMock.Verify(_ => _.GetTwin(It.IsAny<IDataSpecificationContent>()), Times.Exactly(2));
+            _adtTwinFactoryMock.Verify(_ => _.GetTwin(It.IsAny<EmbeddedDataSpecification>()), Times.Exactly(2));
             _adtTwinFactoryMock.Verify(_ => _.GetTwin(It.IsAny<Reference>()), Times.Never);
             _writeConnectorMock.Verify(_ => _.DoCreateOrReplaceDigitalTwinAsync(It.IsAny<BasicDigitalTwin>()),
-                Times.Exactly(2));
+                Times.Exactly(4));
             _writeConnectorMock.Verify(_ => _.DoCreateOrReplaceRelationshipAsync(
-                "testSourceTwinId", "dataSpecification", "testDataSpecContentTwinId"), Times.Exactly(2));
+                "testSourceTwinId", "dataSpecificationRef", "testDataSpecificationTwinId"), Times.Exactly(2));
+            _writeConnectorMock.Verify(_ => _.DoCreateOrReplaceRelationshipAsync(
+                "testDataSpecificationTwinId", "hasContent", "testDataSpecContentTwinId"), Times.Exactly(2));
         }
 
         [TestMethod]

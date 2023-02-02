@@ -47,7 +47,6 @@ namespace AAS.ADT
             {
                 assetInfoShort.Contents.Add("defaultThumbnailpath", shell.AssetInformation.DefaultThumbnail.Path);
             }
-            
 
             twin.Contents.Add("assetInformationShort", assetInfoShort);
             return twin;
@@ -62,6 +61,23 @@ namespace AAS.ADT
             var assetKind = new BasicDigitalTwinComponent();
             assetKind.Contents.Add("assetKind",assetInformation.AssetKind.ToString());
             twin.Contents.Add("assetKind",assetKind);
+            return twin;
+        }
+
+        public BasicDigitalTwin GetTwin(EmbeddedDataSpecification dataSpecification)
+        {
+            var twin = new BasicDigitalTwin();
+
+            AddAdtModelAndId(twin, AdtAasOntology.MODEL_DATASPECIFICATION);
+
+            if (dataSpecification.DataSpecification.Keys.Count==0)
+            {
+                throw new ArgumentException("Reference in DataSpecification needs a key");
+            }
+            twin.Contents["id"] = dataSpecification.DataSpecification.Keys[0].Value;
+            twin.Contents["administration"] = new BasicDigitalTwinComponent();
+            twin.Contents["description"] = new BasicDigitalTwinComponent();
+
             return twin;
         }
 

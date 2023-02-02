@@ -13,5 +13,6 @@ public interface IAdtTwinFactory
     public BasicDigitalTwin GetTwin(Submodel submodel);
     public BasicDigitalTwin GetTwin(AssetAdministrationShell shell);
     public BasicDigitalTwin GetTwin(AssetInformation assetInformation);
+    public BasicDigitalTwin GetTwin(EmbeddedDataSpecification dataSpecification);
 
 }

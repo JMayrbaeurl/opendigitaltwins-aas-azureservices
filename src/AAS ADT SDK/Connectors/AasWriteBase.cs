@@ -51,8 +51,14 @@ namespace AAS.ADT
 
                     await AddReference(dsTwinData.Id, contentIec61360.UnitId, "unitId");
 
-                    await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(sourceTwinId, "dataSpecification",
+                    var dataSpecificationTwin = _modelFactory.GetTwin(dataSpecification);
+                    await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(dataSpecificationTwin);
+
+                    await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(sourceTwinId, "dataSpecificationRef",
+                        dataSpecificationTwin.Id);
+                    await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(dataSpecificationTwin.Id, "hasContent",
                         dsTwinData.Id);
+                    
                 }
                 else
                 {
