@@ -130,6 +130,10 @@ namespace AAS.API.Repository.Controllers
             {
                 submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
                 var submodel = await _repository.GetSubmodelWithId(submodelIdentifier);
+                if (submodel == null)
+                {
+                    return new NotFoundResult();
+                }
 
                 // adds the "modelType" Attributes that are necessary for serialization
                 var jsonObject = Jsonization.Serialize.ToJsonObject(submodel);
@@ -176,7 +180,20 @@ namespace AAS.API.Repository.Controllers
 
                 submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
 
-                await _repository.CreateSubmodelElement(submodelIdentifier, submodelElement);
+                try
+                {
+                    await _repository.CreateSubmodelElement(submodelIdentifier, submodelElement);
+                }
+                catch (ArgumentException e)
+                {
+                    _logger.LogWarning(e,e.Message);
+                    return new NotFoundResult();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e,e.Message);
+                }
+
 
                 return Ok();
             }

@@ -1,6 +1,7 @@
 ﻿using AAS.ADT;
 using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
+using Microsoft.Identity.Client;
 
 namespace AAS.API.Repository.Adt
 {
@@ -41,16 +42,35 @@ namespace AAS.API.Repository.Adt
             return submodels;
         }
 
-        public async Task<Submodel> GetSubmodelWithId(string submodelId)
+        public async Task<Submodel?> GetSubmodelWithId(string submodelId)
         {
-            var twinId = _adtAasConnector.GetTwinIdForElementWithId(submodelId);
+            string twinId;
+            try
+            {
+                twinId = _adtAasConnector.GetTwinIdForElementWithId(submodelId);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+
             var information = await _adtSubmodelConnector.GetAllInformationForSubmodelWithTwinId(twinId);
             return _adtSubmodelModelFactory.GetSubmodel(information);
         }
 
         public async Task CreateSubmodelElement(string submodelIdentifier, ISubmodelElement submodelElement)
         {
-            var submodelTwinIdentifier = _adtAasConnector.GetTwinIdForElementWithId(submodelIdentifier);
+            string submodelTwinIdentifier;
+            try
+            {
+                submodelTwinIdentifier = _adtAasConnector.GetTwinIdForElementWithId(submodelIdentifier);
+            }
+            catch (AdtException e)
+            {
+                throw new ArgumentException(
+                    $"Can't create SubmodelElement because Submodel with id '{submodelIdentifier} does not exist'");
+            }
+
             await _writeSubmodel.CreateSubmodelElementForSubmodel(submodelElement, submodelTwinIdentifier);
         }
 
