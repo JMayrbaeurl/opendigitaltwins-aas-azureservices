@@ -83,9 +83,9 @@ namespace AAS.API.Repository.Adt
         private void AddSubmodelElementCollection(
             AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection> smeCollectionInformation)
         {
-            var adtSmeCollection = smeCollectionInformation.GeneralAasInformation.RootElement;
+            var adtSmeCollection = smeCollectionInformation.RootElement;
             var smeCollectionDefinitionsAndSemantics =
-                smeCollectionInformation.GeneralAasInformation.definitionsAndSemantics;
+                smeCollectionInformation.DefinitionsAndSemantics;
 
             var currentSme =
                 GetSubmodelElementForTwin<SubmodelElementCollection>(adtSmeCollection,

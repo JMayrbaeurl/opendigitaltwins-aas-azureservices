@@ -25,22 +25,23 @@ namespace AAS.API.Repository.Adt
 
         public Submodel GetSubmodel(AdtSubmodelAndSmcInformation<AdtSubmodel> information)
         {
-            var submodelTwinId = information.GeneralAasInformation.RootElement.dtId;
+            var submodelTwinId = information.RootElement.dtId;
             
-            var submodel = _mapper.Map<Submodel>(information.GeneralAasInformation.RootElement);
+            var submodel = _mapper.Map<Submodel>(information.RootElement);
             
             submodel.SemanticId =
-                _definitionsAndSemanticsFactory.GetSemanticId(information.GeneralAasInformation.ConcreteAasInformation.semanticId);
+                _definitionsAndSemanticsFactory.GetSemanticIdForTwin(submodelTwinId,
+                    information.DefinitionsAndSemantics);
 
             submodel.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory
                 .GetEmbeddedDataSpecificationsForTwin(submodelTwinId,
-                    information.GeneralAasInformation.definitionsAndSemantics);
+                    information.DefinitionsAndSemantics);
 
             submodel.SupplementalSemanticIds = _definitionsAndSemanticsFactory.GetSupplementalSemanticIdsForTwin(
-                submodelTwinId, information.GeneralAasInformation.definitionsAndSemantics);
+                submodelTwinId, information.DefinitionsAndSemantics);
             
             submodel.SubmodelElements = _adtSubmodelElementFactory.GetSubmodelElements(
-                information.AdtSubmodelElements,information.GeneralAasInformation.definitionsAndSemantics);
+                information.AdtSubmodelElements,information.DefinitionsAndSemantics);
 
             return submodel;
         }

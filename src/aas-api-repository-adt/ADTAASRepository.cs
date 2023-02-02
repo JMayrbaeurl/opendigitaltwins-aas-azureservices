@@ -31,7 +31,7 @@ namespace AAS.API.Repository.Adt
             foreach (var id in ids)
             {
                 var information = _adtAasConnector.GetAllInformationForAasWithId(id);
-                information.RootElement = _adtAasConnector.GetAdtAasForAasWithId(id);
+                information.rootElement = _adtAasConnector.GetAdtAasForAasWithId(id);
 
                 shells.Add(_modelFactory.GetAas(information));
             }
@@ -85,7 +85,7 @@ namespace AAS.API.Repository.Adt
         public async Task<AssetAdministrationShell> GetAssetAdministrationShellWithId(string aasIdentifier)
         {
             var information = _adtAasConnector.GetAllInformationForAasWithId(aasIdentifier);
-            information.RootElement = _adtAasConnector.GetAdtAasForAasWithId(aasIdentifier);
+            information.rootElement = _adtAasConnector.GetAdtAasForAasWithId(aasIdentifier);
 
 
 

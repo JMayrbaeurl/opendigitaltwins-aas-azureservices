@@ -4,70 +4,52 @@ using Azure.DigitalTwins.Core;
 
 namespace AAS.API.Repository.Adt
 {
-    public class AdtConcreteAasInformation
+
+    public class DefinitionsAndSemantics
     {
-        public List<AdtDataSpecification> dataSpecifications =
-            new List<AdtDataSpecification>();
+        public Dictionary<string, AdtReference> References = new();
 
-        public AdtReference semanticId = new AdtReference();
+        public Dictionary<string, AdtDataSpecificationIEC61360> Iec61360s = new();
 
-        public List<AdtReference> supplementalSemanticId = new List<AdtReference>();
+        public Dictionary<string, AdtConceptDescription> ConceptDescriptions = new();
+
+        public Dictionary<string, List<BasicRelationship>> Relationships = new();
     }
 
     public class AdtGeneralAasInformation<T> where T : AdtBase, new()
     {
         public AdtGeneralAasInformation()
         {
-            RootElement = new T();
+            rootElement = new T();
         }
-        public T RootElement { get; set; }
-
-        public AdtConcreteAasInformation ConcreteAasInformation = new AdtConcreteAasInformation();
-        public DefinitionsAndSemantics definitionsAndSemantics = new DefinitionsAndSemantics();
-        public List<(JsonNode, string)> relatedTwins = new List<(JsonNode, string)>();
+        public T rootElement { get; set; }
     }
-
-    public class DefinitionsAndSemantics
-    {
-        public Dictionary<string, AdtReference> References = new Dictionary<string, AdtReference>();
-
-        public Dictionary<string, AdtDataSpecificationIEC61360> Iec61360s =
-            new Dictionary<string, AdtDataSpecificationIEC61360>();
-
-        public Dictionary<string, AdtConceptDescription> ConceptDescriptions =
-            new Dictionary<string, AdtConceptDescription>();
-
-        public Dictionary<string, List<BasicRelationship>> Relationships = new Dictionary<string, List<BasicRelationship>>();
-    }
-
+    
     public class AdtSubmodelElements
     {
-        public List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> smeCollections = new List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>>();
-        public List<AdtProperty> properties = new List<AdtProperty>();
-        public List<AdtFile> files = new List<AdtFile>();
+        public List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> smeCollections = new();
+        public List<AdtProperty> properties = new();
+        public List<AdtFile> files = new();
     }
 
-    public class AdtSubmodelElementCollectionInformation
+
+    public class AdtSubmodelAndSmcInformation<T> where T : AdtBase, new()
     {
-        public AdtGeneralAasInformation<AdtSubmodelElementCollection> GeneralAasInformation =
-            new AdtGeneralAasInformation<AdtSubmodelElementCollection>();
+        public AdtSubmodelAndSmcInformation()
+        {
+            RootElement = new T();
+        }
 
-        public AdtSubmodelElements AdtSubmodelElements = new AdtSubmodelElements();
+        public T RootElement { get; set; }
+
+        public DefinitionsAndSemantics DefinitionsAndSemantics = new();
+        public AdtSubmodelElements AdtSubmodelElements = new();
     }
-
-    
-    public class AdtSubmodelAndSmcInformation<T> where T : AdtBase, new()  
-    {
-        public AdtGeneralAasInformation<T> GeneralAasInformation =new AdtGeneralAasInformation<T>();
-        public AdtSubmodelElements AdtSubmodelElements = new AdtSubmodelElements();
-    }
-
-
 
     public class AdtAssetAdministrationShellInformation : AdtGeneralAasInformation<AdtAas>
     {
-        public List<AdtSubmodel> Submodels = new List<AdtSubmodel>();
-        public AdtAas DerivedFrom = null;
-        public AdtAssetInformation AssetInformation = null;
+        public List<AdtSubmodel> Submodels = new();
+        public AdtAas? DerivedFrom = null;
+        public AdtAssetInformation? AssetInformation = null;
     }
 }

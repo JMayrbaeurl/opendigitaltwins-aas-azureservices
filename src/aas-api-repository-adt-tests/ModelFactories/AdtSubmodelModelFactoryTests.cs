@@ -43,8 +43,8 @@ namespace AAS.API.Repository.Adt.Tests
         {
             information = new()
             {
-                GeneralAasInformation = new AdtGeneralAasInformation<AdtSubmodel>() { RootElement = _adtSubmodel }
-            };
+                RootElement = _adtSubmodel
+        };
             objectUnderTest.GetSubmodel(information);
 
             _mapperMock.Verify(_ => _.Map<Submodel>(It.IsAny<AdtSubmodel>()),

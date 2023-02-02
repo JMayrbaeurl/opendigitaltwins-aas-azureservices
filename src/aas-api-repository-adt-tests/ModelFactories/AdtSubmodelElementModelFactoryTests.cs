@@ -38,7 +38,7 @@ namespace AAS.API.Repository.Adt.Tests
             _mapperMock.Setup(_ => _.Map<SubmodelElementCollection>(It.IsAny<AdtSubmodelElement>()))
                 .Returns(new SubmodelElementCollection());
 
-            
+
 
             _loggerMock = new Mock<ILogger<AdtSubmodelElementFactory>>();
 
@@ -50,13 +50,10 @@ namespace AAS.API.Repository.Adt.Tests
                 {
                     new AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>
                     {
-                        GeneralAasInformation = new AdtGeneralAasInformation<AdtSubmodelElementCollection>
-                        {
+
                             RootElement = new AdtSubmodelElementCollection(),
-                            ConcreteAasInformation = new AdtConcreteAasInformation(),
-                            definitionsAndSemantics = new DefinitionsAndSemantics(),
-                            relatedTwins = null
-                        },
+                            DefinitionsAndSemantics = new DefinitionsAndSemantics(),
+
                         AdtSubmodelElements = new AdtSubmodelElements()
                     }
                 };
@@ -64,13 +61,10 @@ namespace AAS.API.Repository.Adt.Tests
             {
                 new AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>
                 {
-                    GeneralAasInformation = new AdtGeneralAasInformation<AdtSubmodelElementCollection>
-                    {
+
                         RootElement = new AdtSubmodelElementCollection(),
-                        ConcreteAasInformation = new AdtConcreteAasInformation(),
-                        definitionsAndSemantics = new DefinitionsAndSemantics(),
-                        relatedTwins = null
-                    },
+                        DefinitionsAndSemantics = new DefinitionsAndSemantics(),
+
                     AdtSubmodelElements = new AdtSubmodelElements
                     {
                         smeCollections = new List<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>>(),
@@ -101,7 +95,7 @@ namespace AAS.API.Repository.Adt.Tests
             _informationSubmodel.AdtSubmodelElements.properties = adtProperties;
 
             var actualList = _objectUnderTest.GetSubmodelElements(
-                _informationSubmodel.AdtSubmodelElements, _informationSubmodel.GeneralAasInformation.definitionsAndSemantics);
+                _informationSubmodel.AdtSubmodelElements, _informationSubmodel.DefinitionsAndSemantics);
 
             actualList.Should().HaveCount(2);
             _mapperMock.Verify(_ => _.Map<Property>(It.IsAny<AdtProperty>()), Times.Exactly(2));
@@ -120,7 +114,7 @@ namespace AAS.API.Repository.Adt.Tests
 
             var actualList = _objectUnderTest.GetSubmodelElements(
                 _informationSubmodel.AdtSubmodelElements,
-                _informationSubmodel.GeneralAasInformation.definitionsAndSemantics);
+                _informationSubmodel.DefinitionsAndSemantics);
 
             actualList.Should().HaveCount(2);
             _mapperMock.Verify(_ => _.Map<File>(It.IsAny<AdtFile>()), Times.Exactly(2));
@@ -139,7 +133,7 @@ namespace AAS.API.Repository.Adt.Tests
 
             var actualList = _objectUnderTest.GetSubmodelElements(
                 _informationSubmodel.AdtSubmodelElements,
-                _informationSubmodel.GeneralAasInformation.definitionsAndSemantics);
+                _informationSubmodel.DefinitionsAndSemantics);
 
             actualList.Should().HaveCount(1);
             _mapperMock.Verify(_ => _.Map<SubmodelElementCollection>(It.IsAny<AdtSubmodelElementCollection>()), Times.Once);
@@ -156,9 +150,9 @@ namespace AAS.API.Repository.Adt.Tests
         {
             _informationSubmodel.AdtSubmodelElements.smeCollections = _informationSmeCollectionsWithSmes;
 
-            var actualList =_objectUnderTest.GetSubmodelElements(
+            var actualList = _objectUnderTest.GetSubmodelElements(
                 _informationSubmodel.AdtSubmodelElements,
-                _informationSubmodel.GeneralAasInformation.definitionsAndSemantics);
+                _informationSubmodel.DefinitionsAndSemantics);
 
             actualList.Should().HaveCount(1);
             ((SubmodelElementCollection)actualList[0]).Value.Should().HaveCount(2);

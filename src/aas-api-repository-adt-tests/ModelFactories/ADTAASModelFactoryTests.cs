@@ -51,7 +51,7 @@ namespace AAS.API.Repository.Adt.Tests
                 SpecificAssetId = "TestSpecificAssetId",
                 AssetKind = new AdtAssetKind() { AssetKind = "Type" }
             };
-            information.RootElement = minimalAdtAas;
+            information.rootElement = minimalAdtAas;
             var actual = objectUnderTest.GetAas(information);
 
             var expected = new AssetInformation(

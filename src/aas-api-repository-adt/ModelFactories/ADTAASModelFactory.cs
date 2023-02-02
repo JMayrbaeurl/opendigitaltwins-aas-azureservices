@@ -16,7 +16,7 @@ namespace AAS.API.Repository.Adt
 
         public AssetAdministrationShell GetAas(AdtAssetAdministrationShellInformation information)
         {
-            var aas = _mapper.Map<AssetAdministrationShell>(information.RootElement);
+            var aas = _mapper.Map<AssetAdministrationShell>(information.rootElement);
 
             aas.Submodels = new List<Reference>();
             aas.EmbeddedDataSpecifications = new List<EmbeddedDataSpecification>();
