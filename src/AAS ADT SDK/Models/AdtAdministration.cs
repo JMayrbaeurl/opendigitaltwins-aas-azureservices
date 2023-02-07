@@ -3,14 +3,11 @@ using Azure.DigitalTwins.Core;
 
 namespace AAS.ADT.Models;
 
-public class AdtAdministration
+public class AdtAdministration : AdtBase
 {
     [JsonPropertyName("revision")]
     public string? Revision { get; set; }
 
     [JsonPropertyName("version")]
     public string? Version { get; set; }
-
-    [JsonPropertyName(DigitalTwinsJsonPropertyNames.DigitalTwinMetadata)]
-    public DigitalTwinMetadata Metadata { get; set; }
 }
