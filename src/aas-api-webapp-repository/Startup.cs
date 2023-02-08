@@ -111,6 +111,8 @@ namespace Aas.Api.Repository
             services.AddTransient<IAasWriteConnector, AasWriteConnectorForAdtCommunication>();
             services.AddTransient<IAasWriteBase, AasWriteBase>();
             services.AddTransient<IAdtTwinFactory, AdtTwinFactory>();
+            services.AddTransient<IAasDeleteAdt, AasDeleteAdt>();
+
 
 
 

@@ -33,10 +33,9 @@ namespace AAS.API.Repository.Controllers
         public AasRepositoryApi(IConfiguration config, IAASRepositoryFactory aasRepositoryFactory, ILogger<AasRepositoryApi> logger)
         {
             _repository = aasRepositoryFactory.CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
-                         throw new ArgumentNullException(); ;
+                         throw new ArgumentNullException(); 
             _logger = logger ??
                       throw new ArgumentNullException(nameof(logger));
-
         }
 
 
@@ -146,6 +145,34 @@ namespace AAS.API.Repository.Controllers
         }
 
         /// <summary>
+        /// Deletes an Asset Administration Shell
+        /// </summary>
+        /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
+        /// <response code="204">Asset Administration Shell deleted successfully</response>
+        [HttpDelete]
+        [Route("{aasIdentifier}")]
+        [ValidateModelState]
+        [SwaggerOperation("DeleteAssetAdministrationShellById")]
+        public async Task<IActionResult> DeleteAssetAdministrationShellById([FromRoute][Required] string aasIdentifier)
+        {
+            aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
+            try
+            {
+                await _repository.DeleteAssetAdministrationShellWithId(aasIdentifier);
+                return Ok();
+            }
+            catch (AASRepositoryException e)
+            {
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        /// <summary>
         /// Creates a submodel reference at the Asset Administration Shell
         /// </summary>
         /// <param name="body">Reference to the Submodel</param>
@@ -172,6 +199,32 @@ namespace AAS.API.Repository.Controllers
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
 
+        }
+
+        /// <summary>
+        /// Deletes the submodel reference from the Asset Administration Shell
+        /// </summary>
+        /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
+        /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
+        /// <response code="204">Submodel reference deleted successfully</response>
+        [HttpDelete]
+        [Route("{aasIdentifier}/aas/submodels/{submodelIdentifier}")]
+        [ValidateModelState]
+        [SwaggerOperation("DeleteSubmodelReferenceById")]
+        public async Task<IActionResult> DeleteSubmodelReferenceById([FromRoute] [Required] string aasIdentifier,
+            [FromRoute] [Required] string submodelIdentifier)
+        {
+            try
+            {
+                aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
+                await _repository.DeleteSubmodelReference(aasIdentifier, submodelIdentifier);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
 
     }

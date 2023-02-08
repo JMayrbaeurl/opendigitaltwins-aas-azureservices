@@ -12,17 +12,33 @@ namespace AAS.API.Repository.Adt
         private readonly IAdtAasConnector _adtAasConnector;
         private readonly ILogger<ADTAASRepository> _logger;
         private readonly IAasWriteAssetAdministrationShell _writeShell;
+        private readonly IAasDeleteAdt _deleteShell;
 
         public ADTAASRepository(DigitalTwinsClient client, IAdtAasConnector adtAasConnector, IMapper mapper,
-            ILogger<ADTAASRepository> logger, IAasWriteAssetAdministrationShell writeShell)
+            ILogger<ADTAASRepository> logger, IAasWriteAssetAdministrationShell writeShell, IAasDeleteAdt deleteShell)
         {
             _modelFactory = new ADTAASModelFactory(mapper);
             _adtAasConnector = adtAasConnector;
             _logger = logger ??
                       throw new ArgumentNullException(nameof(logger));
             _writeShell = writeShell;
+            _deleteShell = deleteShell;
         }
 
+
+        public async Task DeleteAssetAdministrationShellWithId(string aasId)
+        {
+            try
+            {
+                var twinId = _adtAasConnector.GetTwinIdForElementWithId(aasId);
+                await _deleteShell.DeleteTwin(twinId);
+            }
+            catch (AdtException e)
+            {
+                _logger.LogError(e, e.Message);
+                throw new AASRepositoryException($"No Shell with Id {aasId} found to delete");
+            }
+        }
 
         public async Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShells()
         {
@@ -40,8 +56,6 @@ namespace AAS.API.Repository.Adt
 
         public async Task CreateAssetAdministrationShell(AssetAdministrationShell shell)
         {
-
-
             if (IdentifiableAlreadyExist(shell.Id))
             {
                 return;
@@ -49,7 +63,7 @@ namespace AAS.API.Repository.Adt
             }
             var shellTwinId = await _writeShell.CreateShell(shell);
 
-            if (shellTwinId==null)
+            if (shellTwinId == null)
             {
                 throw new AASRepositoryException($"Shell with Id {shell.Id} could not be created");
             }
@@ -58,14 +72,19 @@ namespace AAS.API.Repository.Adt
             {
                 foreach (var submodelRef in shell.Submodels)
                 {
-                    await CreateSubmodelReference(shellTwinId, submodelRef);
+                    await CreateSubmodelReferenceForTwinWithId(shellTwinId, submodelRef);
                 }
             }
         }
 
-        public async Task CreateSubmodelReference(string aasTwinId, Reference submodelRef)
+        public async Task CreateSubmodelReference(string aasId, Reference submodelRef)
         {
-            
+            var aasTwinId = _adtAasConnector.GetTwinIdForElementWithId(aasId);
+            await CreateSubmodelReferenceForTwinWithId(aasTwinId, submodelRef);
+        }
+
+        private async Task CreateSubmodelReferenceForTwinWithId(string aasTwinId, Reference submodelRef)
+        {
             if (submodelRef.Keys[0].Type == KeyTypes.Submodel)
             {
                 var submodelId = submodelRef.Keys[0].Value;
@@ -74,11 +93,27 @@ namespace AAS.API.Repository.Adt
                 {
                     var submodelTwinId = _adtAasConnector.GetTwinIdForElementWithId(submodelId);
                     await _writeShell.CreateSubmodelReference(aasTwinId, submodelTwinId);
+
                 }
                 catch (AdtException e)
                 {
                     _logger.LogError(e, e.Message);
                 }
+            }
+
+        }
+
+        public async Task DeleteSubmodelReference(string aasId, string submodelId)
+        {
+            try
+            {
+                var submodelTwinId = _adtAasConnector.GetTwinIdForElementWithId(submodelId);
+                var aasTwinId = _adtAasConnector.GetTwinIdForElementWithId(aasId);
+                await _deleteShell.DeleteRelationship(aasTwinId, submodelTwinId, "submodel");
+            }
+            catch (AdtException e)
+            {
+                _logger.LogError(e, e.Message);
             }
         }
 

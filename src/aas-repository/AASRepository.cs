@@ -11,9 +11,13 @@ namespace AAS.API.Repository
     {
         public List<string> GetAllAssetAdministrationShellIds();
         public Task<AssetAdministrationShell> GetAssetAdministrationShellWithId(string aasId);
+        public Task DeleteAssetAdministrationShellWithId(string aasId);
+
         public Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShells();
         public Task CreateAssetAdministrationShell(AssetAdministrationShell shell);
         public Task CreateSubmodelReference(string aasId, Reference submodelRef);
+        public Task DeleteSubmodelReference(string aasId, string submodelId);
+
     }
 
     public class AASRepositoryException : AASServiceException

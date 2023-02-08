@@ -1,6 +1,8 @@
 ﻿using AAS.ADT;
 using AAS.ADT.Models;
+using AAS.API.Interfaces;
 using AasCore.Aas3_0_RC02;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 
 namespace AAS.API.Repository.Adt
@@ -11,15 +13,21 @@ namespace AAS.API.Repository.Adt
         private readonly IAdtSubmodelConnector _adtSubmodelConnector;
         private readonly IAdtSubmodelModelFactory _adtSubmodelModelFactory;
         private readonly IAasWriteSubmodel _writeSubmodel;
+        private readonly IAasDeleteAdt _deleteSubmodel;
+        private readonly ILogger<AdtSubmodelRepository> _logger;
+
+
 
         public AdtSubmodelRepository(IAdtSubmodelConnector adtSubmodelConnector, IAdtAasConnector adtAasConnector,
-            IAdtSubmodelModelFactory adtSubmodelModelFactory, IAasWriteSubmodel writeSubmodel)
+            IAdtSubmodelModelFactory adtSubmodelModelFactory, IAasWriteSubmodel writeSubmodel, IAasDeleteAdt deleteSubmodel, ILogger<AdtSubmodelRepository> logger)
         {
             _adtAasConnector = adtAasConnector;
             _adtSubmodelConnector = adtSubmodelConnector;
             _adtSubmodelModelFactory = adtSubmodelModelFactory ??
                                        throw new ArgumentNullException(nameof(adtSubmodelModelFactory));
             _writeSubmodel = writeSubmodel;
+            _deleteSubmodel = deleteSubmodel;
+            _logger = logger;
         }
         public async Task<List<Submodel>> GetAllSubmodels()
         {
@@ -79,6 +87,20 @@ namespace AAS.API.Repository.Adt
             if (IdentifiableAlreadyExist(submodel.Id) == false)
             {
                 await _writeSubmodel.CreateSubmodel(submodel);
+            }
+        }
+
+        public async Task DeleteSubmodelWithId(string submodelIdentifier)
+        {
+            try
+            {
+                var twinId = _adtAasConnector.GetTwinIdForElementWithId(submodelIdentifier);
+                await _deleteSubmodel.DeleteTwin(twinId);
+            }
+            catch (AdtException e)
+            {
+                _logger.LogError(e, e.Message);
+                throw new AASRepositoryException($"No Submodel with Id {submodelIdentifier} found to delete");
             }
         }
 

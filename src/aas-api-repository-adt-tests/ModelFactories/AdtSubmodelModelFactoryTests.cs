@@ -54,7 +54,7 @@ namespace AAS.API.Repository.Adt.Tests
                 It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Once);
             _adtDefinitionsAndSemantics.Verify(_ => _.GetSupplementalSemanticIdsForTwin(
                 It.IsAny<string>(), It.IsAny<DefinitionsAndSemantics>()), Times.Once);
-            _adtDefinitionsAndSemantics.Verify(_ => _.GetSemanticId(It.IsAny<AdtReference>()), Times.Once);
+            _adtDefinitionsAndSemantics.Verify(_ => _.GetSemanticIdForTwin("TestTwinId", It.IsAny<DefinitionsAndSemantics>()), Times.Once);
 
             _submodelElementFactoryMock.Verify(_=>_.GetSubmodelElements(
                 It.IsAny<AdtSubmodelElements>(),It.IsAny<DefinitionsAndSemantics>()),Times.Once);

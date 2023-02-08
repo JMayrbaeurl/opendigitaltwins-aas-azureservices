@@ -204,5 +204,33 @@ namespace AAS.API.Repository.Controllers
             }
 
         }
+
+        /// <summary>
+        /// Deletes a Submodel
+        /// </summary>
+        /// <param name="submodelIdentifier">The Submodels unique id (BASE64-URL-encoded)</param>
+        /// <response code="204">Submodel deleted successfully</response>
+        [HttpDelete]
+        [Route("{submodelIdentifier}")]
+        [ValidateModelState]
+        [SwaggerOperation("DeleteAssetAdministrationShellById")]
+        public async Task<IActionResult> DeleteAssetAdministrationShellById([FromRoute] [Required] string submodelIdentifier)
+        {
+            submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
+            try
+            {
+                await _repository.DeleteSubmodelWithId(submodelIdentifier);
+                return Ok();
+            }
+            catch (AASRepositoryException e)
+            {
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }
