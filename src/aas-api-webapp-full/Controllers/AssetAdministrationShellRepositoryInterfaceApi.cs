@@ -17,9 +17,10 @@ using System.ComponentModel.DataAnnotations;
 using AAS.API.Attributes;
 
 using Microsoft.AspNetCore.Authorization;
-using AAS.API.Models;
 using Microsoft.Extensions.Configuration;
 using AAS.API.Repository;
+using AasCore.Aas3_0_RC02;
+using AutoMapper;
 
 namespace AAS.API.WebApp.Controllers
 {
@@ -38,11 +39,12 @@ namespace AAS.API.WebApp.Controllers
         /// <summary>
         /// 
         /// </summary>
-        public AssetAdministrationShellRepositoryInterfaceApiController(IConfiguration config) : base()
+        public AssetAdministrationShellRepositoryInterfaceApiController(IConfiguration config,
+            IAASRepositoryFactory aasRepositoryFactory)
         {
             _configuration = config;
-
-            repository = new AASRepositoryFactory().CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]);
+            repository = aasRepositoryFactory.CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
+                         throw new ArgumentNullException();
         }
 
         /// <summary>
@@ -73,7 +75,7 @@ namespace AAS.API.WebApp.Controllers
         [ValidateModelState]
         [SwaggerOperation("GetAllAssetAdministrationShells")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<AssetAdministrationShell>), description: "Requested Asset Administration Shells")]
-        public virtual IActionResult GetAllAssetAdministrationShells([FromQuery]List<IdentifierKeyValuePair> assetIds, [FromQuery]string idShort)
+        public virtual IActionResult GetAllAssetAdministrationShells([FromQuery]List<SpecificAssetId> assetIds, [FromQuery]string idShort)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(200, default(List<AssetAdministrationShell>));

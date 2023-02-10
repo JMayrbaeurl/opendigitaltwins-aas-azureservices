@@ -1,16 +1,16 @@
 ﻿using AAS.API.Interfaces;
-using AAS.API.Models;
 using AAS.API.Services;
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using AasCore.Aas3_0_RC02;
 
 namespace AAS.API.Repository
 {
     public interface AASRepository : ShellRepository
     {
+        public List<string> GetAllAasIds();
+        public AssetAdministrationShell GetAdministrationShellForAasId(string aasId);
+
     }
 
     public class AASRepositoryException : AASServiceException

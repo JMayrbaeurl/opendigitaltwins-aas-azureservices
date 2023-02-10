@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AAS.API.Services.ADT
+﻿namespace AAS.API.Services.ADT
 {
     public interface ADTConstants
     {

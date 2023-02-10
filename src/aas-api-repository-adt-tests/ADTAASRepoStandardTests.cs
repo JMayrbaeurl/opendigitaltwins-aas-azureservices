@@ -1,18 +1,18 @@
-using AAS.API.Models;
-using AAS.API.Repository;
 using AAS.API.Services.ADT;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
+using AasCore.Aas3_0_RC02;
+using AutoMapper;
+using Microsoft.Extensions.Logging;
 
-namespace AAS_Repository_Tests
+namespace AAS.API.Repository.Adt.Tests
 {
     [TestClass]
     public class ADTAASRepoStandardTests
     {
         [TestMethod]
-        public void TestGetAllAdministrationShells()
+        public void TestGetAllAdministrationShells(
+            IAdtAasConnector adtAasConnector, IMapper mapper, ILogger<AASRepositoryFactory> logger)
         {
-            AASRepository repo = new AASRepositoryFactory().CreateAASRepositoryForADT("https://hack2021aasadt.api.weu.digitaltwins.azure.net");
+            AASRepository repo = new AASRepositoryFactory(adtAasConnector,mapper,logger).CreateAASRepositoryForADT("https://hack2021aasadt.api.weu.digitaltwins.azure.net");
             List<AssetAdministrationShell> adminshells = repo.GetAllAdministrationShells().GetAwaiter().GetResult();
             Assert.IsNotNull(adminshells);
             Assert.IsFalse(adminshells.Count == 0);

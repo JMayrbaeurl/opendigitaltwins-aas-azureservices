@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,13 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AasCore.Aas3_0_RC02" Version="1.1.0" />
     <PackageReference Include="Azure.DigitalTwins.Core" Version="1.4.0" />
     <PackageReference Include="Azure.Identity" Version="1.8.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\aas-services-support\AAS Services Support.csproj" />
     <ProjectReference Include="..\aas-api-models\AAS API Models.csproj" />
+    <ProjectReference Include="..\aas-services-support\AAS Services Support.csproj" />
   </ItemGroup>
 
 </Project>

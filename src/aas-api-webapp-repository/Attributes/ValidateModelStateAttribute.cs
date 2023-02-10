@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace AAS.API.Registry.Attributes
+namespace Aas.Api.Repository.Attributes
 {
     /// <summary>
     /// Model state validation attribute
