@@ -30,9 +30,9 @@ namespace AAS.API.Repository.Controllers
         /// <summary>
         /// 
         /// </summary>
-        public AasRepositoryApi(IConfiguration config, IAASRepositoryFactory aasRepositoryFactory, ILogger<AasRepositoryApi> logger)
+        public AasRepositoryApi(IConfiguration config, AASRepository repository, ILogger<AasRepositoryApi> logger)
         {
-            _repository = aasRepositoryFactory.CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
+            _repository = repository ??
                          throw new ArgumentNullException(); 
             _logger = logger ??
                       throw new ArgumentNullException(nameof(logger));

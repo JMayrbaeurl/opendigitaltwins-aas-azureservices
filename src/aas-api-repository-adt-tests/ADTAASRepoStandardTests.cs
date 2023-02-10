@@ -14,7 +14,8 @@ namespace AAS.API.Repository.Adt.Tests
             IAdtAasConnector adtAasConnector, IMapper mapper, IAasWriteAssetAdministrationShell writeShell, 
             ILogger<ADTAASRepository> logger, IAasDeleteAdt deleteShell, IAasUpdateAdt updateShell)
         {
-            AASRepository repo = new AASRepositoryFactory(adtAasConnector,mapper,writeShell,logger,deleteShell,updateShell).CreateAASRepositoryForADT("https://hack2021aasadt.api.weu.digitaltwins.azure.net");
+            AASRepository repo =
+                new ADTAASRepository(adtAasConnector, mapper, logger, writeShell, deleteShell, updateShell);
             List<AssetAdministrationShell> adminshells = repo.GetAllAssetAdministrationShells().GetAwaiter().GetResult();
             Assert.IsNotNull(adminshells);
             Assert.IsFalse(adminshells.Count == 0);

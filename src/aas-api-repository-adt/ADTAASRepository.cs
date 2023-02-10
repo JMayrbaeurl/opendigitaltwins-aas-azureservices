@@ -16,7 +16,7 @@ namespace AAS.API.Repository.Adt
         private readonly IAasUpdateAdt _updateShell;
 
 
-        public ADTAASRepository(DigitalTwinsClient client, IAdtAasConnector adtAasConnector, IMapper mapper,
+        public ADTAASRepository(IAdtAasConnector adtAasConnector, IMapper mapper,
             ILogger<ADTAASRepository> logger, IAasWriteAssetAdministrationShell writeShell, IAasDeleteAdt deleteShell, IAasUpdateAdt updateShell)
         {
             _modelFactory = new ADTAASModelFactory(mapper);

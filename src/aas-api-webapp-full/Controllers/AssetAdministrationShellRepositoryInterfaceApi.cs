@@ -40,10 +40,10 @@ namespace AAS.API.WebApp.Controllers
         /// 
         /// </summary>
         public AssetAdministrationShellRepositoryInterfaceApiController(IConfiguration config,
-            IAASRepositoryFactory aasRepositoryFactory)
+            AASRepository aasRepository)
         {
             _configuration = config;
-            repository = aasRepositoryFactory.CreateAASRepositoryForADT(config["ADT_SERVICE_URL"]) ??
+            repository = aasRepository ??
                          throw new ArgumentNullException();
         }
 
