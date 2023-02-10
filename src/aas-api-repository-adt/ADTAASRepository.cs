@@ -13,9 +13,11 @@ namespace AAS.API.Repository.Adt
         private readonly ILogger<ADTAASRepository> _logger;
         private readonly IAasWriteAssetAdministrationShell _writeShell;
         private readonly IAasDeleteAdt _deleteShell;
+        private readonly IAasUpdateAdt _updateShell;
+
 
         public ADTAASRepository(DigitalTwinsClient client, IAdtAasConnector adtAasConnector, IMapper mapper,
-            ILogger<ADTAASRepository> logger, IAasWriteAssetAdministrationShell writeShell, IAasDeleteAdt deleteShell)
+            ILogger<ADTAASRepository> logger, IAasWriteAssetAdministrationShell writeShell, IAasDeleteAdt deleteShell, IAasUpdateAdt updateShell)
         {
             _modelFactory = new ADTAASModelFactory(mapper);
             _adtAasConnector = adtAasConnector;
@@ -23,6 +25,7 @@ namespace AAS.API.Repository.Adt
                       throw new ArgumentNullException(nameof(logger));
             _writeShell = writeShell;
             _deleteShell = deleteShell;
+            _updateShell = updateShell;
         }
 
 
@@ -76,6 +79,22 @@ namespace AAS.API.Repository.Adt
                 }
             }
         }
+
+        public async Task UpdateExistingAssetAdministrationShellWithId(string aasId, AssetAdministrationShell shell)
+        {
+            try
+            {
+                var twinId = _adtAasConnector.GetTwinIdForElementWithId(aasId);
+                _logger.LogInformation($"Now updating AAS with Id {aasId}");
+                await _updateShell.UpdateFullShell(twinId, shell);
+            }
+            catch (AdtException e)
+            {
+                _logger.LogError(e, e.Message);
+                throw new AASRepositoryException($"No AAS with Id {aasId} found to update");
+            }
+        }
+
 
         public async Task CreateSubmodelReference(string aasId, Reference submodelRef)
         {

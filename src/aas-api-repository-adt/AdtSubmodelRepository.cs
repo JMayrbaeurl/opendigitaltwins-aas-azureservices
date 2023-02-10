@@ -15,11 +15,13 @@ namespace AAS.API.Repository.Adt
         private readonly IAasWriteSubmodel _writeSubmodel;
         private readonly IAasDeleteAdt _deleteSubmodel;
         private readonly ILogger<AdtSubmodelRepository> _logger;
+        private readonly IAasUpdateAdt _updateSubmodel;
 
 
 
         public AdtSubmodelRepository(IAdtSubmodelConnector adtSubmodelConnector, IAdtAasConnector adtAasConnector,
-            IAdtSubmodelModelFactory adtSubmodelModelFactory, IAasWriteSubmodel writeSubmodel, IAasDeleteAdt deleteSubmodel, ILogger<AdtSubmodelRepository> logger)
+            IAdtSubmodelModelFactory adtSubmodelModelFactory, IAasWriteSubmodel writeSubmodel, 
+            IAasDeleteAdt deleteSubmodel, ILogger<AdtSubmodelRepository> logger, IAasUpdateAdt updateSubmodel)
         {
             _adtAasConnector = adtAasConnector;
             _adtSubmodelConnector = adtSubmodelConnector;
@@ -28,6 +30,7 @@ namespace AAS.API.Repository.Adt
             _writeSubmodel = writeSubmodel;
             _deleteSubmodel = deleteSubmodel;
             _logger = logger;
+            _updateSubmodel = updateSubmodel;
         }
         public async Task<List<Submodel>> GetAllSubmodels()
         {
@@ -88,6 +91,22 @@ namespace AAS.API.Repository.Adt
             {
                 await _writeSubmodel.CreateSubmodel(submodel);
             }
+        }
+
+        public async Task UpdateExistingSubmodelWithId(string submodelIdentifier, Submodel submodel)
+        {
+            try
+            {
+                var twinId = _adtAasConnector.GetTwinIdForElementWithId(submodelIdentifier);
+                _logger.LogInformation($"Now updating submodel with Id {submodelIdentifier}");
+                await _updateSubmodel.UpdateFullSubmodel(twinId,submodel);
+            }
+            catch (AdtException e)
+            {
+                _logger.LogError(e, e.Message);
+                throw new AASRepositoryException($"No Submodel with Id {submodelIdentifier} found to update");
+            }
+            
         }
 
         public async Task DeleteSubmodelWithId(string submodelIdentifier)

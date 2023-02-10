@@ -145,6 +145,40 @@ namespace AAS.API.Repository.Controllers
         }
 
         /// <summary>
+        /// Updates an existing Asset Administration Shell
+        /// </summary>
+        /// <param name="body">Asset Administration Shell object</param>
+        /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>
+        /// <response code="204">Asset Administration Shell updated successfully</response>
+        [HttpPut]
+        [Route("{aasIdentifier}")]
+        [ValidateModelState]
+        [SwaggerOperation("PutAssetAdministrationShellById")]
+        public async Task<IActionResult> PutAssetAdministrationShellById([FromBody] JObject body,
+            [FromRoute] [Required] string aasIdentifier)
+        {
+            aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
+            try
+            {
+                var bodyParsed = JsonNode.Parse(body.ToString());
+                var assetAdministrationShell = Jsonization.Deserialize.AssetAdministrationShellFrom(bodyParsed);
+
+                await _repository.UpdateExistingAssetAdministrationShellWithId(aasIdentifier, assetAdministrationShell);
+                return Ok();
+            }
+            catch (AASRepositoryException e)
+            {
+                return NotFound();
+            }
+
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        /// <summary>
         /// Deletes an Asset Administration Shell
         /// </summary>
         /// <param name="aasIdentifier">The Asset Administration Shell’s unique id (BASE64-URL-encoded)</param>

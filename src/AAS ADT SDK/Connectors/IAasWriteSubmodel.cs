@@ -5,6 +5,6 @@ namespace AAS.ADT;
 
 public interface IAasWriteSubmodel
 {
-    Task CreateSubmodel(Submodel submodel);
+    Task<string> CreateSubmodel(Submodel submodel);
     Task CreateSubmodelElementForSubmodel(ISubmodelElement submodelElement, string submodelTwinId);
 }

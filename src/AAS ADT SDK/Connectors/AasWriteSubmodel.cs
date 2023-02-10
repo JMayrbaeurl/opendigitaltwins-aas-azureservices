@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Azure.DigitalTwins.Core;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using AasCore.Aas3_0_RC02;
@@ -24,30 +22,26 @@ namespace AAS.ADT
             _logger = logger;
             _writeSubmodelElements = writeSubmodelElements;
         }
-
-
-        public async Task CreateSubmodel(Submodel submodel)
+        
+        public async Task<string> CreateSubmodel(Submodel submodel)
         {
-            //_logger.LogInformation($"Now importing Submodel '{submodel.IdShort}' for shell '{shell.IdShort}' into ADT instance");
-
             if (submodel == null)
             {
-                return;
+                return null;
             }
             
-            var subModelTwinData = _modelFactory.GetTwin(submodel);
-            await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(subModelTwinData);
+            var submodelTwinData = _modelFactory.GetTwin(submodel);
+            await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(submodelTwinData);
 
-            await _writeBase.AddQualifiableRelations(subModelTwinData.Id, submodel.Qualifiers);
+            await _writeBase.AddQualifiableRelations(submodelTwinData.Id, submodel.Qualifiers);
 
-            await _writeBase.AddReference(subModelTwinData.Id, submodel.SemanticId, "semanticId");
+            await _writeBase.AddReference(submodelTwinData.Id, submodel.SemanticId, "semanticId");
 
-            await _writeBase.AddHasDataSpecification(subModelTwinData.Id, submodel.EmbeddedDataSpecifications);
+            await _writeBase.AddHasDataSpecification(submodelTwinData.Id, submodel.EmbeddedDataSpecifications);
 
-            await CreateSubmodelElementsForSubmodel(submodel.SubmodelElements, subModelTwinData.Id);
+            await CreateSubmodelElementsForSubmodel(submodel.SubmodelElements, submodelTwinData.Id);
 
-            // Create relationship between Shell and Submodel
-            // await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(shellTwin.Id, "submodel", subModelTwinData.Id);
+            return submodelTwinData.Id;
         }
 
         private async Task CreateSubmodelElementsForSubmodel(List<ISubmodelElement> submodelElements, string submodelTwinId)

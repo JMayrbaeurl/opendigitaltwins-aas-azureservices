@@ -15,6 +15,8 @@ namespace AAS.API.Repository
 
         public Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShells();
         public Task CreateAssetAdministrationShell(AssetAdministrationShell shell);
+        public Task UpdateExistingAssetAdministrationShellWithId(string aasId, AssetAdministrationShell shell);
+
         public Task CreateSubmodelReference(string aasId, Reference submodelRef);
         public Task DeleteSubmodelReference(string aasId, string submodelId);
 

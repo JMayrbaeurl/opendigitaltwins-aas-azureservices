@@ -153,56 +153,95 @@ namespace AAS.API.Repository.Controllers
 
         }
 
+        // TODO: currently no IdShort Paths are supported, so it makes no real sense do do this partial update
+        ///// <summary>
+        ///// Creates a new submodel element
+        ///// </summary>
+        ///// <param name="body">Requested submodel element</param>
+        ///// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
+        ///// <param name="level">Determines the structural depth of the respective resource content</param>
+        ///// <param name="content">Determines the request or response kind of the resource</param>
+        ///// <param name="extent">Determines to which extent the resource is being serialized</param>
+        ///// <response code="201">Submodel element created successfully</response>
+        //[HttpPost]
+        //[Route("{submodelIdentifier}/submodel/submodel-elements")]
+        //[ValidateModelState]
+        //[SwaggerOperation("PostSubmodelElementSubmodelRepo")]
+        //[Consumes("application/json")]
+        //[SwaggerResponse(statusCode: 201, type: typeof(ISubmodelElement),
+        //    description: "Submodel element created successfully")]
+        //public async Task<IActionResult> PostSubmodelElementSubmodelRepo([FromBody] JObject body,
+        //    [FromRoute][Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content,
+        //    [FromQuery] string extent)
+        //{
+        //    try
+        //    {
+        //        var bodyParsed = JsonNode.Parse(body.ToString());
+        //        var submodelElement = Jsonization.Deserialize.ISubmodelElementFrom(bodyParsed);
+
+        //        submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
+
+        //        try
+        //        {
+        //            await _repository.CreateSubmodelElement(submodelIdentifier, submodelElement);
+        //        }
+        //        catch (ArgumentException e)
+        //        {
+        //            _logger.LogWarning(e, e.Message);
+        //            return new NotFoundResult();
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            _logger.LogError(e, e.Message);
+        //        }
+
+
+        //        return Ok();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogError(e, e.Message);
+        //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //    }
+
+        //}
+
         /// <summary>
-        /// Creates a new submodel element
+        /// Updates the Submodel
         /// </summary>
-        /// <param name="body">Requested submodel element</param>
+        /// <param name="body">Submodel object</param>
         /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
         /// <param name="level">Determines the structural depth of the respective resource content</param>
         /// <param name="content">Determines the request or response kind of the resource</param>
         /// <param name="extent">Determines to which extent the resource is being serialized</param>
-        /// <response code="201">Submodel element created successfully</response>
-        [HttpPost]
-        [Route("{submodelIdentifier}/submodel/submodel-elements")]
+        /// <response code="204">Submodel updated successfully</response>
+        [HttpPut]
+        [Route("{submodelIdentifier}")]
         [ValidateModelState]
-        [SwaggerOperation("PostSubmodelElementSubmodelRepo")]
-        [Consumes("application/json")]
-        [SwaggerResponse(statusCode: 201, type: typeof(ISubmodelElement),
-            description: "Submodel element created successfully")]
-        public async Task<IActionResult> PostSubmodelElementSubmodelRepo([FromBody] JObject body,
+        [SwaggerOperation("PutSubmodelById")]
+        public async Task<IActionResult> PutSubmodelById([FromBody] JObject body,
             [FromRoute][Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content,
             [FromQuery] string extent)
         {
+            submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
             try
             {
                 var bodyParsed = JsonNode.Parse(body.ToString());
-                var submodelElement = Jsonization.Deserialize.ISubmodelElementFrom(bodyParsed);
+                var submodel = Jsonization.Deserialize.SubmodelFrom(bodyParsed);
 
-                submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
-
-                try
-                {
-                    await _repository.CreateSubmodelElement(submodelIdentifier, submodelElement);
-                }
-                catch (ArgumentException e)
-                {
-                    _logger.LogWarning(e,e.Message);
-                    return new NotFoundResult();
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e,e.Message);
-                }
-
-
+                await _repository.UpdateExistingSubmodelWithId(submodelIdentifier, submodel);
                 return Ok();
             }
+            catch (AASRepositoryException e)
+            {
+                return NotFound();
+            }
+
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-
         }
 
         /// <summary>
@@ -214,7 +253,7 @@ namespace AAS.API.Repository.Controllers
         [Route("{submodelIdentifier}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteAssetAdministrationShellById")]
-        public async Task<IActionResult> DeleteAssetAdministrationShellById([FromRoute] [Required] string submodelIdentifier)
+        public async Task<IActionResult> DeleteAssetAdministrationShellById([FromRoute][Required] string submodelIdentifier)
         {
             submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
             try
