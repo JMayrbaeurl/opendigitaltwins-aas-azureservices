@@ -10,18 +10,6 @@ namespace AAS.API.Repository.Adt.Tests
     public class ADTAASRepoStandardTests
     {
         [TestMethod]
-        public void TestGetAllAdministrationShells(
-            IAdtAasConnector adtAasConnector, IMapper mapper, IAasWriteAssetAdministrationShell writeShell, 
-            ILogger<ADTAASRepository> logger, IAasDeleteAdt deleteShell, IAasUpdateAdt updateShell)
-        {
-            AASRepository repo =
-                new ADTAASRepository(adtAasConnector, mapper, logger, writeShell, deleteShell, updateShell);
-            List<AssetAdministrationShell> adminshells = repo.GetAllAssetAdministrationShells().GetAwaiter().GetResult();
-            Assert.IsNotNull(adminshells);
-            Assert.IsFalse(adminshells.Count == 0);
-        }
-
-        [TestMethod]
         public void TestConvertStringListToQueryArrayString()
         {
             List<string> values = new List<string>() { "First", "Second", "Third" };

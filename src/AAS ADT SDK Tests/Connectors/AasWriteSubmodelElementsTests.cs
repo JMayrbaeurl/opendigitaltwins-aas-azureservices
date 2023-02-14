@@ -23,6 +23,9 @@ namespace AAS.ADT.Tests
             _adtTwinFactoryMock = new Mock<IAdtTwinFactory>();
             _writeBaseMock = new Mock<IAasWriteBase>();
 
+            _writeConnectorMock.Setup(_ => _.DoCreateOrReplaceDigitalTwinAsync(It.IsAny<BasicDigitalTwin>()))
+                .ReturnsAsync("BasicDigitalTwinId");
+
             _adtTwinFactoryMock.Setup(_ => _.GetTwin(It.IsAny<ISubmodelElement>())).Returns(
                 new BasicDigitalTwin
                 {
@@ -121,7 +124,7 @@ namespace AAS.ADT.Tests
 
             _writeConnectorMock.Verify(_ => _.DoCreateOrReplaceDigitalTwinAsync(It.IsAny<BasicDigitalTwin>()),
                 Times.Exactly(3));
-            _writeConnectorMock.Verify(_ => _.DoCreateOrReplaceRelationshipAsync("testSubmodelElementTwinId", "value", It.IsAny<string>()));
+            _writeConnectorMock.Verify(_ => _.DoCreateOrReplaceRelationshipAsync("BasicDigitalTwinId", "value", It.IsAny<string>()));
 
         }
 
