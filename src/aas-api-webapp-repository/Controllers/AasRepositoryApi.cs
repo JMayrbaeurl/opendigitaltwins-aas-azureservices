@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using AAS.API.Repository;
 using Aas.Api.Repository.Attributes;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Swashbuckle.AspNetCore.Annotations;
 using AasCore.Aas3_0_RC02;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.Http;
+using AAS.API.Models;
+using AssetAdministrationShell = AasCore.Aas3_0_RC02.AssetAdministrationShell;
+using Reference = AasCore.Aas3_0_RC02.Reference;
 
 namespace AAS.API.Repository.Controllers
 {
@@ -30,7 +29,7 @@ namespace AAS.API.Repository.Controllers
         /// <summary>
         /// 
         /// </summary>
-        public AasRepositoryApi(IConfiguration config, AASRepository repository, ILogger<AasRepositoryApi> logger)
+        public AasRepositoryApi(AASRepository repository, ILogger<AasRepositoryApi> logger)
         {
             _repository = repository ??
                          throw new ArgumentNullException(); 
@@ -49,7 +48,7 @@ namespace AAS.API.Repository.Controllers
         [ValidateModelState]
         [SwaggerOperation("GetAllAssetAdministrationShells")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<AssetAdministrationShell>), description: "Requested Asset Administration Shells")]
-        public async Task<ActionResult<List<AssetAdministrationShell>>> GetAllAssetAdministrationShells([FromQuery] string idShort)
+        public async Task<IActionResult> GetAllAssetAdministrationShells([FromQuery] string idShort)
         {
             try
             {
@@ -71,12 +70,12 @@ namespace AAS.API.Repository.Controllers
                 // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
                 // .. That means that the string "result" that's already in JsonFormat will be formatted again..
                 // .. which leads to a wrong response containing escaped "-Character (\")
-                return Ok(JsonConvert.DeserializeObject(result));
+                return StatusCode(200,JsonConvert.DeserializeObject(result));
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
 
         }
@@ -98,12 +97,30 @@ namespace AAS.API.Repository.Controllers
                 var bodyParsed = JsonNode.Parse(body.ToString());
                 var shell = Jsonization.Deserialize.AssetAdministrationShellFrom(bodyParsed);
                 await _repository.CreateAssetAdministrationShell(shell);
-                return Ok();
+                return StatusCode(201, shell);
+            }
+            catch (Jsonization.Exception e)
+            {
+                _logger.LogWarning(e, e.Message);
+                return StatusCode(400, new Result()
+                {
+                    Success = false,
+                    Messages = new List<Message>()
+                    {
+                        new Message()
+                        {
+                            MessageType = Message.MessageTypeEnum.ExceptionEnum,
+                            Code = "400",
+                            Text = e.Message,
+                            Timestamp = DateTime.UtcNow.ToString("o")
+                        }
+                    }
+                });
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
 
         }
@@ -119,11 +136,12 @@ namespace AAS.API.Repository.Controllers
         [ValidateModelState]
         [SwaggerOperation("GetAssetAdministrationShellById")]
         [SwaggerResponse(statusCode: 200, type: typeof(AssetAdministrationShell), description: "Requested Asset Administration Shell")]
-        public async Task<ActionResult<AssetAdministrationShell>> GetAssetAdministrationShellById([FromRoute][Required] string aasIdentifier)
+        public async Task<IActionResult> GetAssetAdministrationShellById([FromRoute][Required] string aasIdentifier)
         {
             try
             {
-                aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
+                var base64EncodedBytes = System.Convert.FromBase64String(aasIdentifier);
+                aasIdentifier = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
                 var aas = await _repository.GetAssetAdministrationShellWithId(aasIdentifier);
 
                 // adds the "modelType" Attributes that are necessary for serialization
@@ -134,12 +152,18 @@ namespace AAS.API.Repository.Controllers
                 // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
                 // .. That means that the string "result" that's already in JsonFormat will be formatted again..
                 // .. which leads to a wrong response containing escaped "-Character (\")
-                return Ok(JsonConvert.DeserializeObject(result));
+                return StatusCode(200, JsonConvert.DeserializeObject(result));
+            }
+            catch (AASRepositoryException e)
+            {
+                _logger.LogWarning(e,e.Message);
+                return IdentifiableNotFoundException(e);
+
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
 
         }
@@ -157,24 +181,44 @@ namespace AAS.API.Repository.Controllers
         public async Task<IActionResult> PutAssetAdministrationShellById([FromBody] JObject body,
             [FromRoute] [Required] string aasIdentifier)
         {
-            aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
+            var base64EncodedBytes = System.Convert.FromBase64String(aasIdentifier);
+            aasIdentifier = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
             try
             {
                 var bodyParsed = JsonNode.Parse(body.ToString());
                 var assetAdministrationShell = Jsonization.Deserialize.AssetAdministrationShellFrom(bodyParsed);
 
                 await _repository.UpdateExistingAssetAdministrationShellWithId(aasIdentifier, assetAdministrationShell);
-                return Ok();
+                return StatusCode(204);
+            }
+            catch (Jsonization.Exception e)
+            {
+                _logger.LogWarning(e, e.Message);
+                return StatusCode(400, new Result()
+                {
+                    Success = false,
+                    Messages = new List<Message>()
+                    {
+                        new Message()
+                        {
+                            MessageType = Message.MessageTypeEnum.ExceptionEnum,
+                            Code = "400",
+                            Text = e.Message,
+                            Timestamp = DateTime.UtcNow.ToString("o")
+                        }
+                    }
+                });
             }
             catch (AASRepositoryException e)
             {
-                return NotFound();
-            }
+                _logger.LogWarning(e, e.Message);
+                return IdentifiableNotFoundException(e);
 
+            }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
         }
 
@@ -189,20 +233,23 @@ namespace AAS.API.Repository.Controllers
         [SwaggerOperation("DeleteAssetAdministrationShellById")]
         public async Task<IActionResult> DeleteAssetAdministrationShellById([FromRoute][Required] string aasIdentifier)
         {
-            aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
+            var base64EncodedBytes = System.Convert.FromBase64String(aasIdentifier);
+            aasIdentifier = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
             try
             {
                 await _repository.DeleteAssetAdministrationShellWithId(aasIdentifier);
-                return Ok();
+                return StatusCode(200);
             }
             catch (AASRepositoryException e)
             {
-                return NotFound();
+                _logger.LogWarning(e, e.Message);
+                return IdentifiableNotFoundException(e);
+
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
         }
 
@@ -223,14 +270,21 @@ namespace AAS.API.Repository.Controllers
         {
             try
             {
-                aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
+                var base64EncodedBytes = System.Convert.FromBase64String(aasIdentifier);
+                aasIdentifier = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
                 await _repository.CreateSubmodelReference(aasIdentifier, body);
                 return Ok();
+            }
+            catch (AASRepositoryException e)
+            {
+                _logger.LogWarning(e, e.Message);
+                return IdentifiableNotFoundException(e);
+
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
 
         }
@@ -250,15 +304,53 @@ namespace AAS.API.Repository.Controllers
         {
             try
             {
-                aasIdentifier = System.Web.HttpUtility.UrlDecode(aasIdentifier);
+                var base64EncodedBytes = System.Convert.FromBase64String(aasIdentifier);
+                aasIdentifier = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
                 await _repository.DeleteSubmodelReference(aasIdentifier, submodelIdentifier);
                 return Ok();
+            }
+            catch (AASRepositoryException e)
+            {
+                _logger.LogWarning(e, e.Message);
+                return IdentifiableNotFoundException(e);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
+        }
+
+        private IActionResult GeneralException()
+        {
+            return StatusCode(500, new Result()
+            {
+                Success = false,
+                Messages = new List<Message>()
+                {
+                    new Message()
+                    {
+                        MessageType = Message.MessageTypeEnum.ExceptionEnum,
+                        Code = "500", Text = "Exception in AAS repository", Timestamp = DateTime.UtcNow.ToString("o")
+                    }
+                }
+            });
+        }
+
+        private IActionResult IdentifiableNotFoundException(Exception e)
+        {
+            return StatusCode(404, new Result()
+            {
+                Success = false,
+                Messages = new List<Message>()
+                {
+                    new Message()
+                    {
+                        MessageType = Message.MessageTypeEnum.ExceptionEnum,
+                        Code = "404", Text = e.Message, Timestamp = DateTime.UtcNow.ToString("o")
+                    }
+                }
+            });
         }
 
     }

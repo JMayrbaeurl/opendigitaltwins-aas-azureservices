@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 using System.Threading.Tasks;
 using Aas.Api.Repository.Attributes;
 using AutoMapper;
@@ -10,14 +9,12 @@ using Microsoft.Extensions.Configuration;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.Extensions.Logging;
 using AasCore.Aas3_0_RC02;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
 using System.Text.Json.Nodes;
+using AAS.API.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 using Microsoft.AspNetCore.Http;
+using Submodel = AasCore.Aas3_0_RC02.Submodel;
 
 namespace AAS.API.Repository.Controllers
 {
@@ -25,22 +22,16 @@ namespace AAS.API.Repository.Controllers
     [ApiController]
     public class SubmodelRepositoryApi : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly ISubmodelRepository _repository;
         private readonly ILogger<SubmodelRepositoryApi> _logger;
-        private readonly IMapper _mapper;
 
 
-        public SubmodelRepositoryApi(IConfiguration config, ISubmodelRepository repository, IMapper mapper, ILogger<SubmodelRepositoryApi> logger)
+        public SubmodelRepositoryApi(ISubmodelRepository repository, ILogger<SubmodelRepositoryApi> logger)
         {
-            _configuration = config ??
-                             throw new ArgumentNullException(nameof(config));
-
             _repository = repository ??
                           throw new ArgumentNullException(nameof(repository));
             _logger = logger ??
                       throw new ArgumentNullException(nameof(logger));
-            _mapper = mapper;
         }
 
         /// <summary>
@@ -53,7 +44,7 @@ namespace AAS.API.Repository.Controllers
         [ValidateModelState]
         [SwaggerOperation("GetAllSubmodels")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<Submodel>), description: "Requested Submodels")]
-        public async Task<ActionResult<List<Submodel>>> GetAllSubmodels([FromQuery] string semanticId, [FromQuery] string idShort)
+        public async Task<IActionResult> GetAllSubmodels([FromQuery] string semanticId, [FromQuery] string idShort)
         {
             try
             {
@@ -74,12 +65,12 @@ namespace AAS.API.Repository.Controllers
                 // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
                 // .. That means that the string "result" that's already in JsonFormat will be formatted again..
                 // .. which leads to a wrong response containing escaped "-Character (\")
-                return Ok(JsonConvert.DeserializeObject(result));
+                return StatusCode(200,JsonConvert.DeserializeObject(result));
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
 
         }
@@ -101,14 +92,49 @@ namespace AAS.API.Repository.Controllers
                 var submodel = Jsonization.Deserialize.SubmodelFrom(bodyParsed);
 
                 await _repository.CreateSubmodel(submodel);
-                return Ok();
+                return StatusCode(201,submodel);
+            }
+            catch (Jsonization.Exception e)
+            {
+                _logger.LogWarning(e, e.Message);
+                return StatusCode(400, new Result()
+                {
+                    Success = false,
+                    Messages = new List<Message>()
+                    {
+                        new Message()
+                        {
+                            MessageType = Message.MessageTypeEnum.ExceptionEnum,
+                            Code = "400",
+                            Text = e.Message,
+                            Timestamp = DateTime.UtcNow.ToString("o")
+                        }
+                    }
+                });
+            }
+            catch (AASRepositoryException e)
+            {
+                _logger.LogWarning(e, e.Message);
+                return StatusCode(400, new Result()
+                {
+                    Success = false,
+                    Messages = new List<Message>()
+                    {
+                        new Message()
+                        {
+                            MessageType = Message.MessageTypeEnum.ExceptionEnum,
+                            Code = "400",
+                            Text = e.Message,
+                            Timestamp = DateTime.UtcNow.ToString("o")
+                        }
+                    }
+                });
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
-
         }
 
         /// <summary>
@@ -128,12 +154,10 @@ namespace AAS.API.Repository.Controllers
         {
             try
             {
-                submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
+                var base64EncodedBytes = System.Convert.FromBase64String(submodelIdentifier);
+                submodelIdentifier= System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
                 var submodel = await _repository.GetSubmodelWithId(submodelIdentifier);
-                if (submodel == null)
-                {
-                    return new NotFoundResult();
-                }
+                
 
                 // adds the "modelType" Attributes that are necessary for serialization
                 var jsonObject = Jsonization.Serialize.ToJsonObject(submodel);
@@ -143,14 +167,18 @@ namespace AAS.API.Repository.Controllers
                 // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
                 // .. That means that the string "result" that's already in JsonFormat will be formatted again..
                 // .. which leads to a wrong response containing escaped "-Character (\")
-                return Ok(JsonConvert.DeserializeObject(result));
+                return StatusCode(201,JsonConvert.DeserializeObject(result));
+            }
+            catch (AASRepositoryException e)
+            {
+                _logger.LogWarning(e, e.Message);
+                return IdentifiableNotFoundException(e);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
-
         }
 
         // TODO: currently no IdShort Paths are supported, so it makes no real sense do do this partial update
@@ -223,24 +251,44 @@ namespace AAS.API.Repository.Controllers
             [FromRoute][Required] string submodelIdentifier, [FromQuery] string level, [FromQuery] string content,
             [FromQuery] string extent)
         {
-            submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
+            var base64EncodedBytes = System.Convert.FromBase64String(submodelIdentifier);
+            submodelIdentifier = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
             try
             {
                 var bodyParsed = JsonNode.Parse(body.ToString());
                 var submodel = Jsonization.Deserialize.SubmodelFrom(bodyParsed);
 
                 await _repository.UpdateExistingSubmodelWithId(submodelIdentifier, submodel);
-                return Ok();
+                return StatusCode(204);
+            }
+            catch (Jsonization.Exception e)
+            {
+                _logger.LogWarning(e, e.Message);
+                return StatusCode(400, new Result()
+                {
+                    Success = false,
+                    Messages = new List<Message>()
+                    {
+                        new Message()
+                        {
+                            MessageType = Message.MessageTypeEnum.ExceptionEnum,
+                            Code = "400",
+                            Text = e.Message,
+                            Timestamp = DateTime.UtcNow.ToString("o")
+                        }
+                    }
+                });
             }
             catch (AASRepositoryException e)
             {
-                return NotFound();
+                _logger.LogWarning(e,e.Message);
+                return IdentifiableNotFoundException(e);
             }
 
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
         }
 
@@ -255,7 +303,8 @@ namespace AAS.API.Repository.Controllers
         [SwaggerOperation("DeleteAssetAdministrationShellById")]
         public async Task<IActionResult> DeleteAssetAdministrationShellById([FromRoute][Required] string submodelIdentifier)
         {
-            submodelIdentifier = System.Web.HttpUtility.UrlDecode(submodelIdentifier);
+            var base64EncodedBytes = System.Convert.FromBase64String(submodelIdentifier);
+            submodelIdentifier = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
             try
             {
                 await _repository.DeleteSubmodelWithId(submodelIdentifier);
@@ -263,13 +312,46 @@ namespace AAS.API.Repository.Controllers
             }
             catch (AASRepositoryException e)
             {
-                return NotFound();
+                _logger.LogWarning(e, e.Message);
+                return IdentifiableNotFoundException(e);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return GeneralException();
             }
+        }
+
+        private IActionResult GeneralException()
+        {
+            return StatusCode(500, new Result()
+            {
+                Success = false,
+                Messages = new List<Message>()
+                {
+                    new Message()
+                    {
+                        MessageType = Message.MessageTypeEnum.ExceptionEnum,
+                        Code = "500", Text = "Exception in AAS repository", Timestamp = DateTime.UtcNow.ToString("o")
+                    }
+                }
+            });
+        }
+
+        private IActionResult IdentifiableNotFoundException(Exception e)
+        {
+            return StatusCode(404, new Result()
+            {
+                Success = false,
+                Messages = new List<Message>()
+                {
+                    new Message()
+                    {
+                        MessageType = Message.MessageTypeEnum.ExceptionEnum,
+                        Code = "404", Text = e.Message, Timestamp = DateTime.UtcNow.ToString("o")
+                    }
+                }
+            });
         }
     }
 }

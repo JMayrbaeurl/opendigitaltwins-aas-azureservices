@@ -98,6 +98,18 @@ namespace AAS.API.Repository.Adt
 
         public async Task CreateSubmodelReference(string aasId, Reference submodelRef)
         {
+            if (IdentifiableAlreadyExist(aasId) == false)
+            {
+                throw new AASRepositoryException(
+                    $"Can't create AAS to Submodel Reference because AAS with Id {aasId} does not exist");
+            }
+
+            if (IdentifiableAlreadyExist(submodelRef.Keys[0].Value) == false)
+            {
+                throw new AASRepositoryException(
+                    $"Can't create AAS to Submodel Reference because Submodel with Id {submodelRef.Keys[0].Value} does not exist");
+            }
+
             var aasTwinId = _adtAasConnector.GetTwinIdForElementWithId(aasId);
             await CreateSubmodelReferenceForTwinWithId(aasTwinId, submodelRef);
         }
@@ -112,7 +124,6 @@ namespace AAS.API.Repository.Adt
                 {
                     var submodelTwinId = _adtAasConnector.GetTwinIdForElementWithId(submodelId);
                     await _writeShell.CreateSubmodelReference(aasTwinId, submodelTwinId);
-
                 }
                 catch (AdtException e)
                 {
@@ -124,6 +135,11 @@ namespace AAS.API.Repository.Adt
 
         public async Task DeleteSubmodelReference(string aasId, string submodelId)
         {
+            if (IdentifiableAlreadyExist(aasId) == false)
+            {
+                throw new AASRepositoryException(
+                    $"Can't delete AAS with Id {aasId} because it does not exist");
+            }
             try
             {
                 var submodelTwinId = _adtAasConnector.GetTwinIdForElementWithId(submodelId);
@@ -138,10 +154,13 @@ namespace AAS.API.Repository.Adt
 
         public async Task<AssetAdministrationShell> GetAssetAdministrationShellWithId(string aasIdentifier)
         {
+            if (IdentifiableAlreadyExist(aasIdentifier)==false)
+            {
+                throw new AASRepositoryException($"AssetAdministrationShell with id {aasIdentifier} does not exist");
+            }
+
             var information = _adtAasConnector.GetAllInformationForAasWithId(aasIdentifier);
             information.rootElement = _adtAasConnector.GetAdtAasForAasWithId(aasIdentifier);
-
-
 
             return _modelFactory.GetAas(information);
         }

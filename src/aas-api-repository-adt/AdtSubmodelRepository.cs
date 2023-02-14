@@ -60,9 +60,9 @@ namespace AAS.API.Repository.Adt
             {
                 twinId = _adtAasConnector.GetTwinIdForElementWithId(submodelId);
             }
-            catch (Exception e)
+            catch (AdtException e)
             {
-                return null;
+                throw new AASRepositoryException($"Submodel with Id {submodelId} does not exist");
             }
 
             var information = await _adtSubmodelConnector.GetAllInformationForSubmodelWithTwinId(twinId);
@@ -87,10 +87,13 @@ namespace AAS.API.Repository.Adt
 
         public async Task CreateSubmodel(Submodel submodel)
         {
-            if (IdentifiableAlreadyExist(submodel.Id) == false)
+            if (IdentifiableAlreadyExist(submodel.Id))
             {
-                await _writeSubmodel.CreateSubmodel(submodel);
+                throw new AASRepositoryException($"Identifiable with Id {submodel.Id} already exists");
             }
+
+            await _writeSubmodel.CreateSubmodel(submodel);
+
         }
 
         public async Task UpdateExistingSubmodelWithId(string submodelIdentifier, Submodel submodel)
