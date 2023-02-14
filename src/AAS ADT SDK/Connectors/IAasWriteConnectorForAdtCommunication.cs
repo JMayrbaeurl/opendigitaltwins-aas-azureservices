@@ -7,8 +7,8 @@ namespace AAS.ADT;
 
 public interface IAasWriteConnector
 {
-    Task DoCreateOrReplaceDigitalTwinAsync(BasicDigitalTwin twinData);
+    Task<string> DoCreateOrReplaceDigitalTwinAsync(BasicDigitalTwin twinData);
 
-    Task DoCreateOrReplaceRelationshipAsync(string sourceId,
+    Task<string> DoCreateOrReplaceRelationshipAsync(string sourceId,
         string relName, string targetId);
 }

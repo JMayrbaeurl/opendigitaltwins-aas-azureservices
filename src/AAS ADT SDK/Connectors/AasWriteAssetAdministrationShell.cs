@@ -13,7 +13,7 @@ namespace AAS.ADT
         private readonly IAasWriteConnector _aasWriteConnector;
         private readonly IAasWriteBase _writeBase;
 
-        public AasWriteAssetAdministrationShell(ILogger<AasWriteAssetAdministrationShell> logger, IAdtTwinFactory modelFactory, 
+        public AasWriteAssetAdministrationShell(ILogger<AasWriteAssetAdministrationShell> logger, IAdtTwinFactory modelFactory,
             IAasWriteConnector aasWriteConnector, IAasWriteBase writeBase)
         {
             _logger = logger;
@@ -33,10 +33,15 @@ namespace AAS.ADT
 
             var twin = _modelFactory.GetTwin(shell);
             await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(twin);
+            var tasks = new List<Task>()
+            {
+                _writeBase.AddHasDataSpecification(twin.Id, shell.EmbeddedDataSpecifications),
+                CreateAssetInformation(shell, twin.Id)
+            };
 
-            await _writeBase.AddHasDataSpecification(twin.Id, shell.EmbeddedDataSpecifications);
+            await Task.WhenAll(tasks);
 
-            await CreateAssetInformation(shell, twin.Id);
+
             return twin.Id;
         }
 

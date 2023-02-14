@@ -31,30 +31,35 @@ namespace AAS.ADT
             }
             
             var submodelTwinData = _modelFactory.GetTwin(submodel);
-            await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(submodelTwinData);
 
-            await _writeBase.AddQualifiableRelations(submodelTwinData.Id, submodel.Qualifiers);
+            var submodelTwinId = await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(submodelTwinData);
 
-            await _writeBase.AddReference(submodelTwinData.Id, submodel.SemanticId, "semanticId");
+            var tasks = new List<Task>
+            {
+                _writeBase.AddQualifiableRelations(submodelTwinId, submodel.Qualifiers),
+                _writeBase.AddReference(submodelTwinId, submodel.SemanticId, "semanticId"),
+                _writeBase.AddHasDataSpecification(submodelTwinId, submodel.EmbeddedDataSpecifications),
+                CreateSubmodelElementsForSubmodel(submodelTwinId,submodel.SubmodelElements)
+            };
 
-            await _writeBase.AddHasDataSpecification(submodelTwinData.Id, submodel.EmbeddedDataSpecifications);
-
-            await CreateSubmodelElementsForSubmodel(submodel.SubmodelElements, submodelTwinData.Id);
+            await Task.WhenAll(tasks);
 
             return submodelTwinData.Id;
         }
 
-        private async Task CreateSubmodelElementsForSubmodel(List<ISubmodelElement> submodelElements, string submodelTwinId)
+        private async Task CreateSubmodelElementsForSubmodel(string submodelTwinId,List<ISubmodelElement> submodelElements )
         {
             if (submodelElements == null)
             {
                 return;
             }
 
+            var tasks = new List<Task>();
             foreach (var submodelElement in submodelElements)
             {
-                await CreateSubmodelElementForSubmodel(submodelElement, submodelTwinId);
+                tasks.Add(CreateSubmodelElementForSubmodel(submodelElement, submodelTwinId));
             }
+            await Task.WhenAll(tasks);
         }
 
         public async Task CreateSubmodelElementForSubmodel(ISubmodelElement submodelElement, string submodelTwinId)

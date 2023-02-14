@@ -96,24 +96,34 @@ namespace AAS.ADT
             // Start by creating a twin for the Submodel Element collection
             var twin = _modelFactory.GetTwin(submodelElementCollection);
 
-            await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(twin);
+            var smeCollectionTwinId = await _aasWriteConnector.DoCreateOrReplaceDigitalTwinAsync(twin);
 
-            await AddSubmodelElementRelationships(twin.Id, submodelElementCollection);
+            await AddSubmodelElementRelationships(smeCollectionTwinId, submodelElementCollection);
 
             // Add all submodel elements
-            if (submodelElementCollection.Value != null)
+            if (submodelElementCollection.Value == null)
             {
-                foreach (var submodelElement in submodelElementCollection.Value)
-                {
-                    string submodelElementDtId = await CreateSubmodelElement(submodelElement);
-                    if (submodelElementDtId != null)
-                    {
-                        await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(twin.Id, "value", submodelElementDtId);
-                    }
-                }
+                return smeCollectionTwinId;
             }
 
-            return twin.Id;
+            var tasks = new List<Task>();
+            foreach (var submodelElement in submodelElementCollection.Value)
+            {
+                tasks.Add(CreateSubmodelElementForSubmodelElementCollection(smeCollectionTwinId, submodelElement));
+            }
+
+            await Task.WhenAll(tasks);
+
+            return smeCollectionTwinId;
+        }
+
+        private async Task CreateSubmodelElementForSubmodelElementCollection(string smeCollectionTwinId, ISubmodelElement submodelElement)
+        {
+            string submodelElementDtId = await CreateSubmodelElement(submodelElement);
+            if (submodelElementDtId != null)
+            {
+                await _aasWriteConnector.DoCreateOrReplaceRelationshipAsync(smeCollectionTwinId, "value", submodelElementDtId);
+            }
         }
 
         private async Task<string> CreateProperty(Property property)
@@ -127,9 +137,7 @@ namespace AAS.ADT
 
             if (property.ValueId != null)
                 await _writeBase.AddReference(twin.Id, property.ValueId, "valueId");
-            
-            
-            
+
             await AddSubmodelElementRelationships(twin.Id, property);
 
             return twin.Id;
@@ -152,9 +160,13 @@ namespace AAS.ADT
 
         private async Task AddSubmodelElementRelationships(string sourceTwinId, ISubmodelElement submodelElement)
         {
-            await _writeBase.AddReference(sourceTwinId, submodelElement.SemanticId, "semanticId");
-            await _writeBase.AddHasDataSpecification(sourceTwinId, submodelElement.EmbeddedDataSpecifications);
-            await _writeBase.AddQualifiableRelations(sourceTwinId, submodelElement.Qualifiers);
+            var tasks = new List<Task>()
+            {
+                _writeBase.AddReference(sourceTwinId, submodelElement.SemanticId, "semanticId"),
+                _writeBase.AddHasDataSpecification(sourceTwinId, submodelElement.EmbeddedDataSpecifications),
+                _writeBase.AddQualifiableRelations(sourceTwinId, submodelElement.Qualifiers)
+            };
+            await Task.WhenAll(tasks);
         }
-    }
+}
 }

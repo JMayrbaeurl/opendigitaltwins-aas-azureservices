@@ -21,15 +21,16 @@ namespace AAS.ADT.Tests.Connectors
         {
             _loggerMock = new Mock<ILogger<AasWriteSubmodel>>();
             _writeConnectorMock = new Mock<IAasWriteConnector>();
+            _writeConnectorMock.Setup(_ => _.DoCreateOrReplaceDigitalTwinAsync(It.IsAny<BasicDigitalTwin>()))
+                .ReturnsAsync("testSubmodelTwinId");
+
+
             _adtTwinFactoryMock = new Mock<IAdtTwinFactory>();
             _writeBaseMock = new Mock<IAasWriteBase>();
             _writeSmeMock = new Mock<IAasWriteSubmodelElements>();
 
             _adtTwinFactoryMock.Setup(_ => _.GetTwin(It.IsAny<Submodel>())).Returns(
-                new BasicDigitalTwin
-                {
-                    Id = "testSubmodelTwinId"
-                });
+                new BasicDigitalTwin());
 
             _objectUnderTest = new AasWriteSubmodel(_loggerMock.Object, _adtTwinFactoryMock.Object, _writeSmeMock.Object,
                 _writeConnectorMock.Object, _writeBaseMock.Object);

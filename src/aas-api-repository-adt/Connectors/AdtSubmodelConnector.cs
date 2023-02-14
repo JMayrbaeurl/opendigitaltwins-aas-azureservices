@@ -181,7 +181,7 @@ namespace AAS.API.Repository.Adt
             throw new ArgumentException($"Twin with Id {twinId} does not exist, can't query for");
         }
 
-        public async Task<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> GetAllSubmodelElementCollectionInformation(
+        private async Task<AdtSubmodelAndSmcInformation<AdtSubmodelElementCollection>> GetAllSubmodelElementCollectionInformation(
             string twinId)
         {
             var submodelElementCollectionConnector = new AdtSubmodelConnector(_client);
@@ -231,7 +231,7 @@ namespace AAS.API.Repository.Adt
                     twinIds.Add(smeTwinId);
                     tempDictToCheckDuplicates.Add(smeTwinId, "");
                 }
-                ;
+                
                 AddTwin(item["twin2"]);
             }
 

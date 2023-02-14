@@ -29,12 +29,12 @@ namespace AAS.ADT
         }
 
 
-        public async Task DoCreateOrReplaceDigitalTwinAsync(BasicDigitalTwin twinData)
+        public async Task<string> DoCreateOrReplaceDigitalTwinAsync(BasicDigitalTwin twinData)
         {
             
             if (twinData == null)
             {
-                return;
+                return null;
             }
             
             try
@@ -52,14 +52,15 @@ namespace AAS.ADT
                     $"Exception on creating twin with id '{twinData.Id}' and model '{twinData.Metadata.ModelId}': {ex.Message}",
                     ex);
             }
+            return twinData.Id;
         }
 
-        public async Task DoCreateOrReplaceRelationshipAsync(string sourceId,
+        public async Task<string> DoCreateOrReplaceRelationshipAsync(string sourceId,
             string relName, string targetId)
         {
             if (string.IsNullOrEmpty(sourceId) || string.IsNullOrEmpty(relName) || string.IsNullOrEmpty(targetId))
             {
-                return;
+                return null;
             }
 
             var relationship = new BasicRelationship
@@ -84,6 +85,8 @@ namespace AAS.ADT
                     $"Exception on creating relationship with name'{relName}' for twin with id '{sourceId}' and target id '{targetId}': {ex.Message}",
                     ex);
             }
+
+            return relationship.Id;
         }
 
     }
