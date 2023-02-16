@@ -1,55 +1,48 @@
-﻿using AAS.API.Repository.Adt.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
+using AutoMapper;
 
 namespace AAS.API.Repository.Adt
 {
-    public class AdtSubmodelModelFactory : AdtGeneralModelFactory, IAdtSubmodelModelFactory
+    public class AdtSubmodelModelFactory : IAdtSubmodelModelFactory
     {
-        private readonly AdtSubmodelElementFactory<AdtSubmodel> adtSubmodelElementFactory;
+        private readonly IAdtSubmodelElementFactory _adtSubmodelElementFactory;
+        private readonly IAdtDefinitionsAndSemanticsModelFactory _definitionsAndSemanticsFactory;
+        private readonly IMapper _mapper;
 
-        public AdtSubmodelModelFactory(IAdtDefinitionsAndSemanticsModelFactory adtDefinitionsAndSemanticsModelFactory,
-            AdtSubmodelElementFactory<AdtSubmodel> adtSubmodelElementFactory)
+        public AdtSubmodelModelFactory(IAdtDefinitionsAndSemanticsModelFactory definitionsAndSemanticsFactory,
+            IAdtSubmodelElementFactory adtSubmodelElementFactory, IMapper mapper)
         {
-            this.adtSubmodelElementFactory = adtSubmodelElementFactory;
+            _adtSubmodelElementFactory = adtSubmodelElementFactory;
+            _mapper = mapper??
+                      throw new ArgumentNullException(nameof(mapper));
+            _definitionsAndSemanticsFactory = definitionsAndSemanticsFactory;
         }
 
 
-        public async Task<Submodel> GetSubmodel(AdtSubmodelAndSmcInformation<AdtSubmodel> information)
+        public Submodel GetSubmodel(AdtSubmodelAndSmcInformation<AdtSubmodel> information)
         {
-            adtSubmodelElementFactory.Configure(information);
-            var submodel = CreateSubmodelFromAdtSubmodel(information.RootElement);
+            var submodelTwinId = information.RootElement.dtId;
+            
+            var submodel = _mapper.Map<Submodel>(information.RootElement);
+            
             submodel.SemanticId =
-                adtSubmodelElementFactory.GetSemanticId(information.ConcreteAasInformation.semanticId);
-            foreach (var dataSpecification in information.ConcreteAasInformation.dataSpecifications)
-            {
-                submodel.EmbeddedDataSpecifications.Add(
-                    CreateEmbeddedDataSpecificationFromAdtDataSpecification(dataSpecification));
-            }
+                _definitionsAndSemanticsFactory.GetSemanticIdForTwin(submodelTwinId,
+                    information.DefinitionsAndSemantics);
 
-            foreach (var supplementalSemanticId in information.ConcreteAasInformation.supplementalSemanticId)
-            {
-                submodel.SupplementalSemanticIds.Add(adtSubmodelElementFactory.GetSemanticId(supplementalSemanticId));
-            }
+            submodel.EmbeddedDataSpecifications = _definitionsAndSemanticsFactory
+                .GetEmbeddedDataSpecificationsForTwin(submodelTwinId,
+                    information.DefinitionsAndSemantics);
 
-            submodel.SubmodelElements = adtSubmodelElementFactory.GetSubmodelElementsFromAdtSubmodelAndSMCInformation();
+            submodel.SupplementalSemanticIds = _definitionsAndSemanticsFactory.GetSupplementalSemanticIdsForTwin(
+                submodelTwinId, information.DefinitionsAndSemantics);
+            
+            submodel.SubmodelElements = _adtSubmodelElementFactory.GetSubmodelElements(
+                information.AdtSubmodelElements,information.DefinitionsAndSemantics);
 
-            return submodel;
-        }
-
-        private Submodel CreateSubmodelFromAdtSubmodel(AdtSubmodel adtSubmodel)
-        {
-            Submodel submodel = new Submodel(adtSubmodel.Id);
-            submodel.Category = adtSubmodel.Category;
-            submodel.Checksum = adtSubmodel.Checksum;
-            submodel.IdShort = adtSubmodel.IdShort;
-            submodel.Kind = adtSubmodel.Kind.Kind == "Instance" ? ModelingKind.Instance : ModelingKind.Template;
-            submodel.Description = ConvertAdtLangStringToGeneraLangString(adtSubmodel.Description);
-            submodel.DisplayName = ConvertAdtLangStringToGeneraLangString(adtSubmodel.DisplayName);
-            submodel.EmbeddedDataSpecifications = new List<EmbeddedDataSpecification>();
-            submodel.SubmodelElements = new List<ISubmodelElement>();
-            submodel.SupplementalSemanticIds = new List<Reference>();
-            submodel.Administration = new AdministrativeInformation(
-                null, adtSubmodel.Administration.Version, adtSubmodel.Administration.Revision);
             return submodel;
         }
     }

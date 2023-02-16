@@ -10,9 +10,10 @@
 
 using System;
 using System.IO;
+using AAS.ADT;
+using AAS.ADT.Models;
 using AAS.API.Repository;
 using AAS.API.Repository.Adt;
-using AAS.API.Repository.Adt.Models;
 using Aas.Api.Repository.Filters;
 using Aas.Api.Repository.Models;
 using AAS.API.Services.ADT;
@@ -30,6 +31,8 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Aas.Api.Repository
 {
@@ -77,8 +80,9 @@ namespace Aas.Api.Repository
             services
                 .AddMvc(options =>
                 {
-                    options.InputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonInputFormatter>();
-                    options.OutputFormatters.RemoveType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonOutputFormatter>();
+                    options.Filters.Add(new ProducesAttribute("application/json"));
+                    options.InputFormatters.RemoveType<SystemTextJsonInputFormatter>();
+                    options.ReturnHttpNotAcceptable = true;
                     options.ModelBinderProviders.Insert(0, new IdentifierKeyValuePairModelBinderProvider());
                 })
                 .AddNewtonsoftJson(opts =>
@@ -91,15 +95,29 @@ namespace Aas.Api.Repository
 
             services.AddHttpClient<IAzureDigitalTwinsHttpClient, AzureDigitalTwinsHttpClient>(client =>
                 client.BaseAddress = new Uri(Configuration["ADT_SERVICE_URL"]));
-            services.AddTransient<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
+            
+            services.AddSingleton<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
             services.AddScoped<ISubmodelRepository, AdtSubmodelRepository>();
             services.AddTransient<IAdtAasConnector, AdtAasConnector>();
             services.AddTransient<IAdtSubmodelConnector, AdtSubmodelConnector>();
             services.AddTransient<IAdtDefinitionsAndSemanticsModelFactory, AdtDefinitionsAndSemanticsModelFactory>();
             services.AddTransient<IAdtSubmodelModelFactory, AdtSubmodelModelFactory>();
-            services.AddTransient<AdtSubmodelElementFactory<AdtSubmodel>>();
-            services.AddTransient<AdtSubmodelElementFactory<AdtSubmodelElementCollection>>();
-            services.AddTransient<IAASRepositoryFactory, AASRepositoryFactory>();
+            services.AddTransient<IAdtSubmodelElementFactory,AdtSubmodelElementFactory>();
+            services.AddTransient<AASRepository, ADTAASRepository>();
+
+            services.AddTransient<IAasWriteSubmodelElements, AasWriteSubmodelElements>();
+            services.AddTransient<IAasWriteSubmodel, AasWriteSubmodel>();
+            services.AddTransient<IAasWriteAssetAdministrationShell, AasWriteAssetAdministrationShell>();
+            services.AddTransient<IAasWriteConnector, AasWriteConnectorForAdtCommunication>();
+            services.AddTransient<IAasWriteBase, AasWriteBase>();
+            services.AddTransient<IAdtTwinFactory, AdtTwinFactory>();
+            services.AddTransient<IAasDeleteAdt, AasDeleteAdt>();
+            services.AddTransient<IAasUpdateAdt, AasUpdateAdt>();
+
+
+
+
+
 
             services
                 .AddSwaggerGen(c =>
@@ -150,13 +168,14 @@ namespace Aas.Api.Repository
 
         }
 
+
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
         /// <param name="loggerFactory"></param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IMapper mapper)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IMapper mapper)
         {
             
             mapper.ConfigurationProvider.AssertConfigurationIsValid();

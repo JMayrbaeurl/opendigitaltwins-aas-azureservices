@@ -2,8 +2,7 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using AAS.ADT;
-using AAS.API.Repository.Adt.Exceptions;
-using AAS.API.Repository.Adt.Models;
+using AAS.ADT.Models;
 using AAS.API.Services.ADT;
 using Azure.DigitalTwins.Core;
 
@@ -11,7 +10,7 @@ namespace AAS.API.Repository.Adt
 {
     public class AdtAasConnector : IAdtAasConnector
     {
-        public DigitalTwinsClient _client;
+        private readonly DigitalTwinsClient _client;
 
         public AdtAasConnector(DigitalTwinsClientFactory adtClientFactory)
         {
@@ -48,7 +47,7 @@ namespace AAS.API.Repository.Adt
 
         public AdtAssetAdministrationShellInformation GetAllInformationForAasWithId(string aasId)
         {
-            var dtId = getDtidFromAasId(aasId);
+            var dtId = GetDtidFromAasId(aasId);
             string queryString =
                 $"SELECT rel.$relationshipName as relationshipName, twin from digitaltwins match (aas)-[rel]->(twin) where aas.$dtId='{dtId}'";
             var response = _client.Query<AdtResponseForAllAasInformation>(queryString);
@@ -80,19 +79,17 @@ namespace AAS.API.Repository.Adt
                 {
                     information.DerivedFrom =
                         JsonSerializer.Deserialize<AdtAas>(aasInformation.TwinJsonObject.ToString());
-
                 }
             }
 
             return information;
         }
 
-        private string getDtidFromAasId(string aasId)
+        private string GetDtidFromAasId(string aasId)
         {
             string queryString =
                 $"Select aas.$dtId as dtId from digitaltwins aas where aas.id = '{aasId}' and aas.$metadata.$model='dtmi:digitaltwins:aas:AssetAdministrationShell;1'";
             var ids = _client.Query<JsonObject>(queryString);
-            var aasIds = new List<string>();
             foreach (var id in ids)
             {
                 return (id["dtId"].ToString());
@@ -114,51 +111,6 @@ namespace AAS.API.Repository.Adt
             return submodelTwinIds;
         }
 
-        public AdtSubmodel GetAdtSubmodelWithSubmodelId(string submodelId)
-        {
-            string queryString =
-                $"Select * from digitaltwins submodel where submodel.$dtId = '{submodelId}' and submodel.$metadata.$model='dtmi:digitaltwins:aas:Submodel;1'";
-            var response = _client.Query<AdtSubmodel>(queryString);
-            foreach (var twin in response)
-            {
-                return twin;
-            }
-
-            throw new AdtException($"Could not find twinId for given aasId {submodelId}");
-        }
-
-        public List<AdtSubmodelElement> GetAdtSubmodelElementsFromParentTwinWithId(string adtTwinId)
-        {
-            var submodelElements = new List<AdtSubmodelElement>();
-
-            string queryString =
-                $"Select sme from digitaltwins match (parent)-[rel]->(sme) where parent.$dtId='{adtTwinId}' and rel.$relationshipName in ['submodelElement','value']";
-            var response = _client.Query<JsonObject>(queryString);
-            foreach (var twin in response)
-            {
-                var adtModel = twin["sme"]["$metadata"]["$model"].ToString();
-                var twinAsString = twin["sme"].ToString();
-
-                if (adtModel == AdtAasOntology.MODEL_PROPERTY)
-                {
-                    submodelElements.Add(JsonSerializer.Deserialize<AdtProperty>(twinAsString));
-                }
-                else if (adtModel == AdtAasOntology.MODEL_SUBMODELELEMENTCOLLECTION)
-                {
-                    var smeCollection = JsonSerializer.Deserialize<AdtSubmodelElementCollection>(twinAsString);
-                    var twinDtId = twin["sme"]["$dtId"].ToString();
-                    smeCollection.submodelElements = GetAdtSubmodelElementsFromParentTwinWithId(twinDtId);
-                    submodelElements.Add(smeCollection);
-                }
-                else if (adtModel == AdtAasOntology.MODEL_FILE)
-                {
-                    submodelElements.Add(JsonSerializer.Deserialize<AdtFile>(twinAsString));
-                }
-            }
-
-            return submodelElements;
-        }
-
         public string GetTwinIdForElementWithId(string Id)
         {
             string queryString =
@@ -171,14 +123,10 @@ namespace AAS.API.Repository.Adt
 
             throw new AdtException($"No Object with Id {Id} found.");
         }
-
     }
-
     
-
     public class AdtResponseForAllAasInformation
     {
-
         [JsonPropertyName("relationshipName")]
         public string RelationshipName { get; set; }
 

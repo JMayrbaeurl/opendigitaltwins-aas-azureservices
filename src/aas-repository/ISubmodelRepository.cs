@@ -8,7 +8,11 @@ namespace AAS.API.Repository
     {
         public Task<List<Submodel>> GetAllSubmodels();
         public Task<Submodel> GetSubmodelWithId(string submodelId);
+        public Task CreateSubmodel(Submodel submodel);
+        public Task UpdateExistingSubmodelWithId(string submodelIdentifier, Submodel submodel);
+        public Task DeleteSubmodelWithId(string submodelIdentifier);
+
     }
 
-    
+
 }

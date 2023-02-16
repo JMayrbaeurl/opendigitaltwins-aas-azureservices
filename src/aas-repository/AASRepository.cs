@@ -3,13 +3,22 @@ using AAS.API.Services;
 using System;
 using System.Collections.Generic;
 using AasCore.Aas3_0_RC02;
+using System.Threading.Tasks;
 
 namespace AAS.API.Repository
 {
-    public interface AASRepository : ShellRepository
+    public interface AASRepository
     {
-        public List<string> GetAllAasIds();
-        public AssetAdministrationShell GetAdministrationShellForAasId(string aasId);
+        public List<string> GetAllAssetAdministrationShellIds();
+        public Task<AssetAdministrationShell> GetAssetAdministrationShellWithId(string aasId);
+        public Task DeleteAssetAdministrationShellWithId(string aasId);
+
+        public Task<List<AssetAdministrationShell>> GetAllAssetAdministrationShells();
+        public Task CreateAssetAdministrationShell(AssetAdministrationShell shell);
+        public Task UpdateExistingAssetAdministrationShellWithId(string aasId, AssetAdministrationShell shell);
+
+        public Task CreateSubmodelReference(string aasId, Reference submodelRef);
+        public Task DeleteSubmodelReference(string aasId, string submodelId);
 
     }
 

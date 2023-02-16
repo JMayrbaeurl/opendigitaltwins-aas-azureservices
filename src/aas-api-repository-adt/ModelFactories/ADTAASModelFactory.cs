@@ -1,10 +1,10 @@
-﻿using AAS.API.Repository.Adt.Models;
+﻿using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 
 namespace AAS.API.Repository.Adt
 {
-    public class ADTAASModelFactory : AdtGeneralModelFactory
+    public class ADTAASModelFactory
     {
         private readonly IAdtAasConnector _adtAasConnector;
         private readonly IMapper _mapper;
@@ -16,7 +16,7 @@ namespace AAS.API.Repository.Adt
 
         public AssetAdministrationShell GetAas(AdtAssetAdministrationShellInformation information)
         {
-            var aas = _mapper.Map<AssetAdministrationShell>(information.RootElement);
+            var aas = _mapper.Map<AssetAdministrationShell>(information.rootElement);
 
             aas.Submodels = new List<Reference>();
             aas.EmbeddedDataSpecifications = new List<EmbeddedDataSpecification>();

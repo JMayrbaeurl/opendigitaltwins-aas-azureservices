@@ -1,4 +1,4 @@
-﻿using AAS.API.Repository.Adt.Models;
+﻿using AAS.ADT.Models;
 using AasCore.Aas3_0_RC02;
 using AutoMapper;
 using FluentAssertions;
@@ -51,7 +51,7 @@ namespace AAS.API.Repository.Adt.Tests
                 SpecificAssetId = "TestSpecificAssetId",
                 AssetKind = new AdtAssetKind() { AssetKind = "Type" }
             };
-            information.RootElement = minimalAdtAas;
+            information.rootElement = minimalAdtAas;
             var actual = objectUnderTest.GetAas(information);
 
             var expected = new AssetInformation(
