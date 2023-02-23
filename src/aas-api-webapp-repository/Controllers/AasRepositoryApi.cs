@@ -19,7 +19,7 @@ namespace AAS.API.Repository.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/v1/shells")]
+    [Route("api/shells")]
     public class AasRepositoryApi : Controller
     {
 

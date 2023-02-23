@@ -11,7 +11,6 @@
 using System;
 using System.IO;
 using AAS.ADT;
-using AAS.ADT.Models;
 using AAS.API.Repository;
 using AAS.API.Repository.Adt;
 using Aas.Api.Repository.Filters;
@@ -25,7 +24,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -95,7 +93,7 @@ namespace Aas.Api.Repository
 
             services.AddHttpClient<IAzureDigitalTwinsHttpClient, AzureDigitalTwinsHttpClient>(client =>
                 client.BaseAddress = new Uri(Configuration["ADT_SERVICE_URL"]));
-            
+
             services.AddSingleton<DigitalTwinsClientFactory, StdDigitalTwinsClientFactory>();
             services.AddScoped<ISubmodelRepository, AdtSubmodelRepository>();
             services.AddTransient<IAdtAasConnector, AdtAasConnector>();
@@ -114,11 +112,6 @@ namespace Aas.Api.Repository
             services.AddTransient<IAasDeleteAdt, AasDeleteAdt>();
             services.AddTransient<IAasUpdateAdt, AasUpdateAdt>();
 
-
-
-
-
-
             services
                 .AddSwaggerGen(c =>
                 {
@@ -126,7 +119,7 @@ namespace Aas.Api.Repository
                     {
                         Version = "Final-Draft",
                         Title = "DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository",
-                        Description = "DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository (ASP.NET Core 3.1)",
+                        Description = "DotAAS Part 2 | HTTP/REST | Asset Administration Shell Repository (ASP.NET Core 6)",
                         Contact = new OpenApiContact()
                         {
                            Name = "Michael Hoffmeister, Torben Miny, Andreas Orzelski, Manuel Sauer, Constantin Ziesche",
@@ -211,7 +204,7 @@ namespace Aas.Api.Repository
                 if (env.IsDevelopment())
                     endpoints.MapControllers().WithMetadata(new AllowAnonymousAttribute());
                 else
-                    endpoints.MapControllers();
+                    endpoints.MapControllers().WithMetadata(new AllowAnonymousAttribute());
             });
 
             if (env.IsDevelopment())
