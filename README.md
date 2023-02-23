@@ -58,7 +58,42 @@ TBD
 TBD
 
 ## AAS Shell Repository server
-TBD
+The AAS Shell Repository server offers a RESTful api to create, read, update or delete Asset Administration Shells or Submodels.
+
+
+### Scope
+The AAS metamodel is based on the Specification in "Details of the Asset Administration Shell Part 1" Version 3.0RC02. The implementation of the api is based on "Details of the Asset Administration Shell Part 2" Version 1.0RC02. Currently the only supported submodel elements are
+- Property
+- File
+- Submodel Element Collection
+
+In terms of the api it is currently not supported to do partial updates on submodels like adding  or changing an existing a submodel element. Only full updates can be performed on an AAS or submodel.
+
+You can view the implemented endpoints via the swagger ui: ```https://<your-server-ip>/api/swagger```
+
+### Deployment
+The AAS Shell Repository can be deployed on Windows via Powershell. Preconditions are a Microsoft Azure Subscription, the Docker Runtime and the Azure CLI installed. 
+```
+.\scripts\arm-bicep-azuredeployment\deployAasRepository.ps1
+```
+
+The script will start by creating an Azure Container Registry and sending the source code to it in order to build a container. After that the Azure Digital Twins Instance will be deployt together with an Azure Container App that will host the Docker container with the AAS Repository api.
+
+Per default the Script will deploy into a ressource group named "rg-test-aasrepo" in the location "West Europe". This can be overwritten with the following parameters for the deployment Script
+```
+.\scripts\arm-bicep-azuredeployment\deployAasRepository.ps1 -rg "<ressource-group-name>" -dcloc "<location>"
+```
+After the deployment of the ressources you have to create a system managed identity for the container app and grant it the role as "Digital Twins Data Owner" for the Azure Digital Twins Instance. 
+
+Also it is neccessary to upload all the DTDL-Models to the Azure Digital Twins instance to prepare it for the upload of data. The models are part of the ontology that can be cloned from GitHub. Just upload the "Ontology" folder to the Azure Digital Twins models.
+```
+git clone https://github.com/JMayrbaeurl/opendigitaltwins-assetadminstrationshell.git
+```
+
+### Security
+The api will be accepting all requests and has no security implemented by default. These settings can be adjusted in the File ```src/aas-api-webapp-repository/Startup.cs```. 
+
+However if you use the deployment script then the Container Instance will enable the Ingress controller but restrict the access to your public IP Address. This should provide a sufficent security for testing purposes. The settings can also be changed afterwards in the Ingress settings tab inside of the Azure Container App Instance.
 
 ## AAS Full server
 TBD

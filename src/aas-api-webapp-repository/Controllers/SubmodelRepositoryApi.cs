@@ -18,7 +18,7 @@ using Submodel = AasCore.Aas3_0_RC02.Submodel;
 
 namespace AAS.API.Repository.Controllers
 {
-    [Route("api/v1/submodels")]
+    [Route("api/submodels")]
     [ApiController]
     public class SubmodelRepositoryApi : ControllerBase
     {
@@ -167,7 +167,7 @@ namespace AAS.API.Repository.Controllers
                 // The "Produces"-Attribute is set to "application/json" (in the Startup.cs)...
                 // .. That means that the string "result" that's already in JsonFormat will be formatted again..
                 // .. which leads to a wrong response containing escaped "-Character (\")
-                return StatusCode(201,JsonConvert.DeserializeObject(result));
+                return StatusCode(200,JsonConvert.DeserializeObject(result));
             }
             catch (AASRepositoryException e)
             {
