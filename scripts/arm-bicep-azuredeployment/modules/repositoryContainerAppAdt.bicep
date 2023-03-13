@@ -10,13 +10,12 @@ param containerEnvName string = 'containerenv-${uniqueString(resourceGroup().id)
 
 param logAnalyticsWorkspaceName string = 'law-${uniqueString(resourceGroup().id)}'
 
-param acrName string
 @description('The full image name including the registry name')
 param imageName string
 param adtServiceUrl string
 param ipAddress string
 
-var ipAddressRange = '${ipAddress}/0'
+var ipAddressRange = '${ipAddress}/32'
 
 resource law 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = {
   name: logAnalyticsWorkspaceName
@@ -53,22 +52,12 @@ resource managedEnvironmentrgprojectAasOnAa 'Microsoft.App/managedEnvironments@2
   }
 }
 
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2022-12-01' existing = {
-  name: acrName
-}
-
 resource aaswebapprepository 'Microsoft.App/containerApps@2022-10-01' = {
   name: containerAppName
   location: location
   properties: {
     managedEnvironmentId: managedEnvironmentrgprojectAasOnAa.id
     configuration: {
-      secrets: [
-        {
-          name: 'container-registry-password'
-          value: containerRegistry.listCredentials().passwords[0].value
-        }
-      ]
       activeRevisionsMode: 'Single'
       ingress: {
         external: true
@@ -90,13 +79,6 @@ resource aaswebapprepository 'Microsoft.App/containerApps@2022-10-01' = {
           }
         ]
       }
-      registries: [
-        {
-          server: containerRegistry.properties.loginServer
-          username: containerRegistry.listCredentials().username
-          passwordSecretRef: 'container-registry-password'
-        }
-      ]
     }
     template: {
       revisionSuffix: ''
@@ -127,3 +109,5 @@ resource aaswebapprepository 'Microsoft.App/containerApps@2022-10-01' = {
     type: 'SystemAssigned'
   }
 }
+
+output principalId string = aaswebapprepository.identity.principalId
