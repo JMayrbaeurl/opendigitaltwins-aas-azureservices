@@ -69,7 +69,7 @@ The AAS metamodel is based on the Specification in "Details of the Asset Adminis
 
 In terms of the api it is currently not supported to do partial updates on submodels like adding  or changing an existing a submodel element. Only full updates can be performed on an AAS or submodel.
 
-You can view the implemented endpoints via the swagger ui: ```https://<your-server-ip>/api/swagger```
+You can view the implemented endpoints via the swagger ui: ```https://<your-server-url>/api/swagger```
 
 ### Deployment
 The AAS Shell Repository can be deployed on Windows via Powershell. Preconditions are a Microsoft Azure Subscription, the Docker Runtime and the Azure CLI installed. 
@@ -77,15 +77,15 @@ The AAS Shell Repository can be deployed on Windows via Powershell. Precondition
 .\scripts\arm-bicep-azuredeployment\deployAasRepository.ps1
 ```
 
-The script will start by creating an Azure Container Registry and sending the source code to it in order to build a container. After that the Azure Digital Twins Instance will be deployt together with an Azure Container App that will host the Docker container with the AAS Repository api.
+The Azure Digital Twins Instance will be deployt together with an Azure Container App that will host the Docker container with the AAS Repository API.
 
 Per default the Script will deploy into a ressource group named "rg-test-aasrepo" in the location "West Europe". This can be overwritten with the following parameters for the deployment Script
 ```
 .\scripts\arm-bicep-azuredeployment\deployAasRepository.ps1 -rg "<ressource-group-name>" -dcloc "<location>"
 ```
-After the deployment of the ressources you have to create a system managed identity for the container app and grant it the role as "Digital Twins Data Owner" for the Azure Digital Twins Instance. 
+The Azure Container App Instance is created with a system managed identity. This managed identity is granted the role as "Digital Twins Data Owner" for the whole resource group which means it can read data from / write data to the Azure Digital Twins Instance.
 
-Also it is neccessary to upload all the DTDL-Models to the Azure Digital Twins instance to prepare it for the upload of data. The models are part of the ontology that can be cloned from GitHub. Just upload the "Ontology" folder to the Azure Digital Twins models.
+After the deployment of the ressources it is neccessary to upload all the DTDL-Models to the Azure Digital Twins instance to prepare it for the creation of real twins. The models are part of the ontology that can be cloned from GitHub. Just upload the "Ontology" folder to the Azure Digital Twins models.
 ```
 git clone https://github.com/JMayrbaeurl/opendigitaltwins-assetadminstrationshell.git
 ```
