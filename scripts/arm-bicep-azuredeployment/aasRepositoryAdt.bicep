@@ -7,7 +7,6 @@ param adtName string = 'aasrepositoryadt-${uniqueString(resourceGroup().id)}'
 
 @description('Azure Container App account name, max length 44 characters')
 
-param acrName string
 param dockerImageName string
 @description('The IP Address that will be allowed to access the AAS repository API')
 param ipAddress string
@@ -27,9 +26,17 @@ module containerApps 'modules/repositoryContainerAppAdt.bicep' = {
   scope: resourceGroup()
   params: {
     location: location
-    acrName: acrName
     adtServiceUrl: 'https://${adt.outputs.hostName}'
     imageName: dockerImageName
     ipAddress: ipAddress
   } 
+}
+
+resource aksSubnetRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(adt.name,containerApps.name, resourceGroup().id)
+  properties: {
+    principalId: containerApps.outputs.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', 'bcd981a7-7f74-457b-83e1-cceb9e632ffe') //Azure Digital Twins Data Owner
+  }
 }

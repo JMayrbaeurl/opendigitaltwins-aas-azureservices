@@ -13,9 +13,6 @@ resource aasAdt 'Microsoft.DigitalTwins/digitalTwinsInstances@2022-10-31'= {
     privateEndpointConnections: []
     publicNetworkAccess: 'Enabled'
   }
-  identity: {
-    type: 'SystemAssigned'
-  }
 }
 
 output hostName string = aasAdt.properties.hostName
